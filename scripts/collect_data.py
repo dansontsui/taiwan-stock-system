@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-資料收集腳本 - 收集10年台股歷史資料
+資料收集腳本 - 收集10年台股歷史資料 (支援智能等待)
 """
 
 import sys
 import os
+import time
 from datetime import datetime, timedelta
 import pandas as pd
 from tqdm import tqdm
@@ -23,13 +24,96 @@ def init_logging():
     log_dir = os.path.join(Config.BASE_DIR, 'logs')
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
-    
+
     logger.add(
         os.path.join(log_dir, 'collect_data.log'),
         rotation="50 MB",
         retention="30 days",
         level="INFO"
     )
+
+def calculate_wait_time(start_time):
+    """計算智能等待時間"""
+    current_time = datetime.now()
+    elapsed_minutes = (current_time - start_time).total_seconds() / 60
+
+    # API限制是每小時重置，所以計算到下一個小時的時間
+    minutes_in_hour = current_time.minute
+    seconds_in_minute = current_time.second
+
+    # 計算到下一個小時還需要多少時間
+    minutes_to_next_hour = 60 - minutes_in_hour
+    seconds_to_next_hour = (minutes_to_next_hour * 60) - seconds_in_minute
+
+    # 加上5分鐘緩衝時間
+    total_wait_seconds = seconds_to_next_hour + (5 * 60)
+
+    return total_wait_seconds, elapsed_minutes
+
+def wait_for_api_reset(start_time=None):
+    """智能等待API限制重置"""
+    if start_time is None:
+        start_time = datetime.now()
+
+    wait_seconds, elapsed_minutes = calculate_wait_time(start_time)
+
+    print("\n" + "="*60)
+    print("⏰ API請求限制已達上限，智能等待重置...")
+    print("="*60)
+    print(f"📊 本輪已運行: {elapsed_minutes:.1f} 分鐘")
+    print(f"⏳ 預計等待: {wait_seconds/60:.1f} 分鐘")
+    print("="*60)
+
+    # 顯示倒計時
+    for remaining in range(int(wait_seconds), 0, -60):
+        hours = remaining // 3600
+        minutes = (remaining % 3600) // 60
+        current_time = datetime.now().strftime("%H:%M:%S")
+        print(f"\r⏳ [{current_time}] 剩餘等待時間: {hours:02d}:{minutes:02d}:00", end="", flush=True)
+        time.sleep(60)
+
+    print(f"\n✅ [{datetime.now().strftime('%H:%M:%S')}] 等待完成，繼續收集資料...")
+    print("="*60)
+
+def collect_batch_with_retry(collector, stock_batch, start_date, end_date, batch_start_time, max_retries=3):
+    """收集一批股票資料，支援重試和智能等待"""
+    for attempt in range(max_retries):
+        try:
+            print(f"\n📊 收集批次資料 (第 {attempt + 1} 次嘗試)...")
+            collected_data = collector.collect_batch_data(
+                stock_list=stock_batch,
+                start_date=start_date,
+                end_date=end_date,
+                batch_size=5  # 減少批次大小以降低API請求頻率
+            )
+            return collected_data
+
+        except Exception as e:
+            error_msg = str(e)
+
+            # 檢查是否為API限制錯誤
+            if "402" in error_msg or "Payment Required" in error_msg:
+                logger.warning(f"遇到API限制錯誤: {error_msg}")
+                print(f"\n⚠️  遇到API限制錯誤: {error_msg}")
+                if attempt < max_retries - 1:
+                    wait_for_api_reset(batch_start_time)
+                    # 重置開始時間為等待後的時間
+                    batch_start_time = datetime.now()
+                    continue
+                else:
+                    raise Exception("API限制錯誤，已達最大重試次數")
+
+            # 其他錯誤
+            elif attempt < max_retries - 1:
+                logger.warning(f"收集失敗 (第 {attempt + 1} 次): {error_msg}")
+                print(f"⚠️  收集失敗 (第 {attempt + 1} 次): {error_msg}")
+                print("等待30秒後重試...")
+                time.sleep(30)
+                continue
+            else:
+                raise e
+
+    return None
 
 def save_stock_info(db_manager: DatabaseManager, stock_list: list):
     """儲存股票基本資訊"""

@@ -22,14 +22,13 @@ class FinMindDataCollector:
         self.api_token = api_token
         self.session = requests.Session()
         
-        # 設置請求頭
-        if api_token:
-            self.session.headers.update({'Authorization': f'Bearer {api_token}'})
+        # FinMind API Token 作為請求參數使用，不是Header
         
         # 請求限制控制
         self.request_count = 0
         self.last_request_time = datetime.now()
-        self.max_requests_per_hour = 300  # FinMind 免費版限制
+        # 根據是否有Token設置請求限制
+        self.max_requests_per_hour = 600 if api_token else 300
     
     def _check_rate_limit(self):
         """檢查請求頻率限制"""
@@ -61,22 +60,32 @@ class FinMindDataCollector:
             "end_date": end_date,
             **kwargs
         }
+
+        # 如果有API Token，添加到參數中
+        if self.api_token:
+            params["token"] = self.api_token
         
         try:
             response = self.session.get(self.api_url, params=params, timeout=30)
             response.raise_for_status()
-            
+
             self.request_count += 1
             data = response.json()
-            
+
             if 'data' not in data:
                 logger.warning(f"API 回應異常: {data}")
                 return {'data': []}
-            
+
             return data
-            
+
         except requests.exceptions.RequestException as e:
+            error_msg = str(e)
             logger.error(f"API 請求失敗: {e}")
+
+            # 如果是402錯誤，拋出異常以觸發智能等待
+            if "402" in error_msg or "Payment Required" in error_msg:
+                raise Exception(f"API請求限制: {error_msg}")
+
             return {'data': []}
         except json.JSONDecodeError as e:
             logger.error(f"JSON 解析失敗: {e}")
@@ -366,7 +375,13 @@ class FinMindDataCollector:
                     time.sleep(0.5)
                     
                 except Exception as e:
+                    error_msg = str(e)
                     logger.error(f"收集股票 {stock_id} 資料失敗: {e}")
+
+                    # 如果是API限制錯誤，向上拋出以觸發智能等待
+                    if "API請求限制" in error_msg or "402" in error_msg or "Payment Required" in error_msg:
+                        raise e
+
                     continue
             
             # 批次間休息

@@ -6,6 +6,10 @@
 
 import os
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+# 載入 .env 文件
+load_dotenv()
 
 class Config:
     """基礎配置"""
@@ -20,7 +24,7 @@ class Config:
     
     # FinMind API 配置
     FINMIND_API_URL = "https://api.finmindtrade.com/api/v4/data"
-    FINMIND_API_TOKEN = os.getenv('FINMIND_API_TOKEN', '')  # 可選，提高請求限制
+    FINMIND_API_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRlIjoiMjAyNS0wNy0yMyAyMDo1MzowNyIsInVzZXJfaWQiOiJkYW5zb24udHN1aSIsImlwIjoiMTIyLjExNi4xNzQuNyJ9.YkvySt5dqxDg_4NHsJzcmmH1trIQUBOy_wHJkR9Ibmk'  # 可選，提高請求限制
     
     # 資料收集配置
     DATA_START_DATE = "2015-01-01"  # 10年歷史資料
