@@ -1,0 +1,53 @@
+# 台股歷史股價系統依賴套件
+
+# 核心框架
+Flask==2.3.3
+SQLAlchemy==2.0.21
+Flask-SQLAlchemy==3.0.5
+
+# 資料處理
+pandas==2.1.4
+numpy==1.24.3
+requests==2.31.0
+
+# 技術指標計算
+TA-Lib==0.4.28
+
+# 資料視覺化
+plotly==5.17.0
+matplotlib==3.7.2
+seaborn==0.12.2
+
+# Web 介面
+streamlit==1.28.1
+dash==2.14.1
+
+# 資料庫
+sqlite3  # Python 內建
+
+# 工具套件
+python-dateutil==2.8.2
+pytz==2023.3
+tqdm==4.66.1
+schedule==1.2.0
+
+# 開發與測試
+pytest==7.4.2
+pytest-cov==4.1.0
+black==23.9.1
+flake8==6.1.0
+
+# API 文件
+flask-restx==1.2.0
+marshmallow==3.20.1
+
+# 快取
+redis==5.0.1
+flask-caching==2.1.0
+
+# 日誌
+loguru==0.7.2
+
+# 配置管理
+python-dotenv==1.0.0
+pydantic==2.4.2
