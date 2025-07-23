@@ -1,0 +1,48 @@
+{
+    "folders": [
+        {
+            "name": "Taiwan Stock System",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "git.enabled": true,
+        "git.autorefresh": true,
+        "git.autofetch": true,
+        "git.showProgress": true,
+        "scm.defaultViewMode": "tree",
+        "scm.alwaysShowRepositories": true,
+        "python.defaultInterpreterPath": "./.venv/bin/python",
+        "python.terminal.activateEnvironment": true,
+        "terminal.integrated.cwd": "${workspaceFolder}",
+        "files.associations": {
+            "*.py": "python",
+            "*.md": "markdown",
+            "*.json": "json",
+            "*.yml": "yaml",
+            "*.yaml": "yaml"
+        },
+        "files.exclude": {
+            "**/__pycache__": true,
+            "**/*.pyc": true,
+            "**/data/*.db": true,
+            "**/logs/*.log": true,
+            "**/.DS_Store": true
+        },
+        "search.exclude": {
+            "**/__pycache__": true,
+            "**/data": true,
+            "**/logs": true,
+            "**/.git": false
+        }
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-python.python",
+            "eamodio.gitlens",
+            "mhutchie.git-graph",
+            "donjayamanne.githistory",
+            "ms-vscode.vscode-sqlite-viewer"
+        ]
+    }
+}
