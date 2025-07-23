@@ -160,7 +160,11 @@ def collect_main_stocks_batch(start_date=None, end_date=None, batch_size=200, sk
         # 篩選主要股票：上市、上櫃、00開頭ETF
         main_stocks = [s for s in stock_list if (
             s['market'] in ['TWSE', 'TPEX'] and (
-                not s['is_etf'] or s['stock_id'].startswith('00')
+                # 排除01開頭的特殊股票（權證等）
+                not s['stock_id'].startswith('01') and
+                not s['stock_id'].startswith('02') and
+                # ETF只保留00開頭的
+                (not s['is_etf'] or s['stock_id'].startswith('00'))
             )
         )]
         

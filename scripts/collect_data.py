@@ -216,7 +216,11 @@ def collect_historical_data(start_date: str = None, end_date: str = None,
             # 篩選主要股票：上市、上櫃、00開頭ETF
             stock_list = [s for s in stock_list if (
                 s['market'] in ['TWSE', 'TPEX'] and (
-                    not s['is_etf'] or s['stock_id'].startswith('00')
+                    # 排除01開頭的特殊股票（權證等）
+                    not s['stock_id'].startswith('01') and
+                    not s['stock_id'].startswith('02') and
+                    # ETF只保留00開頭的
+                    (not s['is_etf'] or s['stock_id'].startswith('00'))
                 )
             )]
         elif use_full_list:
@@ -363,7 +367,11 @@ def main():
         print("🧪 測試模式：只收集最近1個月的資料")
         start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         end_date = datetime.now().strftime("%Y-%m-%d")
-        stock_filter = ['2330', '0050', '0056']  # 只收集3檔股票
+        # 如果是主要股票模式，不限制股票數量；否則只收集3檔測試
+        if args.main_stocks:
+            stock_filter = None  # 不限制，收集所有主要股票
+        else:
+            stock_filter = ['2330', '0050', '0056']  # 只收集3檔股票
     else:
         start_date = args.start_date
         end_date = args.end_date
