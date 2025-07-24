@@ -9,6 +9,7 @@ import os
 import time
 import re
 from datetime import datetime, timedelta
+from pathlib import Path
 
 # 添加專案根目錄到 Python 路徑
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -245,6 +246,12 @@ def display_progress():
         if stats.get('最新營收時間'):
             print(f"營收資料: {stats['最新營收時間']}")
 
+        # 檢查每日更新狀態
+        print()
+        print("📅 每日更新狀態:")
+        print("-" * 40)
+        check_daily_update_status()
+
         # 計算收集速度
         if stats.get('最新股價時間'):
             try:
@@ -334,6 +341,63 @@ def display_progress():
         except KeyboardInterrupt:
             print("\n👋 監控已停止")
             break
+
+def check_daily_update_status():
+    """檢查每日更新狀態"""
+    try:
+        today = datetime.now().date()
+        yesterday = today - timedelta(days=1)
+
+        db_manager = DatabaseManager(Config.DATABASE_PATH)
+        conn = db_manager.get_connection()
+        cursor = conn.cursor()
+
+        # 檢查今日是否有新的股價資料
+        cursor.execute("""
+            SELECT COUNT(*) FROM stock_prices
+            WHERE date = ?
+        """, (today.isoformat(),))
+        today_prices = cursor.fetchone()[0]
+
+        cursor.execute("""
+            SELECT COUNT(*) FROM stock_prices
+            WHERE date = ?
+        """, (yesterday.isoformat(),))
+        yesterday_prices = cursor.fetchone()[0]
+
+        conn.close()
+
+        # 檢查每日更新日誌
+        daily_log_path = Path("logs/collect_daily_update.log")
+        last_daily_update = "未執行"
+
+        if daily_log_path.exists():
+            try:
+                with open(daily_log_path, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                    for line in reversed(lines):
+                        if "每日增量收集成功完成" in line:
+                            # 提取時間戳
+                            time_part = line.split('|')[0].strip()
+                            last_daily_update = time_part
+                            break
+            except Exception:
+                pass
+
+        print(f"今日股價資料      : {today_prices:,} 筆")
+        print(f"昨日股價資料      : {yesterday_prices:,} 筆")
+        print(f"最後每日更新      : {last_daily_update}")
+
+        # 建議
+        if today_prices == 0 and yesterday_prices > 0:
+            print("💡 建議執行每日更新: python scripts/collect_daily_update.py")
+        elif today_prices > 0:
+            print("✅ 今日資料已更新")
+        else:
+            print("⚠️  請檢查資料收集狀況")
+
+    except Exception as e:
+        print(f"檢查每日更新狀態失敗: {e}")
 
 if __name__ == "__main__":
     display_progress()

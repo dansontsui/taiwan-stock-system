@@ -10,6 +10,13 @@
 - **增量收集**: 只收集缺失資料，避免重複
 - **實時監控**: 即時顯示收集進度和API狀態
 
+### 📅 **每日增量更新系統** (NEW!)
+- **智能檢測**: 自動檢測各類資料的最後更新時間
+- **增量更新**: 只收集從上次更新到今日的缺失資料
+- **一鍵執行**: 簡單命令保持資料庫最新狀態
+- **Web整合**: 在系統狀態頁面直接執行每日更新
+- **完整日誌**: 詳細的執行記錄和統計摘要
+
 ### 🎯 **潛力股分析系統** (NEW!)
 - **多維度評分**: 財務健康度、成長潛力、配息穩定性
 - **智能評等**: A+到D級評等系統
@@ -33,6 +40,11 @@
 │   ├── 財務報表收集
 │   ├── 月營收收集
 │   └── 股利政策收集
+├── 每日增量更新層 (NEW!)
+│   ├── 智能檢測機制
+│   ├── 增量資料收集
+│   ├── 自動潛力分析更新
+│   └── Web介面整合
 ├── 資料儲存層 (SQLite)
 │   ├── 股價資料表
 │   ├── 財務報表表
@@ -45,11 +57,13 @@
 ├── Web介面層 (Streamlit)
 │   ├── K線圖分析
 │   ├── 潛力股排行榜
-│   └── 股票詳細分析
+│   ├── 股票詳細分析
+│   └── 每日更新狀態 (NEW!)
 └── 監控層
     ├── 實時進度監控
     ├── API狀態檢測
-    └── 智能等待管理
+    ├── 智能等待管理
+    └── 每日更新監控 (NEW!)
 ```
 
 ## 📊 資料來源與範圍
@@ -80,6 +94,25 @@ python run.py
 ```
 
 **就這麼簡單！** 系統會自動收集十年完整台股資料並提供潛力股分析。
+
+### 📅 每日增量更新（推薦）
+
+```bash
+# 每日執行一次，保持資料最新
+python scripts/collect_daily_update.py
+
+# 或使用快速腳本
+python daily_update.py
+
+# 同時啟動監控
+python monitor_collection.py
+```
+
+**每日更新特色**：
+- 🤖 **智能檢測**: 自動檢測需要更新的資料類型
+- ⏰ **智能等待**: 遇到402錯誤自動等待70分鐘
+- 📊 **進度顯示**: 實時顯示執行進度和狀態
+- 🌐 **Web整合**: 可在Web介面直接執行
 
 ### 📋 傳統方式
 
@@ -142,10 +175,15 @@ taiwan_stock_system/
 │   └── taiwan_stock.db    # SQLite資料庫
 ├── scripts/               # 腳本
 │   ├── init_database.py   # 資料庫初始化
-│   └── collect_data.py    # 資料收集
+│   ├── collect_data.py    # 資料收集
+│   ├── collect_all_10years.py    # 十年資料收集
+│   ├── collect_daily_update.py   # 每日增量更新 (NEW!)
+│   └── analyze_potential_stocks.py # 潛力股分析
 ├── logs/                  # 日誌檔案
 ├── config.py              # 配置檔案
 ├── simple_demo.py         # 簡單演示
+├── daily_update.py        # 每日更新快速腳本 (NEW!)
+├── monitor_collection.py  # 收集監控系統 (NEW!)
 └── run.py                 # 系統啟動
 ```
 
@@ -425,6 +463,25 @@ python monitor_collection.py
 python scripts/analyze_potential_stocks.py --top 50
 ```
 
+### 6. 每日增量更新 (NEW!)
+```bash
+# 基本執行
+python scripts/collect_daily_update.py
+
+# 自訂參數
+python scripts/collect_daily_update.py --batch-size 5 --days-back 7
+
+# 快速執行
+python daily_update.py
+```
+
+**每日更新功能**：
+- **股價資料**: 從最後收集日期到今日的增量更新
+- **月營收資料**: 檢查是否有新的月份資料需要收集
+- **財務報表**: 在財報公布期間檢查新的季報資料
+- **股利政策**: 在股利公布期間（3-8月）檢查新的配息資料
+- **潛力分析**: 收集完成後自動更新潛力股分析
+
 ## 📈 收集資料類型
 
 | 資料類型 | 預估數量 | 說明 |
@@ -467,6 +524,7 @@ python scripts/analyze_potential_stocks.py --top 50
 ## 📚 詳細文件
 
 - **完整使用指南**: `README_十年資料收集系統.md`
+- **每日更新指南**: `README_每日更新功能.md` 🆕
 - **快速開始**: `QUICKSTART.md`
 - **技術文件**: `database_expansion_plan.md`
 
@@ -483,6 +541,9 @@ python scripts/analyze_potential_stocks.py --top 50
 - [x] **潛力股分析系統** 🆕
 - [x] **EPS預估功能** 🆕
 - [x] **實時監控系統** 🆕
+- [x] **每日增量更新系統** 🆕
+- [x] **Web介面整合** 🆕
+- [x] **進度顯示功能** 🆕
 
 ### 開發中功能 🚧
 - [ ] 更多技術指標
@@ -517,6 +578,6 @@ MIT License - 詳見 LICENSE 檔案
 
 ---
 
-*最後更新: 2025-07-22*  
-*版本: 1.0.0*  
+*最後更新: 2025-07-25*
+*版本: 1.1.0*
 *作者: Taiwan Stock System Team*
