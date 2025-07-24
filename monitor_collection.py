@@ -181,64 +181,122 @@ def get_data_statistics():
     
     return stats
 
+def check_completion_status():
+    """檢查收集完成狀態"""
+    try:
+        db_manager = DatabaseManager(Config.DATABASE_PATH)
+        conn = db_manager.get_connection()
+        cursor = conn.cursor()
+
+        # 檢查各類資料的完成度
+        completion_checks = {
+            'stocks': ('SELECT COUNT(*) FROM stocks', 2800),  # 預期股票數
+            'stock_prices': ('SELECT COUNT(*) FROM stock_prices', 500000),  # 預期股價資料
+            'monthly_revenues': ('SELECT COUNT(*) FROM monthly_revenues', 50000),  # 預期營收資料
+            'financial_statements': ('SELECT COUNT(*) FROM financial_statements', 400000),  # 預期財務報表
+            'balance_sheets': ('SELECT COUNT(*) FROM balance_sheets', 1000000),  # 預期資產負債表
+            'stock_scores': ('SELECT COUNT(*) FROM stock_scores', 50)  # 預期潛力股評分
+        }
+
+        all_completed = True
+        completion_status = {}
+
+        for table, (query, expected) in completion_checks.items():
+            try:
+                cursor.execute(query)
+                actual = cursor.fetchone()[0]
+                completion_rate = (actual / expected * 100) if expected > 0 else 0
+                completion_status[table] = {
+                    'actual': actual,
+                    'expected': expected,
+                    'rate': completion_rate
+                }
+
+                # 如果完成度低於95%，認為未完成
+                if completion_rate < 95:
+                    all_completed = False
+
+            except Exception:
+                all_completed = False
+                completion_status[table] = {'actual': 0, 'expected': expected, 'rate': 0}
+
+        conn.close()
+        return all_completed, completion_status
+
+    except Exception:
+        return False, {}
+
 def display_progress():
     """顯示進度"""
-    while True:
-        os.system('clear' if os.name == 'posix' else 'cls')
+    print("=" * 60)
+    print("📊 台股十年資料收集 - 即時監控")
+    print("=" * 60)
+    print("⏰ 啟動時間:", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    print("🔄 更新頻率: 30秒")
+    print("💡 按 Ctrl+C 停止監控")
+    print("🎯 收集完成後將自動停止")
+    print("=" * 60)
 
-        print("=" * 60)
-        print("📊 台股十年資料收集 - 即時監控")
-        print("=" * 60)
-        print(f"⏰ 監控時間: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print()
+    consecutive_complete_checks = 0
 
-        # 檢查402錯誤狀態
-        latest_402_time, latest_402_file = check_402_errors()
-        is_waiting, remaining_seconds, wait_start_time = check_smart_waiting_status()
+    try:
+        while True:
+            # 清除螢幕 (可選)
+            # os.system('clear' if os.name == 'posix' else 'cls')
 
-        # 顯示API狀態
-        print("🌐 API狀態檢查:")
-        print("-" * 40)
+            print("=" * 60)
+            print("📊 台股十年資料收集 - 即時監控")
+            print("=" * 60)
+            print(f"⏰ 監控時間: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            print()
 
-        if latest_402_time:
-            time_since_402 = datetime.now() - latest_402_time
-            hours_since = time_since_402.total_seconds() / 3600
+            # 檢查402錯誤狀態
+            latest_402_time, latest_402_file = check_402_errors()
+            is_waiting, remaining_seconds, wait_start_time = check_smart_waiting_status()
 
-            if hours_since < 1.2:  # 1.2小時 = 72分鐘
-                print(f"⚠️  最後402錯誤: {latest_402_time.strftime('%H:%M:%S')} ({hours_since:.1f}小時前)")
-                print(f"   來源: {latest_402_file}")
+            # 顯示API狀態
+            print("🌐 API狀態檢查:")
+            print("-" * 40)
+
+            if latest_402_time:
+                time_since_402 = datetime.now() - latest_402_time
+                hours_since = time_since_402.total_seconds() / 3600
+
+                if hours_since < 1.2:  # 1.2小時 = 72分鐘
+                    print(f"⚠️  最後402錯誤: {latest_402_time.strftime('%H:%M:%S')} ({hours_since:.1f}小時前)")
+                    print(f"   來源: {latest_402_file}")
+                else:
+                    print(f"✅ 最後402錯誤: {latest_402_time.strftime('%H:%M:%S')} ({hours_since:.1f}小時前，已恢復)")
             else:
-                print(f"✅ 最後402錯誤: {latest_402_time.strftime('%H:%M:%S')} ({hours_since:.1f}小時前，已恢復)")
-        else:
-            print("✅ 無402錯誤記錄")
+                print("✅ 無402錯誤記錄")
 
-        # 顯示智能等待狀態
-        if is_waiting:
-            remaining_minutes = remaining_seconds / 60
-            remaining_hours = remaining_minutes / 60
-            if remaining_hours >= 1:
-                print(f"⏰ 智能等待中: 剩餘 {remaining_hours:.1f} 小時")
+            # 顯示智能等待狀態
+            if is_waiting:
+                remaining_minutes = remaining_seconds / 60
+                remaining_hours = remaining_minutes / 60
+                if remaining_hours >= 1:
+                    print(f"⏰ 智能等待中: 剩餘 {remaining_hours:.1f} 小時")
+                else:
+                    print(f"⏰ 智能等待中: 剩餘 {remaining_minutes:.0f} 分鐘")
+                print(f"   開始時間: {wait_start_time.strftime('%H:%M:%S')}")
             else:
-                print(f"⏰ 智能等待中: 剩餘 {remaining_minutes:.0f} 分鐘")
-            print(f"   開始時間: {wait_start_time.strftime('%H:%M:%S')}")
-        else:
-            print("✅ 目前無API限制，正常收集中")
+                print("✅ 目前無API限制，正常收集中")
 
-        print()
+            print()
 
-        # 獲取統計資料
-        stats = get_data_statistics()
+            # 獲取統計資料
+            stats = get_data_statistics()
 
-        print("📈 資料收集進度:")
-        print("-" * 40)
+            print("📈 資料收集進度:")
+            print("-" * 40)
 
-        for name, count in stats.items():
-            if name not in ['最新股價時間', '最新營收時間']:
-                print(f"{name:<15}: {count:>10,} 筆")
+            for name, count in stats.items():
+                if name not in ['最新股價時間', '最新營收時間']:
+                    print(f"{name:<15}: {count:>10,} 筆")
 
-        print()
-        print("⏰ 最新更新時間:")
-        print("-" * 40)
+            print()
+            print("⏰ 最新更新時間:")
+            print("-" * 40)
 
         if stats.get('最新股價時間'):
             print(f"股價資料: {stats['最新股價時間']}")
@@ -335,12 +393,37 @@ def display_progress():
 
         print("=" * 60)
 
-        # 等待30秒後更新
-        try:
-            time.sleep(30)
-        except KeyboardInterrupt:
-            print("\n👋 監控已停止")
-            break
+        # 檢查完成狀態
+        is_completed, completion_status = check_completion_status()
+
+        if is_completed:
+            consecutive_complete_checks += 1
+            print(f"\n🎉 檢測到收集已完成 ({consecutive_complete_checks}/3)")
+
+            # 連續3次檢查都完成才停止，避免誤判
+            if consecutive_complete_checks >= 3:
+                print("\n" + "=" * 60)
+                print("🎊 台股十年資料收集已完成！")
+                print("=" * 60)
+                print("📊 完成統計:")
+                for table, status in completion_status.items():
+                    print(f"  {table}: {status['actual']:,} / {status['expected']:,} ({status['rate']:.1f}%)")
+                print("=" * 60)
+                print("🌐 您現在可以啟動 Web 介面: python run.py")
+                print("🎯 或執行潛力股分析: python scripts/analyze_potential_stocks.py")
+                print("=" * 60)
+                break
+            else:
+                consecutive_complete_checks = 0
+
+            # 等待30秒後更新
+            try:
+                time.sleep(30)
+            except KeyboardInterrupt:
+                print("\n👋 監控已停止")
+                break
+    except KeyboardInterrupt:
+        print("\n👋 監控已停止")
 
 def check_daily_update_status():
     """檢查每日更新狀態"""

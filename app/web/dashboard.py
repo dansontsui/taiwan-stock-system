@@ -1295,48 +1295,112 @@ def show_database_status(db_manager, query_service):
             st.metric("潛力分析覆蓋率", f"{potential_coverage:.1f}%")
             st.caption(f"{score_count} 檔股票已分析")
 
-        # 詳細統計
-        st.subheader("📈 詳細統計")
+        # 資料品質分析
+        st.subheader("📈 資料品質分析")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.write("**📊 市場分布**")
+            cursor.execute("""
+                SELECT market, COUNT(*) as count
+                FROM stocks
+                WHERE market IS NOT NULL
+                GROUP BY market
+                ORDER BY count DESC
+            """)
+            market_distribution = cursor.fetchall()
+
+            for market, count in market_distribution:
+                market_name = {'TWSE': '上市', 'TPEX': '上櫃', 'EMERGING': '興櫃'}.get(market, market)
+                st.metric(market_name, f"{count}檔")
+
+        with col2:
+            st.write("**💰 資料完整度**")
+            # 計算有完整資料的股票數量
+            cursor.execute("""
+                SELECT
+                    COUNT(CASE WHEN price_count >= 1000 THEN 1 END) as good_price,
+                    COUNT(CASE WHEN revenue_count >= 50 THEN 1 END) as good_revenue,
+                    COUNT(CASE WHEN financial_count >= 20 THEN 1 END) as good_financial
+                FROM (
+                    SELECT
+                        s.stock_id,
+                        COUNT(sp.date) as price_count,
+                        COUNT(mr.revenue_year) as revenue_count,
+                        COUNT(fs.date) as financial_count
+                    FROM stocks s
+                    LEFT JOIN stock_prices sp ON s.stock_id = sp.stock_id
+                    LEFT JOIN monthly_revenues mr ON s.stock_id = mr.stock_id
+                    LEFT JOIN financial_statements fs ON s.stock_id = fs.stock_id
+                    GROUP BY s.stock_id
+                ) as stats
+            """)
+            completeness = cursor.fetchone()
+
+            st.metric("股價完整", f"{completeness[0]}檔")
+            st.metric("營收完整", f"{completeness[1]}檔")
+            st.metric("財務完整", f"{completeness[2]}檔")
+
+        with col3:
+            st.write("**🎯 熱門股票**")
+            # 顯示資料量最多的前5檔股票
+            cursor.execute("""
+                SELECT s.stock_name, COUNT(sp.date) as price_count
+                FROM stocks s
+                JOIN stock_prices sp ON s.stock_id = sp.stock_id
+                GROUP BY s.stock_id, s.stock_name
+                ORDER BY price_count DESC
+                LIMIT 5
+            """)
+            top_stocks = cursor.fetchall()
+
+            for stock_name, count in top_stocks:
+                # 截短股票名稱
+                short_name = stock_name[:6] + "..." if len(stock_name) > 8 else stock_name
+                st.metric(short_name, f"{count:,}筆")
+
+        # 資料趨勢分析
+        st.subheader("📊 資料趨勢分析")
 
         col1, col2 = st.columns(2)
 
         with col1:
-            st.write("**股價資料分布**")
+            st.write("**📈 近期資料增長**")
+            # 計算最近7天的資料增長
             cursor.execute("""
                 SELECT
-                    CASE
-                        WHEN COUNT(*) >= 2000 THEN '完整(2000+筆)'
-                        WHEN COUNT(*) >= 1000 THEN '良好(1000-1999筆)'
-                        WHEN COUNT(*) >= 500 THEN '一般(500-999筆)'
-                        ELSE '不足(<500筆)'
-                    END as category,
-                    COUNT(DISTINCT stock_id) as stock_count
+                    COUNT(CASE WHEN created_at >= date('now', '-7 days') THEN 1 END) as week_count,
+                    COUNT(CASE WHEN created_at >= date('now', '-1 day') THEN 1 END) as day_count,
+                    COUNT(*) as total_count
                 FROM stock_prices
-                GROUP BY stock_id
             """)
-            price_distribution = cursor.fetchall()
+            growth_stats = cursor.fetchone()
 
-            for category, count in price_distribution:
-                st.metric(category, f"{count}檔")
+            if growth_stats and growth_stats[2] > 0:
+                week_growth = (growth_stats[0] / growth_stats[2] * 100) if growth_stats[2] > 0 else 0
+                st.metric("近7天新增", f"{growth_stats[0]:,}筆", f"{week_growth:.1f}%")
+                st.metric("近1天新增", f"{growth_stats[1]:,}筆")
+            else:
+                st.info("暫無增長資料")
 
         with col2:
-            st.write("**營收資料分布**")
+            st.write("**🎯 潛力股分析狀況**")
             cursor.execute("""
                 SELECT
-                    CASE
-                        WHEN COUNT(*) >= 100 THEN '完整(100+筆)'
-                        WHEN COUNT(*) >= 50 THEN '良好(50-99筆)'
-                        WHEN COUNT(*) >= 20 THEN '一般(20-49筆)'
-                        ELSE '不足(<20筆)'
-                    END as category,
-                    COUNT(DISTINCT stock_id) as stock_count
-                FROM monthly_revenues
-                GROUP BY stock_id
+                    COUNT(CASE WHEN total_score >= 75 THEN 1 END) as excellent,
+                    COUNT(CASE WHEN total_score >= 60 AND total_score < 75 THEN 1 END) as good,
+                    COUNT(CASE WHEN total_score < 60 THEN 1 END) as average
+                FROM stock_scores
             """)
-            revenue_distribution = cursor.fetchall()
+            score_distribution = cursor.fetchone()
 
-            for category, count in revenue_distribution:
-                st.metric(category, f"{count}檔")
+            if score_distribution:
+                st.metric("優質股票(75+分)", f"{score_distribution[0]}檔")
+                st.metric("良好股票(60-74分)", f"{score_distribution[1]}檔")
+                st.metric("一般股票(<60分)", f"{score_distribution[2]}檔")
+            else:
+                st.info("暫無評分資料")
 
         # 最後更新時間
         st.subheader("⏰ 最後更新時間")
