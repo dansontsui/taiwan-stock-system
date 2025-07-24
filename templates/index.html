@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}潛力股排行榜 - 台股潛力股分析系統{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="display-6">
+                <i class="fas fa-trophy text-warning me-2"></i>
+                潛力股排行榜
+            </h1>
+            <div class="text-muted">
+                <i class="fas fa-clock me-1"></i>
+                最後更新: 即時
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 統計卡片 -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card metric-card text-center p-3">
+            <h3 class="mb-1">{{ top_stocks|length }}</h3>
+            <small>已分析股票</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card metric-card text-center p-3">
+            <h3 class="mb-1">{{ top_stocks|selectattr('grade', 'in', ['A+', 'A'])|list|length }}</h3>
+            <small>A級股票</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card metric-card text-center p-3">
+            <h3 class="mb-1">{{ top_stocks|selectattr('grade', 'in', ['B+', 'B'])|list|length }}</h3>
+            <small>B級股票</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card metric-card text-center p-3">
+            <h3 class="mb-1">{{ (top_stocks|map(attribute='total_score')|sum / top_stocks|length)|round(1) if top_stocks else 0 }}</h3>
+            <small>平均分數</small>
+        </div>
+    </div>
+</div>
+
+<!-- 排行榜表格 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card score-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-list-ol me-2"></i>
+                    潛力股排行榜
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if top_stocks %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="8%">排名</th>
+                                <th width="12%">股票代碼</th>
+                                <th width="20%">股票名稱</th>
+                                <th width="10%">評等</th>
+                                <th width="12%">總分</th>
+                                <th width="12%">財務健康</th>
+                                <th width="12%">成長潛力</th>
+                                <th width="12%">配息穩定</th>
+                                <th width="2%">詳情</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stock in top_stocks %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-secondary fs-6">{{ loop.index }}</span>
+                                </td>
+                                <td>
+                                    <strong>{{ stock.stock_id }}</strong>
+                                </td>
+                                <td>{{ stock.stock_name }}</td>
+                                <td>
+                                    <span class="badge grade-{{ stock.grade.replace('+', '-plus') }} fs-6">
+                                        {{ stock.grade }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-2" style="height: 20px;">
+                                            <div class="progress-bar bg-primary" 
+                                                 style="width: {{ stock.total_score }}%">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">{{ "%.1f"|format(stock.total_score) }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ "%.0f"|format(stock.financial_health_score) }}分</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ "%.0f"|format(stock.growth_score) }}分</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ "%.0f"|format(stock.dividend_score) }}分</small>
+                                </td>
+                                <td>
+                                    <a href="/stock/{{ stock.stock_id }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">暫無分析資料</h5>
+                    <p class="text-muted">請先執行潛力股分析腳本</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 評分說明 -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    評分說明
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>財務健康度 (40%)</h6>
+                        <ul class="small text-muted">
+                            <li>毛利率 (30分)</li>
+                            <li>營業利益率 (25分)</li>
+                            <li>淨利率 (25分)</li>
+                            <li>負債比率 (20分)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>成長潛力 (40%)</h6>
+                        <ul class="small text-muted">
+                            <li>平均營收年增率 (60分)</li>
+                            <li>成長穩定性 (40分)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>配息穩定性 (20%)</h6>
+                        <ul class="small text-muted">
+                            <li>配息連續性 (50分)</li>
+                            <li>配息穩定性 (50分)</li>
+                        </ul>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <h6>評等標準</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge grade-A-plus">A+ (85分以上)</span>
+                            <span class="badge grade-A">A (75-84分)</span>
+                            <span class="badge grade-B-plus">B+ (65-74分)</span>
+                            <span class="badge grade-B">B (55-64分)</span>
+                            <span class="badge grade-C-plus">C+ (45-54分)</span>
+                            <span class="badge grade-C">C (35-44分)</span>
+                            <span class="badge grade-D">D (35分以下)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

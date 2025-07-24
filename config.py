@@ -6,10 +6,14 @@
 
 import os
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 
-# 載入 .env 文件
-load_dotenv()
+# 嘗試載入 .env 文件（可選）
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # 如果沒有安裝 python-dotenv，跳過
+    pass
 
 class Config:
     """基礎配置"""

@@ -167,6 +167,13 @@ Desktop.ini
 test_data/
 sample_data/
 
+# 測試檔案 (以test開頭的檔案)
+test*.py
+test*.json
+test*.txt
+test*.csv
+test*.log
+
 # 備份文件
 *.bak
 *.backup

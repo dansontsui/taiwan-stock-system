@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block title %}{{ stock.stock_name }} ({{ stock.stock_id }}) - 台股潛力股分析系統{% endblock %}
+
+{% block content %}
+<!-- 股票基本資訊 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 mb-1">
+                    {{ stock.stock_name }} 
+                    <small class="text-muted">({{ stock.stock_id }})</small>
+                </h1>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-building me-1"></i>
+                    {{ stock.market }} 上市
+                </p>
+            </div>
+            {% if stock.score_info %}
+            <div class="text-end">
+                <span class="badge grade-{{ stock.score_info[1].replace('+', '-plus') }} fs-4 px-3 py-2">
+                    {{ stock.score_info[1] }}
+                </span>
+                <div class="text-muted mt-1">
+                    <small>總分: {{ "%.1f"|format(stock.score_info[0]) }}</small>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 評分卡片 -->
+{% if stock.score_info %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card score-card text-center">
+            <div class="card-body">
+                <h3 class="text-primary">{{ "%.0f"|format(stock.score_info[2]) }}</h3>
+                <p class="mb-0">財務健康度</p>
+                <div class="progress mt-2">
+                    <div class="progress-bar bg-success" style="width: {{ stock.score_info[2] }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card score-card text-center">
+            <div class="card-body">
+                <h3 class="text-info">{{ "%.0f"|format(stock.score_info[3]) }}</h3>
+                <p class="mb-0">成長潛力</p>
+                <div class="progress mt-2">
+                    <div class="progress-bar bg-info" style="width: {{ stock.score_info[3] }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card score-card text-center">
+            <div class="card-body">
+                <h3 class="text-warning">{{ "%.0f"|format(stock.score_info[4]) }}</h3>
+                <p class="mb-0">配息穩定性</p>
+                <div class="progress mt-2">
+                    <div class="progress-bar bg-warning" style="width: {{ stock.score_info[4] }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card score-card text-center">
+            <div class="card-body">
+                <h3 class="text-primary">{{ "%.1f"|format(stock.score_info[0]) }}</h3>
+                <p class="mb-0">總分</p>
+                <div class="progress mt-2">
+                    <div class="progress-bar bg-primary" style="width: {{ stock.score_info[0] }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- EPS預估 -->
+{% if stock.eps_prediction %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calculator me-2"></i>
+                    EPS預估分析
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <h4 class="text-success">{{ "%.1f"|format(stock.eps_prediction.quarterly_revenue) }}億</h4>
+                        <p class="mb-0">預估季營收</p>
+                        <small class="text-muted">(最近3個月)</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h4 class="text-info">{{ "%.1f"|format(stock.eps_prediction.avg_net_margin) }}%</h4>
+                        <p class="mb-0">平均淨利率</p>
+                        <small class="text-muted">(歷史平均)</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h4 class="text-warning">{{ "%.1f"|format(stock.eps_prediction.predicted_net_income) }}億</h4>
+                        <p class="mb-0">預估淨利</p>
+                        <small class="text-muted">(營收×淨利率)</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        {% if stock.eps_prediction.predicted_eps %}
+                        <h4 class="text-primary">{{ "%.2f"|format(stock.eps_prediction.predicted_eps) }}元</h4>
+                        <p class="mb-0">預估EPS</p>
+                        <small class="text-muted">(淨利÷股數)</small>
+                        {% else %}
+                        <h4 class="text-muted">N/A</h4>
+                        <p class="mb-0">預估EPS</p>
+                        <small class="text-muted">(缺少股數資料)</small>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>預估說明:</strong> 基於最近3個月營收和歷史平均淨利率計算，僅供參考。實際結果可能因市場變化、一次性收支等因素而不同。
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 財務比率趨勢 -->
+{% if stock.financial_ratios %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    財務比率趨勢
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>毛利率</th>
+                                <th>營業利益率</th>
+                                <th>淨利率</th>
+                                <th>負債比率</th>
+                                <th>流動比率</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ratio in stock.financial_ratios %}
+                            <tr>
+                                <td>{{ ratio[0] }}</td>
+                                <td>{{ "%.1f"|format(ratio[1]) if ratio[1] else '-' }}%</td>
+                                <td>{{ "%.1f"|format(ratio[2]) if ratio[2] else '-' }}%</td>
+                                <td>{{ "%.1f"|format(ratio[3]) if ratio[3] else '-' }}%</td>
+                                <td>{{ "%.1f"|format(ratio[4]) if ratio[4] else '-' }}%</td>
+                                <td>{{ "%.2f"|format(ratio[5]) if ratio[5] else '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 月營收成長 -->
+{% if stock.monthly_revenue %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    月營收成長趨勢
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>年月</th>
+                                <th>營收(億元)</th>
+                                <th>年增率</th>
+                                <th>趨勢</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for revenue in stock.monthly_revenue %}
+                            <tr>
+                                <td>{{ revenue[0] }}/{{ "%02d"|format(revenue[1]) }}</td>
+                                <td>{{ "%.2f"|format(revenue[2] / 1000000000) }}</td>
+                                <td>
+                                    {% if revenue[3] %}
+                                        {% if revenue[3] > 0 %}
+                                            <span class="text-success">+{{ "%.1f"|format(revenue[3]) }}%</span>
+                                        {% else %}
+                                            <span class="text-danger">{{ "%.1f"|format(revenue[3]) }}%</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if revenue[3] %}
+                                        {% if revenue[3] > 10 %}
+                                            <i class="fas fa-arrow-up text-success"></i>
+                                        {% elif revenue[3] > 0 %}
+                                            <i class="fas fa-arrow-up text-warning"></i>
+                                        {% else %}
+                                            <i class="fas fa-arrow-down text-danger"></i>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 配息政策 -->
+{% if stock.dividend_data %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-coins me-2"></i>
+                    配息政策
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>年度</th>
+                                <th>現金股利(盈餘)</th>
+                                <th>現金股利(公積)</th>
+                                <th>總配息</th>
+                                <th>除息日</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dividend in stock.dividend_data %}
+                            <tr>
+                                <td>{{ dividend[0] }}</td>
+                                <td>{{ "%.2f"|format(dividend[1]) if dividend[1] else '0.00' }}</td>
+                                <td>{{ "%.2f"|format(dividend[2]) if dividend[2] else '0.00' }}</td>
+                                <td>
+                                    <strong>{{ "%.2f"|format((dividend[1] or 0) + (dividend[2] or 0)) }}</strong>
+                                </td>
+                                <td>{{ dividend[3] if dividend[3] else '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 配息穩定性分析 -->
+                <div class="mt-3">
+                    {% set total_dividends = [] %}
+                    {% for dividend in stock.dividend_data %}
+                        {% set _ = total_dividends.append((dividend[1] or 0) + (dividend[2] or 0)) %}
+                    {% endfor %}
+                    
+                    {% if total_dividends %}
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <h5 class="text-primary">{{ total_dividends|length }}</h5>
+                            <p class="mb-0">配息年數</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h5 class="text-success">{{ "%.2f"|format(total_dividends|sum / total_dividends|length) }}</h5>
+                            <p class="mb-0">平均配息</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h5 class="text-info">{{ (total_dividends|select('>', 0)|list|length / total_dividends|length * 100)|round(0)|int }}%</h5>
+                            <p class="mb-0">配息穩定度</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 返回按鈕 -->
+<div class="row">
+    <div class="col-12 text-center">
+        <a href="/" class="btn btn-primary btn-lg">
+            <i class="fas fa-arrow-left me-2"></i>
+            返回排行榜
+        </a>
+    </div>
+</div>
+{% endblock %}
