@@ -286,7 +286,226 @@ class StockReportGenerator:
         result_df['除權日'] = df.get('stock_ex_dividend_trading_date', pd.Series()).fillna('無資料')
 
         return result_df.reset_index(drop=True)
-    
+
+    def get_cash_flow_data(self):
+        """獲取現金流量表資料（近8季）"""
+        conn = sqlite3.connect(self.db_path)
+
+        try:
+            query = """
+                SELECT date, type, value, origin_name
+                FROM cash_flow_statements
+                WHERE stock_id = ?
+                ORDER BY date DESC
+                LIMIT 32
+            """
+
+            df = pd.read_sql_query(query, conn, params=(self.stock_id,))
+        except Exception as e:
+            # 如果表不存在或查詢失敗，返回空DataFrame
+            conn.close()
+            return pd.DataFrame(columns=['季度', '營業現金流', '投資現金流', '融資現金流', '自由現金流'])
+
+        conn.close()
+
+        if df.empty:
+            return pd.DataFrame(columns=['季度', '營業現金流', '投資現金流', '融資現金流', '自由現金流'])
+
+        # 轉換為季度格式並透視
+        df['quarter'] = df['date'].apply(lambda x: f"{x[:4]}Q{(int(x[5:7])-1)//3+1}")
+
+        # 分類現金流量類型
+        operating_cf = df[df['type'].str.contains('營業|Operating', case=False, na=False)]
+        investing_cf = df[df['type'].str.contains('投資|Investing', case=False, na=False)]
+        financing_cf = df[df['type'].str.contains('融資|Financing', case=False, na=False)]
+
+        # 按季度匯總
+        result_data = []
+        quarters = df['quarter'].unique()[:8]  # 近8季
+
+        for quarter in quarters:
+            operating = operating_cf[operating_cf['quarter'] == quarter]['value'].sum()
+            investing = investing_cf[investing_cf['quarter'] == quarter]['value'].sum()
+            financing = financing_cf[financing_cf['quarter'] == quarter]['value'].sum()
+            free_cf = operating + investing  # 自由現金流 = 營業現金流 + 投資現金流
+
+            result_data.append({
+                '季度': quarter,
+                '營業現金流': f"{operating:,.0f}" if operating != 0 else '無資料',
+                '投資現金流': f"{investing:,.0f}" if investing != 0 else '無資料',
+                '融資現金流': f"{financing:,.0f}" if financing != 0 else '無資料',
+                '自由現金流': f"{free_cf:,.0f}" if free_cf != 0 else '無資料'
+            })
+
+        return pd.DataFrame(result_data)
+
+    def get_dividend_results(self):
+        """獲取除權除息結果（近5年）"""
+        conn = sqlite3.connect(self.db_path)
+
+        try:
+            query = """
+                SELECT date, before_price, after_price,
+                       stock_and_cache_dividend, stock_or_cache_dividend,
+                       max_price, min_price, open_price, reference_price
+                FROM dividend_results
+                WHERE stock_id = ?
+                ORDER BY date DESC
+                LIMIT 20
+            """
+
+            df = pd.read_sql_query(query, conn, params=(self.stock_id,))
+        except Exception as e:
+            # 如果表不存在或查詢失敗，返回空DataFrame
+            conn.close()
+            return pd.DataFrame(columns=['除權息日', '除權息前價格', '除權息後價格', '股利金額', '填權息表現'])
+
+        conn.close()
+
+        if df.empty:
+            return pd.DataFrame(columns=['除權息日', '除權息前價格', '除權息後價格', '股利金額', '填權息表現'])
+
+        # 計算填權息表現
+        df['填權息表現'] = df.apply(lambda row:
+            f"{((row['after_price'] - row['reference_price']) / row['reference_price'] * 100):.2f}%"
+            if pd.notna(row['after_price']) and pd.notna(row['reference_price']) and row['reference_price'] != 0
+            else '無資料', axis=1)
+
+        result_df = pd.DataFrame()
+        result_df['除權息日'] = df['date']
+        result_df['除權息前價格'] = df['before_price'].apply(lambda x: f"{x:.2f}" if pd.notna(x) else '無資料')
+        result_df['除權息後價格'] = df['after_price'].apply(lambda x: f"{x:.2f}" if pd.notna(x) else '無資料')
+        result_df['股利金額'] = df['stock_and_cache_dividend'].apply(lambda x: f"{x:.2f}" if pd.notna(x) else '無資料')
+        result_df['填權息表現'] = df['填權息表現']
+
+        return result_df.reset_index(drop=True)
+
+    def get_stock_price_analysis(self):
+        """獲取股價分析（近1年）"""
+        conn = sqlite3.connect(self.db_path)
+
+        # 使用容錯查詢，嘗試不同的欄位名稱
+        try:
+            # 先嘗試標準欄位名稱
+            query = """
+                SELECT date, open_price, high_price, low_price, close_price, volume
+                FROM stock_prices
+                WHERE stock_id = ? AND date >= date('now', '-1 year')
+                ORDER BY date DESC
+            """
+            df = pd.read_sql_query(query, conn, params=(self.stock_id,))
+        except:
+            try:
+                # 嘗試簡化的欄位名稱
+                query = """
+                    SELECT date, open, high, low, close, volume
+                    FROM stock_prices
+                    WHERE stock_id = ? AND date >= date('now', '-1 year')
+                    ORDER BY date DESC
+                """
+                df = pd.read_sql_query(query, conn, params=(self.stock_id,))
+                # 重新命名欄位以保持一致性
+                df = df.rename(columns={
+                    'open': 'open_price',
+                    'high': 'high_price',
+                    'low': 'low_price',
+                    'close': 'close_price'
+                })
+            except:
+                # 如果都失敗，返回無資料
+                conn.close()
+                return {
+                    '當前股價': '無資料',
+                    '52週最高': '無資料',
+                    '52週最低': '無資料',
+                    '平均成交量': '無資料',
+                    '股價波動率': '無資料',
+                    '近期趨勢': '無資料'
+                }
+
+        conn.close()
+
+        if df.empty:
+            return {
+                '當前股價': '無資料',
+                '52週最高': '無資料',
+                '52週最低': '無資料',
+                '平均成交量': '無資料',
+                '股價波動率': '無資料',
+                '近期趨勢': '無資料'
+            }
+
+        try:
+            # 計算各項指標
+            current_price = df.iloc[0]['close_price'] if not df.empty else 0
+            high_52w = df['high_price'].max()
+            low_52w = df['low_price'].min()
+            avg_volume = df['volume'].mean() if 'volume' in df.columns else 0
+
+            # 計算波動率（標準差/平均價格）
+            volatility = (df['close_price'].std() / df['close_price'].mean() * 100) if len(df) > 1 else 0
+
+            # 判斷趨勢（比較近30天與前30天的平均價格）
+            if len(df) >= 60:
+                recent_avg = df.head(30)['close_price'].mean()
+                previous_avg = df.iloc[30:60]['close_price'].mean()
+                trend = "上升" if recent_avg > previous_avg else "下降"
+            else:
+                trend = "資料不足"
+
+            return {
+                '當前股價': f"{current_price:.2f}" if current_price > 0 else '無資料',
+                '52週最高': f"{high_52w:.2f}" if pd.notna(high_52w) else '無資料',
+                '52週最低': f"{low_52w:.2f}" if pd.notna(low_52w) else '無資料',
+                '平均成交量': f"{avg_volume:,.0f}" if avg_volume > 0 else '無資料',
+                '股價波動率': f"{volatility:.2f}%" if volatility > 0 else '無資料',
+                '近期趨勢': trend
+            }
+        except Exception as e:
+            return {
+                '當前股價': '計算錯誤',
+                '52週最高': '計算錯誤',
+                '52週最低': '計算錯誤',
+                '平均成交量': '計算錯誤',
+                '股價波動率': '計算錯誤',
+                '近期趨勢': '計算錯誤'
+            }
+
+    def get_financial_ratios_analysis(self):
+        """獲取財務比率分析"""
+        conn = sqlite3.connect(self.db_path)
+
+        try:
+            query = """
+                SELECT date, current_ratio, quick_ratio, debt_ratio,
+                       operating_cash_flow, cash_flow_quality
+                FROM financial_ratios
+                WHERE stock_id = ?
+                ORDER BY date DESC
+                LIMIT 8
+            """
+
+            df = pd.read_sql_query(query, conn, params=(self.stock_id,))
+        except Exception as e:
+            # 如果表不存在或查詢失敗，返回空DataFrame
+            conn.close()
+            return pd.DataFrame(columns=['日期', '流動比率', '速動比率', '負債比率', '營業現金流', '現金流量品質'])
+
+        conn.close()
+
+        if df.empty:
+            return pd.DataFrame(columns=['日期', '流動比率', '速動比率', '負債比率', '營業現金流', '現金流量品質'])
+
+        result_df = pd.DataFrame()
+        result_df['日期'] = df['date']
+        result_df['流動比率'] = df['current_ratio'].apply(lambda x: f"{x:.2f}" if pd.notna(x) else '無資料')
+        result_df['速動比率'] = df['quick_ratio'].apply(lambda x: f"{x:.2f}" if pd.notna(x) else '無資料')
+        result_df['負債比率'] = df['debt_ratio'].apply(lambda x: f"{x:.2f}%" if pd.notna(x) else '無資料')
+        result_df['營業現金流'] = df['operating_cash_flow'].apply(lambda x: f"{x:,.0f}" if pd.notna(x) else '無資料')
+        result_df['現金流量品質'] = df['cash_flow_quality'].apply(lambda x: f"{x:.2f}" if pd.notna(x) else '無資料')
+
+        return result_df.reset_index(drop=True)
+
     def get_potential_analysis(self):
         """獲取潛力分析"""
         conn = sqlite3.connect(self.db_path)
@@ -413,6 +632,10 @@ class StockReportGenerator:
         quarterly_financials = self.get_quarterly_financials()
         annual_financials = self.get_annual_financials()
         dividend_policy = self.get_dividend_policy()
+        cash_flow_data = self.get_cash_flow_data()
+        dividend_results = self.get_dividend_results()
+        stock_price_analysis = self.get_stock_price_analysis()
+        financial_ratios = self.get_financial_ratios_analysis()
         potential_analysis = self.get_potential_analysis()
 
         # 創建Excel工作簿
@@ -543,26 +766,113 @@ class StockReportGenerator:
         else:
             ws5['A3'] = "無股利政策資料"
 
-        # 6. 潛力分析工作表
-        ws6 = wb.create_sheet("潛力分析")
-        ws6['A1'] = "潛力股分析"
+        # 6. 現金流量工作表
+        ws6 = wb.create_sheet("現金流量")
+        ws6['A1'] = "近8季現金流量資料"
         ws6['A1'].font = Font(size=14, bold=True)
+
+        if not cash_flow_data.empty:
+            # 添加表頭
+            for col, header in enumerate(cash_flow_data.columns, 1):
+                cell = ws6.cell(row=3, column=col, value=header)
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = center_alignment
+                cell.border = border
+
+            # 添加資料
+            for row_idx, row_data in enumerate(cash_flow_data.itertuples(index=False), 4):
+                for col_idx, value in enumerate(row_data, 1):
+                    cell = ws6.cell(row=row_idx, column=col_idx, value=value)
+                    cell.border = border
+                    cell.alignment = center_alignment
+        else:
+            ws6['A3'] = "無現金流量資料"
+
+        # 7. 除權除息結果工作表
+        ws7 = wb.create_sheet("除權除息結果")
+        ws7['A1'] = "近5年除權除息結果"
+        ws7['A1'].font = Font(size=14, bold=True)
+
+        if not dividend_results.empty:
+            # 添加表頭
+            for col, header in enumerate(dividend_results.columns, 1):
+                cell = ws7.cell(row=3, column=col, value=header)
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = center_alignment
+                cell.border = border
+
+            # 添加資料
+            for row_idx, row_data in enumerate(dividend_results.itertuples(index=False), 4):
+                for col_idx, value in enumerate(row_data, 1):
+                    cell = ws7.cell(row=row_idx, column=col_idx, value=value)
+                    cell.border = border
+                    cell.alignment = center_alignment
+        else:
+            ws7['A3'] = "無除權除息結果資料"
+
+        # 8. 股價分析工作表
+        ws8 = wb.create_sheet("股價分析")
+        ws8['A1'] = "股價技術分析"
+        ws8['A1'].font = Font(size=14, bold=True)
+
+        # 添加股價分析資料
+        row = 3
+        for key, value in stock_price_analysis.items():
+            ws8[f'A{row}'] = key
+            ws8[f'B{row}'] = value
+            ws8[f'A{row}'].font = Font(bold=True)
+            row += 1
+
+        # 格式化股價分析
+        for row in ws8.iter_rows(min_row=3, max_row=row-1, min_col=1, max_col=2):
+            for cell in row:
+                cell.border = border
+
+        # 9. 財務比率工作表
+        ws9 = wb.create_sheet("財務比率")
+        ws9['A1'] = "財務比率分析"
+        ws9['A1'].font = Font(size=14, bold=True)
+
+        if not financial_ratios.empty:
+            # 添加表頭
+            for col, header in enumerate(financial_ratios.columns, 1):
+                cell = ws9.cell(row=3, column=col, value=header)
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.alignment = center_alignment
+                cell.border = border
+
+            # 添加資料
+            for row_idx, row_data in enumerate(financial_ratios.itertuples(index=False), 4):
+                for col_idx, value in enumerate(row_data, 1):
+                    cell = ws9.cell(row=row_idx, column=col_idx, value=value)
+                    cell.border = border
+                    cell.alignment = center_alignment
+        else:
+            ws9['A3'] = "無財務比率資料"
+
+        # 10. 潛力分析工作表
+        ws10 = wb.create_sheet("潛力分析")
+        ws10['A1'] = "潛力股分析"
+        ws10['A1'].font = Font(size=14, bold=True)
 
         # 添加潛力分析資料
         row = 3
         for key, value in potential_analysis.items():
-            ws6[f'A{row}'] = key
-            ws6[f'B{row}'] = value
-            ws6[f'A{row}'].font = Font(bold=True)
+            ws10[f'A{row}'] = key
+            ws10[f'B{row}'] = value
+            ws10[f'A{row}'].font = Font(bold=True)
             row += 1
 
         # 格式化潛力分析
-        for row in ws6.iter_rows(min_row=3, max_row=row-1, min_col=1, max_col=2):
+        for row in ws10.iter_rows(min_row=3, max_row=row-1, min_col=1, max_col=2):
             for cell in row:
                 cell.border = border
 
         # 調整欄寬 - 簡化版本避免錯誤
-        for ws in [ws1, ws2, ws3, ws4, ws5, ws6]:
+        for ws in [ws1, ws2, ws3, ws4, ws5, ws6, ws7, ws8, ws9, ws10]:
             try:
                 # 設定固定的欄寬，避免複雜的計算
                 for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']:

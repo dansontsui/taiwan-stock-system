@@ -138,14 +138,93 @@ def save_stock_prices(db_manager, stock_id, data):
     finally:
         conn.close()
 
+def save_cash_flow_data(db_manager, data, stock_id):
+    """儲存現金流量表資料"""
+    if not data:
+        return 0
+
+    conn = db_manager.get_connection()
+    cursor = conn.cursor()
+    saved_count = 0
+
+    try:
+        for record in data:
+            cursor.execute("""
+                INSERT OR REPLACE INTO cash_flow_statements
+                (stock_id, date, type, value, origin_name, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                record['stock_id'],
+                record['date'],
+                record['type'],
+                record['value'],
+                record.get('origin_name', ''),
+                datetime.now()
+            ))
+            saved_count += 1
+
+        conn.commit()
+
+    except Exception as e:
+        conn.rollback()
+        logger.error(f"儲存現金流量資料失敗: {e}")
+        saved_count = 0
+    finally:
+        conn.close()
+
+    return saved_count
+
+def save_dividend_result_data(db_manager, data, stock_id):
+    """儲存除權除息結果資料"""
+    if not data:
+        return 0
+
+    conn = db_manager.get_connection()
+    cursor = conn.cursor()
+    saved_count = 0
+
+    try:
+        for record in data:
+            cursor.execute("""
+                INSERT OR REPLACE INTO dividend_results
+                (stock_id, date, before_price, after_price,
+                 stock_and_cache_dividend, stock_or_cache_dividend,
+                 max_price, min_price, open_price, reference_price, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                record['stock_id'],
+                record['date'],
+                record.get('before_price', None),
+                record.get('after_price', None),
+                record.get('stock_and_cache_dividend', None),
+                record.get('stock_or_cache_dividend', ''),
+                record.get('max_price', None),
+                record.get('min_price', None),
+                record.get('open_price', None),
+                record.get('reference_price', None),
+                datetime.now()
+            ))
+            saved_count += 1
+
+        conn.commit()
+
+    except Exception as e:
+        conn.rollback()
+        logger.error(f"儲存除權除息結果資料失敗: {e}")
+        saved_count = 0
+    finally:
+        conn.close()
+
+    return saved_count
+
 def collect_stock_data_with_retry(db_manager, finmind_collector, stock_info, start_date, end_date, max_retries=3):
     """收集單一股票資料，支援重試和智能等待"""
     stock_id = stock_info['stock_id']
     stock_name = stock_info['stock_name']
-    
+
     # 檢查現有資料
     existing_count, expected_count, completion_rate = check_existing_data(db_manager, stock_id, start_date, end_date)
-    
+
     print(f"\n{stock_id} ({stock_name}) 資料狀況:")
     print(f"  現有資料: {existing_count:,} 筆")
     print(f"  預期資料: {expected_count:,} 筆")
@@ -155,22 +234,56 @@ def collect_stock_data_with_retry(db_manager, finmind_collector, stock_info, sta
     if completion_rate >= 95:
         print(f"{stock_id} 完成度 {completion_rate:.1f}% >= 95%，跳過收集")
         return existing_count, 0
-    
+
+    total_collected = 0
+
     for attempt in range(max_retries):
         try:
             print(f"收集 {stock_id} ({stock_name}) 資料 (第 {attempt + 1} 次嘗試)...")
 
-            # 收集股價資料
+            # 1. 收集股價資料
             df = finmind_collector.get_stock_price_data(stock_id, start_date, end_date)
-            data = df.to_dict('records') if not df.empty else []
+            if not df.empty:
+                saved_count = save_stock_prices(db_manager, stock_id, df.to_dict('records'))
+                total_collected += saved_count
+                print(f"  📈 股價資料: {saved_count} 筆")
 
-            if data and len(data) > 0:
-                saved_count = save_stock_prices(db_manager, stock_id, data)
-                print(f"{stock_id} 完成，收集 {saved_count} 筆資料")
-                logger.info(f"{stock_id} ({stock_name}) 收集完成，儲存 {saved_count} 筆資料")
-                return existing_count, saved_count
+            # 2. 收集現金流量表資料
+            try:
+                cash_flow_data = finmind_collector._make_request(
+                    dataset="TaiwanStockCashFlowsStatement",
+                    data_id=stock_id,
+                    start_date=start_date,
+                    end_date=end_date
+                )
+                if cash_flow_data['data']:
+                    cash_flow_count = save_cash_flow_data(db_manager, cash_flow_data['data'], stock_id)
+                    total_collected += cash_flow_count
+                    print(f"  💰 現金流量: {cash_flow_count} 筆")
+            except Exception as e:
+                print(f"  ❌ 現金流量收集失敗: {e}")
+
+            # 3. 收集除權除息結果資料
+            try:
+                dividend_result_data = finmind_collector._make_request(
+                    dataset="TaiwanStockDividendResult",
+                    data_id=stock_id,
+                    start_date=start_date,
+                    end_date=end_date
+                )
+                if dividend_result_data['data']:
+                    dividend_count = save_dividend_result_data(db_manager, dividend_result_data['data'], stock_id)
+                    total_collected += dividend_count
+                    print(f"  🎯 除權除息: {dividend_count} 筆")
+            except Exception as e:
+                print(f"  ❌ 除權除息收集失敗: {e}")
+
+            if total_collected > 0:
+                print(f"✅ {stock_id} 完成，總收集 {total_collected} 筆資料")
+                logger.info(f"{stock_id} ({stock_name}) 收集完成，儲存 {total_collected} 筆資料")
+                return existing_count, total_collected
             else:
-                print(f"{stock_id} 無資料")
+                print(f"❌ {stock_id} 無資料")
                 return existing_count, 0
                 
         except Exception as e:
@@ -227,14 +340,19 @@ def main():
     parser = argparse.ArgumentParser(description='收集10檔精選股票的10年資料')
     parser.add_argument('--start-date', default='2015-01-01', help='開始日期 (YYYY-MM-DD)')
     parser.add_argument('--end-date', default=datetime.now().strftime('%Y-%m-%d'), help='結束日期 (YYYY-MM-DD)')
+    parser.add_argument('--batch-size', type=int, default=3, help='批次大小 (預設: 3)')
+    parser.add_argument('--test', action='store_true', help='測試模式 (只收集前3檔股票)')
 
     args = parser.parse_args()
 
     print("=" * 60)
-    print("10檔精選股票10年資料收集系統")
+    print("📊 10檔精選股票10年資料收集系統")
     print("=" * 60)
     print(f"收集期間: {args.start_date} ~ {args.end_date}")
+    print(f"批次大小: {args.batch_size}")
     print(f"精選股票: {len(SELECTED_STOCKS)} 檔")
+    if args.test:
+        print("🧪 測試模式：只收集前3檔股票")
     print("=" * 60)
 
     # 顯示股票清單
@@ -263,8 +381,11 @@ def main():
 
         start_time = datetime.now()
 
-        for i, stock_info in enumerate(SELECTED_STOCKS, 1):
-            print(f"\n[{i}/{len(SELECTED_STOCKS)}] 處理 {stock_info['stock_id']} ({stock_info['stock_name']})")
+        # 如果是測試模式，只處理前3檔股票
+        stocks_to_process = SELECTED_STOCKS[:3] if args.test else SELECTED_STOCKS
+
+        for i, stock_info in enumerate(stocks_to_process, 1):
+            print(f"\n[{i}/{len(stocks_to_process)}] 處理 {stock_info['stock_id']} ({stock_info['stock_name']})")
 
             try:
                 existing, collected = collect_stock_data_with_retry(

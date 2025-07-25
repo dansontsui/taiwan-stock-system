@@ -404,6 +404,9 @@ class DailyUpdateCollector:
             (" 股價資料收集", self.collect_stock_prices),
             (" 月營收資料收集", self.collect_monthly_revenues),
             (" 財務報表檢查", self.collect_financial_statements),
+            ("🏦 資產負債表檢查", self.collect_balance_sheets),
+            ("💰 現金流量表檢查", self.collect_cash_flows),
+            ("🎯 除權除息結果檢查", self.collect_dividend_results),
             (" 股利政策檢查", self.collect_dividend_policies),
             ("🧠 潛力股分析更新", self.update_potential_analysis)
         ]

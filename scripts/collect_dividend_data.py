@@ -132,10 +132,10 @@ def save_dividend_data(db_manager, df, stock_id):
 
 def collect_dividend_batch(stock_list, start_date, end_date, batch_size=3):
     """批次收集股利政策資料"""
-    print(f" 開始收集股利政策資料")
-    print(f" 日期範圍: {start_date} ~ {end_date}")
-    print(f" 股票數量: {len(stock_list)}")
-    print(f" 批次大小: {batch_size}")
+    print(f"開始收集股利政策資料")
+    print(f"日期範圍: {start_date} ~ {end_date}")
+    print(f"股票數量: {len(stock_list)}")
+    print(f"批次大小: {batch_size}")
     print("=" * 60)
     
     db_manager = DatabaseManager(Config.DATABASE_PATH)
@@ -172,7 +172,7 @@ def collect_dividend_batch(stock_list, start_date, end_date, batch_size=3):
                 
             except Exception as e:
                 error_msg = str(e)
-                print(f" {stock_id} 失敗: {error_msg}")
+                print(f"{stock_id} 失敗: {error_msg}")
                 logger.error(f"收集 {stock_id} 股利政策失敗: {error_msg}")
                 failed_stocks.append((stock_id, error_msg))
                 
@@ -186,11 +186,11 @@ def collect_dividend_batch(stock_list, start_date, end_date, batch_size=3):
             time.sleep(15)
     
     print("\n" + "=" * 60)
-    print(" 股利政策資料收集完成")
+    print("股利政策資料收集完成")
     print("=" * 60)
-    print(f" 成功收集: {len(stock_list) - len(failed_stocks)} 檔股票")
-    print(f" 總儲存筆數: {total_saved}")
-    print(f" 失敗股票: {len(failed_stocks)} 檔")
+    print(f"成功收集: {len(stock_list) - len(failed_stocks)} 檔股票")
+    print(f"總儲存筆數: {total_saved}")
+    print(f"失敗股票: {len(failed_stocks)} 檔")
     
     return total_saved, failed_stocks
 

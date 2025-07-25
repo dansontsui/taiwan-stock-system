@@ -231,15 +231,37 @@ def main():
         })
     else:
         print(f" 股利政策已完成 {dividend_completion:.1f}% ({dividend_count:,} 筆)，跳過收集")
-    
-    # 6. 營收成長率計算
+
+    # 6. 現金流量表 (NEW!)
+    cash_flow_count, cash_flow_completion = check_completion_rate('cash_flow_statements', 15000)
+    if cash_flow_completion < 95:
+        tasks.append({
+            'name': '現金流量表收集',
+            'script': 'collect_cash_flows.py',
+            'args': ['--start-date', start_date, '--end-date', end_date, '--batch-size', str(max(args.batch_size-2, 3))]
+        })
+    else:
+        print(f"✅ 現金流量表已完成 {cash_flow_completion:.1f}% ({cash_flow_count:,} 筆)，跳過收集")
+
+    # 7. 除權除息結果表 (NEW!)
+    dividend_result_count, dividend_result_completion = check_completion_rate('dividend_results', 3000)
+    if dividend_result_completion < 95:
+        tasks.append({
+            'name': '除權除息結果收集',
+            'script': 'collect_dividend_results.py',
+            'args': ['--start-date', start_date, '--end-date', end_date, '--batch-size', str(max(args.batch_size-2, 3))]
+        })
+    else:
+        print(f"✅ 除權除息結果已完成 {dividend_result_completion:.1f}% ({dividend_result_count:,} 筆)，跳過收集")
+
+    # 8. 營收成長率計算
     tasks.append({
         'name': '營收成長率計算',
         'script': 'calculate_revenue_growth.py',
         'args': []
     })
-    
-    # 7. 潛力股分析
+
+    # 9. 潛力股分析
     tasks.append({
         'name': '潛力股分析',
         'script': 'analyze_potential_stocks.py',
