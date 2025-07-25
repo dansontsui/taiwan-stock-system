@@ -8,7 +8,12 @@ import sys
 import os
 import time
 import argparse
+import sqlite3
 from datetime import datetime, timedelta
+
+# 修復Python 3.12 SQLite日期適配器警告
+sqlite3.register_adapter(datetime, lambda x: x.isoformat())
+sqlite3.register_converter("TIMESTAMP", lambda x: datetime.fromisoformat(x.decode()))
 
 # 添加專案根目錄到 Python 路徑
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -155,11 +160,11 @@ def save_cash_flow_data(db_manager, data, stock_id):
                 VALUES (?, ?, ?, ?, ?, ?)
             """, (
                 record['stock_id'],
-                record['date'],
-                record['type'],
-                record['value'],
-                record.get('origin_name', ''),
-                datetime.now()
+                str(record['date']),
+                str(record['type']),
+                float(record['value']) if record['value'] else 0,
+                str(record.get('origin_name', '')),
+                datetime.now().isoformat()
             ))
             saved_count += 1
 
@@ -193,16 +198,16 @@ def save_dividend_result_data(db_manager, data, stock_id):
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 record['stock_id'],
-                record['date'],
-                record.get('before_price', None),
-                record.get('after_price', None),
-                record.get('stock_and_cache_dividend', None),
-                record.get('stock_or_cache_dividend', ''),
-                record.get('max_price', None),
-                record.get('min_price', None),
-                record.get('open_price', None),
-                record.get('reference_price', None),
-                datetime.now()
+                str(record['date']),
+                float(record.get('before_price', 0)) if record.get('before_price') else None,
+                float(record.get('after_price', 0)) if record.get('after_price') else None,
+                float(record.get('stock_and_cache_dividend', 0)) if record.get('stock_and_cache_dividend') else None,
+                str(record.get('stock_or_cache_dividend', '')),
+                float(record.get('max_price', 0)) if record.get('max_price') else None,
+                float(record.get('min_price', 0)) if record.get('min_price') else None,
+                float(record.get('open_price', 0)) if record.get('open_price') else None,
+                float(record.get('reference_price', 0)) if record.get('reference_price') else None,
+                datetime.now().isoformat()
             ))
             saved_count += 1
 
@@ -246,7 +251,7 @@ def collect_stock_data_with_retry(db_manager, finmind_collector, stock_info, sta
             if not df.empty:
                 saved_count = save_stock_prices(db_manager, stock_id, df.to_dict('records'))
                 total_collected += saved_count
-                print(f"  📈 股價資料: {saved_count} 筆")
+                print(f"  股價資料: {saved_count} 筆")
 
             # 2. 收集現金流量表資料
             try:
@@ -256,12 +261,21 @@ def collect_stock_data_with_retry(db_manager, finmind_collector, stock_info, sta
                     start_date=start_date,
                     end_date=end_date
                 )
-                if cash_flow_data['data']:
+                if cash_flow_data and 'data' in cash_flow_data and cash_flow_data['data']:
                     cash_flow_count = save_cash_flow_data(db_manager, cash_flow_data['data'], stock_id)
                     total_collected += cash_flow_count
-                    print(f"  💰 現金流量: {cash_flow_count} 筆")
+                    print(f"  現金流量: {cash_flow_count} 筆")
+                else:
+                    print(f"  現金流量: 無資料")
             except Exception as e:
-                print(f"  ❌ 現金流量收集失敗: {e}")
+                error_msg = str(e)
+                if "502" in error_msg or "Bad Gateway" in error_msg:
+                    print(f"  現金流量: API服務器錯誤，跳過")
+                elif "API請求限制" in error_msg or "402" in error_msg:
+                    print(f"  現金流量: API請求限制，等待重試...")
+                    wait_for_api_reset()
+                else:
+                    print(f"  現金流量收集失敗: {e}")
 
             # 3. 收集除權除息結果資料
             try:
@@ -271,19 +285,28 @@ def collect_stock_data_with_retry(db_manager, finmind_collector, stock_info, sta
                     start_date=start_date,
                     end_date=end_date
                 )
-                if dividend_result_data['data']:
+                if dividend_result_data and 'data' in dividend_result_data and dividend_result_data['data']:
                     dividend_count = save_dividend_result_data(db_manager, dividend_result_data['data'], stock_id)
                     total_collected += dividend_count
-                    print(f"  🎯 除權除息: {dividend_count} 筆")
+                    print(f"  除權除息: {dividend_count} 筆")
+                else:
+                    print(f"  除權除息: 無資料")
             except Exception as e:
-                print(f"  ❌ 除權除息收集失敗: {e}")
+                error_msg = str(e)
+                if "502" in error_msg or "Bad Gateway" in error_msg:
+                    print(f"  除權除息: API服務器錯誤，跳過")
+                elif "API請求限制" in error_msg or "402" in error_msg:
+                    print(f"  除權除息: API請求限制，等待重試...")
+                    wait_for_api_reset()
+                else:
+                    print(f"  除權除息收集失敗: {e}")
 
             if total_collected > 0:
-                print(f"✅ {stock_id} 完成，總收集 {total_collected} 筆資料")
+                print(f"{stock_id} 完成，總收集 {total_collected} 筆資料")
                 logger.info(f"{stock_id} ({stock_name}) 收集完成，儲存 {total_collected} 筆資料")
                 return existing_count, total_collected
             else:
-                print(f"❌ {stock_id} 無資料")
+                print(f"{stock_id} 無資料")
                 return existing_count, 0
                 
         except Exception as e:
@@ -346,13 +369,13 @@ def main():
     args = parser.parse_args()
 
     print("=" * 60)
-    print("📊 10檔精選股票10年資料收集系統")
+    print("10檔精選股票10年資料收集系統")
     print("=" * 60)
     print(f"收集期間: {args.start_date} ~ {args.end_date}")
     print(f"批次大小: {args.batch_size}")
     print(f"精選股票: {len(SELECTED_STOCKS)} 檔")
     if args.test:
-        print("🧪 測試模式：只收集前3檔股票")
+        print("測試模式：只收集前3檔股票")
     print("=" * 60)
 
     # 顯示股票清單
@@ -369,7 +392,7 @@ def main():
 
     try:
         db_manager = DatabaseManager(Config.DATABASE_PATH)
-        finmind_collector = FinMindDataCollector()
+        finmind_collector = FinMindDataCollector(Config.FINMIND_API_URL, Config.FINMIND_API_TOKEN)
 
         # 確保股票資訊存在於資料庫中
         ensure_stocks_in_database(db_manager)
