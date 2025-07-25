@@ -34,7 +34,7 @@ def init_logging():
 def wait_for_api_reset():
     """等待API限制重置 - 70分鐘"""
     wait_minutes = 70
-    print(f"\n⏰ API請求限制已達上限，智能等待 {wait_minutes} 分鐘...")
+    print(f"\n API請求限制已達上限，智能等待 {wait_minutes} 分鐘...")
     print("=" * 60)
     
     start_time = datetime.now()
@@ -50,10 +50,10 @@ def wait_for_api_reset():
         current_time = datetime.now().strftime("%H:%M:%S")
         progress = ((wait_minutes * 60 - remaining) / (wait_minutes * 60)) * 100
         
-        print(f"\r⏳ [{current_time}] 剩餘: {hours:02d}:{minutes:02d}:00 | 進度: {progress:.1f}%", end="", flush=True)
+        print(f"\r [{current_time}] 剩餘: {hours:02d}:{minutes:02d}:00 | 進度: {progress:.1f}%", end="", flush=True)
         time.sleep(60)
     
-    print(f"\n✅ [{datetime.now().strftime('%H:%M:%S')}] 等待完成，繼續收集資料...")
+    print(f"\n [{datetime.now().strftime('%H:%M:%S')}] 等待完成，繼續收集資料...")
     print("=" * 60)
 
 def check_existing_data(db_manager, stock_id, start_date, end_date):
@@ -146,24 +146,24 @@ def collect_stock_prices_incremental(db_manager, finmind_collector, stock_id, st
     # 檢查現有資料
     existing_count, expected_count, completion_rate = check_existing_data(db_manager, stock_id, start_date, end_date)
     
-    print(f"📊 {stock_id} 資料狀況:")
+    print(f" {stock_id} 資料狀況:")
     print(f"  現有資料: {existing_count:,} 筆")
     print(f"  預期資料: {expected_count:,} 筆")
     print(f"  完成度: {completion_rate:.1f}%")
     
     # 如果完成度超過閾值，跳過
     if completion_rate >= skip_threshold:
-        print(f"✅ {stock_id} 完成度 {completion_rate:.1f}% >= {skip_threshold}%，跳過收集")
+        print(f" {stock_id} 完成度 {completion_rate:.1f}% >= {skip_threshold}%，跳過收集")
         return existing_count, 0
     
     # 獲取缺失的日期範圍
     missing_ranges = get_missing_date_ranges(db_manager, stock_id, start_date, end_date)
     
     if not missing_ranges:
-        print(f"✅ {stock_id} 無缺失資料")
+        print(f" {stock_id} 無缺失資料")
         return existing_count, 0
     
-    print(f"🔍 {stock_id} 發現 {len(missing_ranges)} 個缺失範圍")
+    print(f" {stock_id} 發現 {len(missing_ranges)} 個缺失範圍")
     
     total_collected = 0
     
@@ -178,16 +178,16 @@ def collect_stock_prices_incremental(db_manager, finmind_collector, stock_id, st
             if data and len(data) > 0:
                 saved_count = save_stock_prices(db_manager, stock_id, data)
                 total_collected += saved_count
-                print(f"✅ 範圍 {i} 完成，收集 {saved_count} 筆資料")
+                print(f" 範圍 {i} 完成，收集 {saved_count} 筆資料")
             else:
-                print(f"⚠️  範圍 {i} 無資料")
+                print(f"  範圍 {i} 無資料")
             
             # 範圍間休息
             time.sleep(1)
             
         except Exception as e:
             error_msg = str(e)
-            print(f"❌ 範圍 {i} 失敗: {error_msg}")
+            print(f" 範圍 {i} 失敗: {error_msg}")
             logger.error(f"收集 {stock_id} 範圍 {range_start}~{range_end} 失敗: {error_msg}")
             
             # 如果是API限制錯誤，等待70分鐘
@@ -248,7 +248,7 @@ def main():
     args = parser.parse_args()
     
     print("=" * 60)
-    print("📈 智能股價資料收集系統")
+    print("智能股價資料收集系統")
     print("=" * 60)
     print(f"收集期間: {args.start_date} ~ {args.end_date}")
     print(f"批次大小: {args.batch_size}")
@@ -277,7 +277,7 @@ def main():
             stock_ids = [row[0] for row in cursor.fetchall()]
             conn.close()
         
-        print(f"📊 準備收集 {len(stock_ids)} 檔股票資料")
+        print(f" 準備收集 {len(stock_ids)} 檔股票資料")
         
         total_existing = 0
         total_collected = 0
@@ -285,7 +285,7 @@ def main():
         skipped_count = 0
         
         for i, stock_id in enumerate(stock_ids, 1):
-            print(f"\n📌 [{i}/{len(stock_ids)}] 處理 {stock_id}")
+            print(f"\n [{i}/{len(stock_ids)}] 處理 {stock_id}")
             
             try:
                 existing, collected = collect_stock_prices_incremental(
@@ -302,16 +302,16 @@ def main():
                 
                 # 批次間休息
                 if i % args.batch_size == 0:
-                    print(f"\n⏸️  批次休息30秒... (已處理 {i}/{len(stock_ids)})")
+                    print(f"\n  批次休息30秒... (已處理 {i}/{len(stock_ids)})")
                     time.sleep(30)
                 
             except Exception as e:
-                print(f"❌ {stock_id} 處理失敗: {e}")
+                print(f" {stock_id} 處理失敗: {e}")
                 logger.error(f"處理 {stock_id} 失敗: {e}")
         
         # 最終統計
         print("\n" + "=" * 60)
-        print("📊 智能股價收集完成")
+        print(" 智能股價收集完成")
         print("=" * 60)
         print(f"處理股票: {processed_count}/{len(stock_ids)}")
         print(f"跳過股票: {skipped_count}")
@@ -324,7 +324,7 @@ def main():
         
     except Exception as e:
         error_msg = f"智能股價收集失敗: {e}"
-        print(f"❌ {error_msg}")
+        print(f" {error_msg}")
         logger.error(error_msg)
         sys.exit(1)
 

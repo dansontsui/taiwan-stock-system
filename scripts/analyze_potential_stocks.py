@@ -385,14 +385,14 @@ def main():
             result = analyze_stock_potential(db_manager, args.stock_id)
             if result:
                 save_stock_score(db_manager, result)
-                print(f"\n📊 {result['stock_id']} ({result['stock_name']}) 評分結果:")
+                print(f"\n {result['stock_id']} ({result['stock_name']}) 評分結果:")
                 print(f"財務健康度: {result['financial_health_score']:.1f}分")
                 print(f"成長潛力: {result['growth_score']:.1f}分")
                 print(f"配息穩定性: {result['dividend_score']:.1f}分")
                 print(f"總分: {result['total_score']:.1f}分")
                 print(f"評等: {result['grade']}")
             else:
-                print(f"❌ 無法分析股票 {args.stock_id}")
+                print(f" 無法分析股票 {args.stock_id}")
         else:
             # 批次分析
             conn = db_manager.get_connection()
@@ -412,10 +412,10 @@ def main():
             conn.close()
             
             if not stock_ids:
-                print("❌ 未找到有財務資料的股票")
+                print(" 未找到有財務資料的股票")
                 return
             
-            print(f"📊 分析 {len(stock_ids)} 檔股票...")
+            print(f" 分析 {len(stock_ids)} 檔股票...")
             
             results = []
             for stock_id in stock_ids:
@@ -423,12 +423,12 @@ def main():
                 if result:
                     save_stock_score(db_manager, result)
                     results.append(result)
-                    print(f"✅ {stock_id} ({result['stock_name']}) - {result['grade']} ({result['total_score']:.1f}分)")
+                    print(f" {stock_id} ({result['stock_name']}) - {result['grade']} ({result['total_score']:.1f}分)")
             
             # 顯示排行榜
             if results:
                 results.sort(key=lambda x: x['total_score'], reverse=True)
-                print(f"\n🏆 潛力股排行榜 (前10名):")
+                print(f"\n 潛力股排行榜 (前10名):")
                 print("-" * 60)
                 for i, result in enumerate(results[:10], 1):
                     print(f"{i:2d}. {result['stock_id']} {result['stock_name']:<10} {result['grade']} ({result['total_score']:.1f}分)")
@@ -437,7 +437,7 @@ def main():
         
     except Exception as e:
         error_msg = f"潛力股評分分析失敗: {e}"
-        print(f"❌ {error_msg}")
+        print(f" {error_msg}")
         logger.error(error_msg)
         sys.exit(1)
 

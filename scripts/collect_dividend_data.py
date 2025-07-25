@@ -10,7 +10,7 @@ import time
 import argparse
 from datetime import datetime, timedelta
 import pandas as pd
-from tqdm import tqdm
+# from tqdm import tqdm  # 暫時註解掉避免依賴問題
 
 # 添加專案根目錄到 Python 路徑
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -36,17 +36,17 @@ def init_logging():
 def wait_for_api_reset():
     """等待API限制重置 - 70分鐘"""
     wait_minutes = 70
-    print(f"\n⏰ 遇到API限制，等待 {wait_minutes} 分鐘...")
+    print(f"\n 遇到API限制，等待 {wait_minutes} 分鐘...")
     print("=" * 60)
     
     for remaining in range(wait_minutes * 60, 0, -60):
         hours = remaining // 3600
         minutes = (remaining % 3600) // 60
         current_time = datetime.now().strftime("%H:%M:%S")
-        print(f"\r⏳ [{current_time}] 剩餘等待時間: {hours:02d}:{minutes:02d}:00", end="", flush=True)
+        print(f"\r [{current_time}] 剩餘等待時間: {hours:02d}:{minutes:02d}:00", end="", flush=True)
         time.sleep(60)
     
-    print(f"\n✅ [{datetime.now().strftime('%H:%M:%S')}] 等待完成，繼續收集...")
+    print(f"\n [{datetime.now().strftime('%H:%M:%S')}] 等待完成，繼續收集...")
 
 def get_dividend_data(collector, stock_id, start_date, end_date):
     """獲取股利政策資料"""
@@ -132,10 +132,10 @@ def save_dividend_data(db_manager, df, stock_id):
 
 def collect_dividend_batch(stock_list, start_date, end_date, batch_size=3):
     """批次收集股利政策資料"""
-    print(f"📊 開始收集股利政策資料")
-    print(f"📅 日期範圍: {start_date} ~ {end_date}")
-    print(f"📈 股票數量: {len(stock_list)}")
-    print(f"🔄 批次大小: {batch_size}")
+    print(f" 開始收集股利政策資料")
+    print(f" 日期範圍: {start_date} ~ {end_date}")
+    print(f" 股票數量: {len(stock_list)}")
+    print(f" 批次大小: {batch_size}")
     print("=" * 60)
     
     db_manager = DatabaseManager(Config.DATABASE_PATH)
@@ -147,30 +147,32 @@ def collect_dividend_batch(stock_list, start_date, end_date, batch_size=3):
     total_saved = 0
     failed_stocks = []
     
-    for i in tqdm(range(0, len(stock_list), batch_size), desc="收集進度"):
+    total_batches = (len(stock_list) + batch_size - 1) // batch_size
+    for batch_idx, i in enumerate(range(0, len(stock_list), batch_size), 1):
         batch = stock_list[i:i + batch_size]
+        print(f"處理批次 {batch_idx}/{total_batches} ({len(batch)} 檔股票)")
         
         for stock in batch:
             stock_id = stock['stock_id']
             stock_name = stock.get('stock_name', stock_id)
             
             try:
-                print(f"📊 收集 {stock_id} ({stock_name}) 股利政策資料...")
+                print(f" 收集 {stock_id} ({stock_name}) 股利政策資料...")
                 
                 df = get_dividend_data(collector, stock_id, start_date, end_date)
                 
                 if df is not None and not df.empty:
                     saved_count = save_dividend_data(db_manager, df, stock_id)
                     total_saved += saved_count
-                    print(f"✅ {stock_id} 完成，儲存 {saved_count} 筆資料")
+                    print(f" {stock_id} 完成，儲存 {saved_count} 筆資料")
                 else:
-                    print(f"⚠️  {stock_id} 無資料")
+                    print(f"  {stock_id} 無資料")
                 
                 time.sleep(2)
                 
             except Exception as e:
                 error_msg = str(e)
-                print(f"❌ {stock_id} 失敗: {error_msg}")
+                print(f" {stock_id} 失敗: {error_msg}")
                 logger.error(f"收集 {stock_id} 股利政策失敗: {error_msg}")
                 failed_stocks.append((stock_id, error_msg))
                 
@@ -180,15 +182,15 @@ def collect_dividend_batch(stock_list, start_date, end_date, batch_size=3):
                     time.sleep(5)
         
         if i + batch_size < len(stock_list):
-            print(f"⏸️  批次完成，休息15秒...")
+            print(f"  批次完成，休息15秒...")
             time.sleep(15)
     
     print("\n" + "=" * 60)
-    print("📊 股利政策資料收集完成")
+    print(" 股利政策資料收集完成")
     print("=" * 60)
-    print(f"✅ 成功收集: {len(stock_list) - len(failed_stocks)} 檔股票")
-    print(f"💾 總儲存筆數: {total_saved}")
-    print(f"❌ 失敗股票: {len(failed_stocks)} 檔")
+    print(f" 成功收集: {len(stock_list) - len(failed_stocks)} 檔股票")
+    print(f" 總儲存筆數: {total_saved}")
+    print(f" 失敗股票: {len(failed_stocks)} 檔")
     
     return total_saved, failed_stocks
 
@@ -228,10 +230,10 @@ def main():
         
         if args.test:
             stock_list = stock_list[:5]
-            print("🧪 測試模式：只收集前5檔股票")
+            print(" 測試模式：只收集前5檔股票")
         
         if not stock_list:
-            print("❌ 未找到股票資料")
+            print(" 未找到股票資料")
             return
         
         total_saved, failed_stocks = collect_dividend_batch(
@@ -245,7 +247,7 @@ def main():
         
     except Exception as e:
         error_msg = f"股利政策資料收集失敗: {e}"
-        print(f"❌ {error_msg}")
+        print(f" {error_msg}")
         logger.error(error_msg)
         sys.exit(1)
 

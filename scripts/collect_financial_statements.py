@@ -10,7 +10,7 @@ import time
 import argparse
 from datetime import datetime, timedelta
 import pandas as pd
-from tqdm import tqdm
+# from tqdm import tqdm  # 暫時註解掉避免依賴問題
 
 # 添加專案根目錄到 Python 路徑
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -36,7 +36,7 @@ def init_logging():
 def wait_for_api_reset():
     """等待API限制重置 - 70分鐘"""
     wait_minutes = 70
-    print(f"\n⏰ API請求限制已達上限，智能等待 {wait_minutes} 分鐘...")
+    print(f"\n API請求限制已達上限，智能等待 {wait_minutes} 分鐘...")
     print("=" * 60)
 
     start_time = datetime.now()
@@ -52,10 +52,10 @@ def wait_for_api_reset():
         current_time = datetime.now().strftime("%H:%M:%S")
         progress = ((wait_minutes * 60 - remaining) / (wait_minutes * 60)) * 100
 
-        print(f"\r⏳ [{current_time}] 剩餘: {hours:02d}:{minutes:02d}:00 | 進度: {progress:.1f}%", end="", flush=True)
+        print(f"\r [{current_time}] 剩餘: {hours:02d}:{minutes:02d}:00 | 進度: {progress:.1f}%", end="", flush=True)
         time.sleep(60)
 
-    print(f"\n✅ [{datetime.now().strftime('%H:%M:%S')}] 等待完成，繼續收集資料...")
+    print(f"\n [{datetime.now().strftime('%H:%M:%S')}] 等待完成，繼續收集資料...")
     print("=" * 60)
 
 def get_financial_statements_data(collector, stock_id, start_date, end_date):
@@ -197,10 +197,10 @@ def calculate_financial_ratios(db_manager, stock_id):
 
 def collect_financial_statements_batch(stock_list, start_date, end_date, batch_size=5):
     """批次收集綜合損益表資料"""
-    print(f"📊 開始收集綜合損益表資料")
-    print(f"📅 日期範圍: {start_date} ~ {end_date}")
-    print(f"📈 股票數量: {len(stock_list)}")
-    print(f"🔄 批次大小: {batch_size}")
+    print(f" 開始收集綜合損益表資料")
+    print(f" 日期範圍: {start_date} ~ {end_date}")
+    print(f" 股票數量: {len(stock_list)}")
+    print(f" 批次大小: {batch_size}")
     print("=" * 60)
     
     # 初始化
@@ -215,15 +215,17 @@ def collect_financial_statements_batch(stock_list, start_date, end_date, batch_s
     failed_stocks = []
     
     # 分批處理
-    for i in tqdm(range(0, len(stock_list), batch_size), desc="收集進度"):
+    total_batches = (len(stock_list) + batch_size - 1) // batch_size
+    for batch_idx, i in enumerate(range(0, len(stock_list), batch_size), 1):
         batch = stock_list[i:i + batch_size]
+        print(f"處理批次 {batch_idx}/{total_batches} ({len(batch)} 檔股票)")
         
         for stock in batch:
             stock_id = stock['stock_id']
             stock_name = stock.get('stock_name', stock_id)
             
             try:
-                print(f"📊 收集 {stock_id} ({stock_name}) 綜合損益表資料...")
+                print(f" 收集 {stock_id} ({stock_name}) 綜合損益表資料...")
                 
                 # 獲取綜合損益表資料
                 df = get_financial_statements_data(collector, stock_id, start_date, end_date)
@@ -237,16 +239,16 @@ def collect_financial_statements_batch(stock_list, start_date, end_date, batch_s
                     ratio_count = calculate_financial_ratios(db_manager, stock_id)
                     total_ratios += ratio_count
                     
-                    print(f"✅ {stock_id} 完成，儲存 {saved_count} 筆資料，計算 {ratio_count} 筆比率")
+                    print(f" {stock_id} 完成，儲存 {saved_count} 筆資料，計算 {ratio_count} 筆比率")
                 else:
-                    print(f"⚠️  {stock_id} 無資料")
+                    print(f"  {stock_id} 無資料")
                 
                 # 控制請求頻率
                 time.sleep(1)
                 
             except Exception as e:
                 error_msg = str(e)
-                print(f"❌ {stock_id} 失敗: {error_msg}")
+                print(f" {stock_id} 失敗: {error_msg}")
                 logger.error(f"收集 {stock_id} 綜合損益表失敗: {error_msg}")
                 failed_stocks.append((stock_id, error_msg))
                 
@@ -258,17 +260,17 @@ def collect_financial_statements_batch(stock_list, start_date, end_date, batch_s
         
         # 批次間休息
         if i + batch_size < len(stock_list):
-            print(f"⏸️  批次完成，休息10秒...")
+            print(f"  批次完成，休息10秒...")
             time.sleep(10)
     
     # 顯示結果
     print("\n" + "=" * 60)
-    print("📊 綜合損益表資料收集完成")
+    print(" 綜合損益表資料收集完成")
     print("=" * 60)
-    print(f"✅ 成功收集: {len(stock_list) - len(failed_stocks)} 檔股票")
-    print(f"💾 總儲存筆數: {total_saved}")
-    print(f"📈 財務比率筆數: {total_ratios}")
-    print(f"❌ 失敗股票: {len(failed_stocks)} 檔")
+    print(f" 成功收集: {len(stock_list) - len(failed_stocks)} 檔股票")
+    print(f" 總儲存筆數: {total_saved}")
+    print(f" 財務比率筆數: {total_ratios}")
+    print(f" 失敗股票: {len(failed_stocks)} 檔")
     
     if failed_stocks:
         print("\n失敗股票清單:")
@@ -285,7 +287,7 @@ def show_sample_data(db_manager, limit=5):
     cursor = conn.cursor()
     
     try:
-        print("\n📋 綜合損益表資料範例:")
+        print("\n 綜合損益表資料範例:")
         print("-" * 60)
         
         cursor.execute("""
@@ -300,7 +302,7 @@ def show_sample_data(db_manager, limit=5):
             stock_id, date, type_name, value, origin_name = row
             print(f"{stock_id} {date} {type_name:<20} {value:>15,.0f} ({origin_name})")
         
-        print("\n📊 財務比率資料範例:")
+        print("\n 財務比率資料範例:")
         print("-" * 60)
         
         cursor.execute("""
@@ -358,10 +360,10 @@ def main():
         
         if args.test:
             stock_list = stock_list[:5]
-            print("🧪 測試模式：只收集前5檔股票")
+            print(" 測試模式：只收集前5檔股票")
         
         if not stock_list:
-            print("❌ 未找到股票資料，請先執行股票清單收集")
+            print(" 未找到股票資料，請先執行股票清單收集")
             return
         
         # 開始收集
@@ -380,7 +382,7 @@ def main():
         
     except Exception as e:
         error_msg = f"綜合損益表資料收集失敗: {e}"
-        print(f"❌ {error_msg}")
+        print(f" {error_msg}")
         logger.error(error_msg)
         sys.exit(1)
 

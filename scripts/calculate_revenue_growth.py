@@ -117,10 +117,10 @@ def main():
         conn.close()
         
         if not stock_ids:
-            print("❌ 未找到月營收資料")
+            print(" 未找到月營收資料")
             return
         
-        print(f"📊 找到 {len(stock_ids)} 檔股票有月營收資料")
+        print(f" 找到 {len(stock_ids)} 檔股票有月營收資料")
         print("開始計算成長率...")
         
         total_updated = 0
@@ -132,15 +132,15 @@ def main():
             total_updated += updated_count
             
             if updated_count > 0:
-                print(f"✅ {stock_id} 完成，更新 {updated_count} 筆記錄")
+                print(f" {stock_id} 完成，更新 {updated_count} 筆記錄")
             else:
-                print(f"⚠️  {stock_id} 無需更新")
+                print(f"  {stock_id} 無需更新")
         
         print("\n" + "=" * 60)
-        print("📊 月營收成長率計算完成")
+        print(" 月營收成長率計算完成")
         print("=" * 60)
-        print(f"✅ 處理股票: {len(stock_ids)} 檔")
-        print(f"💾 總更新筆數: {total_updated}")
+        print(f" 處理股票: {len(stock_ids)} 檔")
+        print(f" 總更新筆數: {total_updated}")
         
         # 顯示一些統計資訊
         conn = db_manager.get_connection()
@@ -155,7 +155,7 @@ def main():
             LIMIT 5
         """)
         
-        print("\n📈 年增率最高的5筆記錄:")
+        print("\n 年增率最高的5筆記錄:")
         for row in cursor.fetchall():
             print(f"  {row[0]} ({row[1]}/{row[2]:02d}): {row[3]:+.1f}%")
         
@@ -168,7 +168,7 @@ def main():
             LIMIT 5
         """)
         
-        print("\n📉 年增率最低的5筆記錄:")
+        print("\n年增率最低的5筆記錄:")
         for row in cursor.fetchall():
             print(f"  {row[0]} ({row[1]}/{row[2]:02d}): {row[3]:+.1f}%")
         
@@ -178,7 +178,7 @@ def main():
         
     except Exception as e:
         error_msg = f"月營收成長率計算失敗: {e}"
-        print(f"❌ {error_msg}")
+        print(f" {error_msg}")
         logger.error(error_msg)
         sys.exit(1)
 

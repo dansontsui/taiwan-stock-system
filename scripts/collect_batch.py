@@ -44,10 +44,10 @@ def wait_for_api_reset(start_time=None):
     wait_seconds, elapsed_minutes = calculate_wait_time(start_time)
 
     print("\n" + "="*60)
-    print("⏰ API請求限制已達上限，智能等待重置...")
+    print(" API請求限制已達上限，智能等待重置...")
     print("="*60)
-    print(f"📊 本輪已運行: {elapsed_minutes:.1f} 分鐘")
-    print(f"⏳ 預計等待: {wait_seconds/60:.1f} 分鐘")
+    print(f" 本輪已運行: {elapsed_minutes:.1f} 分鐘")
+    print(f" 預計等待: {wait_seconds/60:.1f} 分鐘")
     print("="*60)
 
     # 顯示倒計時
@@ -55,17 +55,17 @@ def wait_for_api_reset(start_time=None):
         hours = remaining // 3600
         minutes = (remaining % 3600) // 60
         current_time = datetime.now().strftime("%H:%M:%S")
-        print(f"\r⏳ [{current_time}] 剩餘等待時間: {hours:02d}:{minutes:02d}:00", end="", flush=True)
+        print(f"\r [{current_time}] 剩餘等待時間: {hours:02d}:{minutes:02d}:00", end="", flush=True)
         time.sleep(60)
 
-    print(f"\n✅ [{datetime.now().strftime('%H:%M:%S')}] 等待完成，繼續收集資料...")
+    print(f"\n [{datetime.now().strftime('%H:%M:%S')}] 等待完成，繼續收集資料...")
     print("="*60)
 
 def collect_batch_with_retry(collector, stock_batch, start_date, end_date, batch_start_time, max_retries=3):
     """收集一批股票資料，支援重試"""
     for attempt in range(max_retries):
         try:
-            print(f"\n📊 收集批次資料 (第 {attempt + 1} 次嘗試)...")
+            print(f"\n 收集批次資料 (第 {attempt + 1} 次嘗試)...")
             collected_data = collector.collect_batch_data(
                 stock_list=stock_batch,
                 start_date=start_date,
@@ -79,7 +79,7 @@ def collect_batch_with_retry(collector, stock_batch, start_date, end_date, batch
             
             # 檢查是否為API限制錯誤
             if "402" in error_msg or "Payment Required" in error_msg:
-                print(f"\n⚠️  遇到API限制錯誤: {error_msg}")
+                print(f"\n  遇到API限制錯誤: {error_msg}")
                 if attempt < max_retries - 1:
                     wait_for_api_reset(batch_start_time)
                     # 重置開始時間為等待後的時間
@@ -90,7 +90,7 @@ def collect_batch_with_retry(collector, stock_batch, start_date, end_date, batch
             
             # 其他錯誤
             elif attempt < max_retries - 1:
-                print(f"⚠️  收集失敗 (第 {attempt + 1} 次): {error_msg}")
+                print(f"  收集失敗 (第 {attempt + 1} 次): {error_msg}")
                 print("等待30秒後重試...")
                 time.sleep(30)
                 continue
@@ -139,7 +139,7 @@ def collect_main_stocks_batch(start_date=None, end_date=None, batch_size=200, sk
         end_date = Config.DATA_END_DATE
     
     print("="*60)
-    print("📈 台股主要股票分批收集系統")
+    print(" 台股主要股票分批收集系統")
     print("="*60)
     print(f"資料期間: {start_date} ~ {end_date}")
     print(f"批次大小: {batch_size} 檔")
@@ -216,7 +216,7 @@ def collect_main_stocks_batch(start_date=None, end_date=None, batch_size=200, sk
                 print(f"   {i+1}. {stock['stock_id']} {stock['stock_name']} - {reason}")
 
         if len(stocks_to_collect) == 0:
-            print("\n🎉 所有股票都已有完整資料，無需收集！")
+            print("\n 所有股票都已有完整資料，無需收集！")
             return
 
         # 3. 分批處理需要收集的股票
@@ -255,17 +255,17 @@ def collect_main_stocks_batch(start_date=None, end_date=None, batch_size=200, sk
                     total_collected += batch_collected
                     successful_batches += 1
                     
-                    print(f"✅ 第 {batch_num + 1} 批完成，收集 {batch_collected} 檔股票資料")
+                    print(f" 第 {batch_num + 1} 批完成，收集 {batch_collected} 檔股票資料")
                 else:
-                    print(f"❌ 第 {batch_num + 1} 批失敗")
+                    print(f" 第 {batch_num + 1} 批失敗")
                 
                 # 批次間等待，避免請求過快
                 if batch_num < total_batches - 1:
-                    print("⏳ 等待10秒後處理下一批...")
+                    print(" 等待10秒後處理下一批...")
                     time.sleep(10)
                     
             except Exception as e:
-                print(f"❌ 第 {batch_num + 1} 批處理失敗: {e}")
+                print(f" 第 {batch_num + 1} 批處理失敗: {e}")
                 
                 # 詢問是否繼續
                 response = input("\n是否繼續處理下一批？(y/n): ").lower()
@@ -274,7 +274,7 @@ def collect_main_stocks_batch(start_date=None, end_date=None, batch_size=200, sk
         
         # 3. 總結
         print("\n" + "="*60)
-        print("📊 分批收集完成統計")
+        print(" 分批收集完成統計")
         print("="*60)
         print(f"成功批次: {successful_batches}/{total_batches}")
         print(f"新收集股票: {total_collected} 檔")
@@ -284,12 +284,12 @@ def collect_main_stocks_batch(start_date=None, end_date=None, batch_size=200, sk
             print(f"收集成功率: {successful_batches/total_batches*100:.1f}%")
         
         if successful_batches == total_batches:
-            print("🎉 所有批次收集完成！")
+            print(" 所有批次收集完成！")
         else:
-            print("⚠️  部分批次收集失敗，可稍後重新執行")
+            print("  部分批次收集失敗，可稍後重新執行")
         
     except Exception as e:
-        print(f"❌ 系統錯誤: {e}")
+        print(f" 系統錯誤: {e}")
         import traceback
         traceback.print_exc()
     
@@ -309,7 +309,7 @@ def main():
     
     # 測試模式
     if args.test:
-        print("🧪 測試模式：只收集最近1個月的資料")
+        print(" 測試模式：只收集最近1個月的資料")
         start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         end_date = datetime.now().strftime("%Y-%m-%d")
     else:

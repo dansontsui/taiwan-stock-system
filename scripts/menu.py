@@ -16,18 +16,18 @@ def clear_screen():
 def print_header():
     """顯示標題"""
     print("=" * 60)
-    print("🚀 台股歷史股價系統 - 互動式選單")
+    print(" 台股歷史股價系統 - 互動式選單")
     print("=" * 60)
     print()
 
 def print_menu():
     """顯示主選單"""
-    print("📋 請選擇收集模式:")
+    print(" 請選擇收集模式:")
     print()
     print("1️⃣  預設清單 (24檔) - 測試模式")
     print("2️⃣  主要股票 (3,782檔) - 測試模式 ⭐ 推薦")
     print("3️⃣  主要股票 (3,782檔) - 完整收集")
-    print("4️⃣  分批收集 - 測試模式 🔥 最推薦")
+    print("4️⃣  分批收集 - 測試模式  最推薦")
     print("5️⃣  分批收集 - 完整收集")
     print("6️⃣  指定股票收集")
     print("7️⃣  指定時間範圍收集")
@@ -42,7 +42,7 @@ def get_user_input(prompt, valid_options=None):
         try:
             user_input = input(prompt).strip()
             if valid_options and user_input not in valid_options:
-                print(f"❌ 請輸入有效選項: {', '.join(valid_options)}")
+                print(f" 請輸入有效選項: {', '.join(valid_options)}")
                 continue
             return user_input
         except KeyboardInterrupt:
@@ -51,14 +51,14 @@ def get_user_input(prompt, valid_options=None):
 
 def run_command(command, description):
     """執行命令"""
-    print(f"\n🚀 {description}")
-    print(f"📝 執行命令: {command}")
+    print(f"\n {description}")
+    print(f" 執行命令: {command}")
     print("-" * 60)
     
     # 詢問是否確認執行
     confirm = get_user_input("確定要執行嗎？(y/n): ", ["y", "n", "Y", "N"])
     if confirm.lower() != 'y':
-        print("❌ 已取消執行")
+        print(" 已取消執行")
         return False
     
     try:
@@ -66,14 +66,14 @@ def run_command(command, description):
         result = subprocess.run(command, shell=True, cwd=os.path.dirname(os.path.dirname(__file__)))
         
         if result.returncode == 0:
-            print("\n✅ 執行完成！")
+            print("\n 執行完成！")
         else:
-            print(f"\n❌ 執行失敗，返回碼: {result.returncode}")
+            print(f"\n 執行失敗，返回碼: {result.returncode}")
         
         return result.returncode == 0
         
     except Exception as e:
-        print(f"\n❌ 執行錯誤: {e}")
+        print(f"\n 執行錯誤: {e}")
         return False
 
 def option_1():
@@ -90,7 +90,7 @@ def option_2():
 
 def option_3():
     """主要股票 - 完整收集"""
-    print("\n⚠️  注意事項:")
+    print("\n  注意事項:")
     print("- 需要約38,000次API請求")
     print("- 預估時間: 60-100小時")
     print("- 建議使用分批收集模式")
@@ -98,7 +98,7 @@ def option_3():
     
     confirm = get_user_input("確定要使用完整收集模式嗎？建議選擇分批收集 (4或5)。(y/n): ", ["y", "n", "Y", "N"])
     if confirm.lower() != 'y':
-        print("💡 建議使用選項 4 或 5 的分批收集模式")
+        print(" 建議使用選項 4 或 5 的分批收集模式")
         return
     
     command = "python scripts/collect_data.py --main-stocks --skip-existing"
@@ -107,11 +107,11 @@ def option_3():
 
 def option_4():
     """分批收集 - 測試模式"""
-    print("\n🔥 分批收集的優勢:")
-    print("- ✅ 自動處理API限制")
-    print("- ✅ 智能等待功能")
-    print("- ✅ 自動跳過已有資料")
-    print("- ✅ 斷點續傳")
+    print("\n 分批收集的優勢:")
+    print("-  自動處理API限制")
+    print("-  智能等待功能")
+    print("-  自動跳過已有資料")
+    print("-  斷點續傳")
     print()
     
     command = "python scripts/collect_batch.py --test"
@@ -120,9 +120,9 @@ def option_4():
 
 def option_5():
     """分批收集 - 完整收集"""
-    print("\n🔥 分批收集 - 完整模式:")
-    print("- 📊 收集範圍: 上市+上櫃+00開頭ETF (3,782檔)")
-    print("- ⏰ 預估時間: 15-20小時 (自動處理)")
+    print("\n 分批收集 - 完整模式:")
+    print("-  收集範圍: 上市+上櫃+00開頭ETF (3,782檔)")
+    print("-  預估時間: 15-20小時 (自動處理)")
     print("- 🤖 全自動: 無需人工干預")
     print()
     
@@ -134,14 +134,14 @@ def option_5():
 
 def option_6():
     """指定股票收集"""
-    print("\n📝 指定股票收集:")
+    print("\n 指定股票收集:")
     print("請輸入股票代碼，用空格分隔")
     print("範例: 2330 8299 0050 0056")
     print()
     
     stocks = get_user_input("股票代碼: ")
     if not stocks:
-        print("❌ 未輸入股票代碼")
+        print(" 未輸入股票代碼")
         return
     
     # 詢問是否為測試模式
@@ -154,7 +154,7 @@ def option_6():
 
 def option_7():
     """指定時間範圍收集"""
-    print("\n📅 指定時間範圍收集:")
+    print("\n 指定時間範圍收集:")
     print()
     
     # 選擇收集範圍
@@ -175,7 +175,7 @@ def option_7():
     else:
         stocks = get_user_input("請輸入股票代碼 (用空格分隔): ")
         if not stocks:
-            print("❌ 未輸入股票代碼")
+            print(" 未輸入股票代碼")
             return
         range_param = f"--stocks {stocks}"
         range_desc = f"指定股票: {stocks}"
@@ -258,7 +258,7 @@ def option_9():
             else:  # Linux
                 os.system(f"xdg-open '{doc_path}'")
         else:
-            print(f"❌ 文檔不存在: {docs[choice]}")
+            print(f" 文檔不存在: {docs[choice]}")
     elif choice == "5":
         return
 

@@ -112,20 +112,20 @@ class DailyUpdateCollector:
     
     def collect_stock_prices(self):
         """收集股價資料"""
-        print("🔍 檢查股價資料更新需求...")
-        logger.info("🔄 開始收集股價資料...")
+        print(" 檢查股價資料更新需求...")
+        logger.info(" 開始收集股價資料...")
 
         last_date = self.get_last_update_date('stock_prices', 'date')
         start_date = last_date + timedelta(days=1)
 
         if start_date > self.today:
-            print("✅ 股價資料已是最新，無需更新")
-            logger.info("✅ 股價資料已是最新，無需更新")
+            print(" 股價資料已是最新，無需更新")
+            logger.info(" 股價資料已是最新，無需更新")
             return
 
-        print(f"📅 需要收集期間: {start_date} 到 {self.today}")
-        print("🚀 啟動股價收集腳本...")
-        logger.info(f"📅 收集期間: {start_date} 到 {self.today}")
+        print(f" 需要收集期間: {start_date} 到 {self.today}")
+        print(" 啟動股價收集腳本...")
+        logger.info(f" 收集期間: {start_date} 到 {self.today}")
 
         # 執行股價收集腳本
         cmd = [
@@ -136,29 +136,29 @@ class DailyUpdateCollector:
         ]
 
         try:
-            print("⏳ 執行中，請稍候...")
+            print(" 執行中，請稍候...")
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root, timeout=1800)  # 30分鐘超時
 
             if result.returncode == 0:
                 new_records = self._count_new_records('stock_prices', start_date)
-                print(f"✅ 股價資料收集完成，新增 {new_records:,} 筆資料")
-                logger.info(f"✅ 股價資料收集完成，新增 {new_records:,} 筆資料")
+                print(f" 股價資料收集完成，新增 {new_records:,} 筆資料")
+                logger.info(f" 股價資料收集完成，新增 {new_records:,} 筆資料")
                 self.stats['stock_prices'] = new_records
             else:
-                print(f"❌ 股價資料收集失敗")
-                logger.error(f"❌ 股價資料收集失敗: {result.stderr}")
+                print(f" 股價資料收集失敗")
+                logger.error(f" 股價資料收集失敗: {result.stderr}")
 
         except subprocess.TimeoutExpired:
-            print("⏰ 股價收集超時，可能遇到API限制")
-            logger.warning("⏰ 股價收集超時")
+            print(" 股價收集超時，可能遇到API限制")
+            logger.warning(" 股價收集超時")
         except Exception as e:
-            print(f"❌ 執行股價收集腳本失敗: {e}")
-            logger.error(f"❌ 執行股價收集腳本失敗: {e}")
+            print(f" 執行股價收集腳本失敗: {e}")
+            logger.error(f" 執行股價收集腳本失敗: {e}")
     
     def collect_monthly_revenues(self):
         """收集月營收資料"""
-        print("🔍 檢查月營收資料更新需求...")
-        logger.info("🔄 開始收集月營收資料...")
+        print(" 檢查月營收資料更新需求...")
+        logger.info(" 開始收集月營收資料...")
 
         # 檢查是否需要收集新的月份資料
         current_month = self.today.replace(day=1)
@@ -177,13 +177,13 @@ class DailyUpdateCollector:
 
             last_month_count = cursor.fetchone()[0]
 
-            print(f"📊 {last_month.year}-{last_month.month:02d} 月營收資料: {last_month_count} 檔股票")
+            print(f" {last_month.year}-{last_month.month:02d} 月營收資料: {last_month_count} 檔股票")
 
             # 如果上個月資料少於100檔股票，則需要更新
             if last_month_count < 100:
-                print(f"📅 需要更新 {last_month.year}-{last_month.month:02d} 月營收資料")
-                print("🚀 啟動月營收收集腳本...")
-                logger.info(f"📅 需要更新 {last_month.year}-{last_month.month:02d} 月營收資料")
+                print(f" 需要更新 {last_month.year}-{last_month.month:02d} 月營收資料")
+                print(" 啟動月營收收集腳本...")
+                logger.info(f" 需要更新 {last_month.year}-{last_month.month:02d} 月營收資料")
 
                 # 執行月營收收集腳本
                 start_date = last_month.isoformat()
@@ -196,33 +196,33 @@ class DailyUpdateCollector:
                     "--batch-size", str(self.batch_size)
                 ]
 
-                print("⏳ 執行中，請稍候...")
+                print(" 執行中，請稍候...")
                 result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root, timeout=1200)  # 20分鐘超時
 
                 if result.returncode == 0:
                     new_records = self._count_new_records('monthly_revenues', last_month)
-                    print(f"✅ 月營收資料收集完成，新增 {new_records:,} 筆資料")
-                    logger.info(f"✅ 月營收資料收集完成，新增 {new_records:,} 筆資料")
+                    print(f" 月營收資料收集完成，新增 {new_records:,} 筆資料")
+                    logger.info(f" 月營收資料收集完成，新增 {new_records:,} 筆資料")
                     self.stats['monthly_revenues'] = new_records
                 else:
-                    print("❌ 月營收資料收集失敗")
-                    logger.error(f"❌ 月營收資料收集失敗: {result.stderr}")
+                    print(" 月營收資料收集失敗")
+                    logger.error(f" 月營收資料收集失敗: {result.stderr}")
             else:
-                print("✅ 月營收資料已充足，無需更新")
-                logger.info("✅ 月營收資料已是最新，無需更新")
+                print(" 月營收資料已充足，無需更新")
+                logger.info(" 月營收資料已是最新，無需更新")
 
         except subprocess.TimeoutExpired:
-            print("⏰ 月營收收集超時")
-            logger.warning("⏰ 月營收收集超時")
+            print(" 月營收收集超時")
+            logger.warning(" 月營收收集超時")
         except Exception as e:
-            print(f"❌ 檢查月營收資料失敗: {e}")
-            logger.error(f"❌ 檢查月營收資料失敗: {e}")
+            print(f" 檢查月營收資料失敗: {e}")
+            logger.error(f" 檢查月營收資料失敗: {e}")
         finally:
             conn.close()
     
     def collect_financial_statements(self):
         """收集財務報表資料"""
-        logger.info("🔄 檢查財務報表資料...")
+        logger.info(" 檢查財務報表資料...")
         
         # 檢查是否有新的季報需要收集
         current_quarter = (self.today.month - 1) // 3 + 1
@@ -244,7 +244,7 @@ class DailyUpdateCollector:
                 current_year_count = cursor.fetchone()[0]
                 
                 if current_year_count < 500:  # 如果當年資料少於500檔
-                    logger.info(f"📅 需要更新 {current_year} 年財務報表資料")
+                    logger.info(f" 需要更新 {current_year} 年財務報表資料")
                     
                     cmd = [
                         "python", "scripts/collect_financial_statements.py",
@@ -256,24 +256,24 @@ class DailyUpdateCollector:
                     result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root)
                     
                     if result.returncode == 0:
-                        logger.info("✅ 財務報表資料收集完成")
+                        logger.info(" 財務報表資料收集完成")
                         self.stats['financial_statements'] = self._count_new_records('financial_statements', 
                                                                                    datetime(current_year, 1, 1).date())
                     else:
-                        logger.error(f"❌ 財務報表資料收集失敗: {result.stderr}")
+                        logger.error(f" 財務報表資料收集失敗: {result.stderr}")
                 else:
-                    logger.info("✅ 財務報表資料已是最新，無需更新")
+                    logger.info(" 財務報表資料已是最新，無需更新")
                     
             except Exception as e:
-                logger.error(f"❌ 檢查財務報表資料失敗: {e}")
+                logger.error(f" 檢查財務報表資料失敗: {e}")
             finally:
                 conn.close()
         else:
-            logger.info("✅ 非財報更新期間，跳過財務報表收集")
+            logger.info(" 非財報更新期間，跳過財務報表收集")
     
     def collect_dividend_policies(self):
         """收集股利政策資料"""
-        logger.info("🔄 檢查股利政策資料...")
+        logger.info(" 檢查股利政策資料...")
 
         # 股利政策通常在每年3-6月公布，檢查是否需要更新
         if 3 <= self.today.month <= 8:  # 股利公布期間
@@ -294,7 +294,7 @@ class DailyUpdateCollector:
 
                 # 如果當年度股利資料少於50檔股票，才執行收集
                 if current_year_dividend_count < 50:
-                    logger.info(f"📅 需要更新 {current_year} 年股利政策資料")
+                    logger.info(f" 需要更新 {current_year} 年股利政策資料")
 
                     cmd = [
                         "python", "scripts/collect_dividend_data.py",
@@ -306,22 +306,22 @@ class DailyUpdateCollector:
                     result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root, timeout=300)  # 5分鐘超時
 
                     if result.returncode == 0:
-                        logger.info("✅ 股利政策資料收集完成")
+                        logger.info(" 股利政策資料收集完成")
                         self.stats['dividend_policies'] = self._count_new_records('dividend_policies',
                                                                                 datetime(current_year, 1, 1).date())
                     else:
-                        logger.error(f"❌ 股利政策資料收集失敗: {result.stderr}")
+                        logger.error(f" 股利政策資料收集失敗: {result.stderr}")
                 else:
-                    logger.info(f"✅ {current_year} 年股利政策資料已充足 ({current_year_dividend_count} 檔)，跳過收集")
+                    logger.info(f" {current_year} 年股利政策資料已充足 ({current_year_dividend_count} 檔)，跳過收集")
 
             except subprocess.TimeoutExpired:
-                logger.warning("⏰ 股利政策收集超時，跳過此步驟")
+                logger.warning(" 股利政策收集超時，跳過此步驟")
             except Exception as e:
-                logger.error(f"❌ 執行股利政策收集失敗: {e}")
+                logger.error(f" 執行股利政策收集失敗: {e}")
             finally:
                 conn.close()
         else:
-            logger.info("✅ 非股利公布期間，跳過股利政策收集")
+            logger.info(" 非股利公布期間，跳過股利政策收集")
     
     def _count_new_records(self, table_name, since_date):
         """統計新增的記錄數量"""
@@ -350,32 +350,32 @@ class DailyUpdateCollector:
     
     def update_potential_analysis(self):
         """更新潛力股分析"""
-        print("🔍 檢查潛力股分析更新需求...")
-        logger.info("🔄 更新潛力股分析...")
+        print(" 檢查潛力股分析更新需求...")
+        logger.info(" 更新潛力股分析...")
 
         try:
-            print("🚀 啟動潛力股分析...")
+            print(" 啟動潛力股分析...")
             cmd = [
                 "python", "scripts/analyze_potential_stocks.py",
                 "--top", "100"
             ]
 
-            print("⏳ 分析中，請稍候...")
+            print(" 分析中，請稍候...")
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root, timeout=600)  # 10分鐘超時
 
             if result.returncode == 0:
-                print("✅ 潛力股分析更新完成")
-                logger.info("✅ 潛力股分析更新完成")
+                print(" 潛力股分析更新完成")
+                logger.info(" 潛力股分析更新完成")
             else:
-                print("❌ 潛力股分析更新失敗")
-                logger.error(f"❌ 潛力股分析更新失敗: {result.stderr}")
+                print(" 潛力股分析更新失敗")
+                logger.error(f" 潛力股分析更新失敗: {result.stderr}")
 
         except subprocess.TimeoutExpired:
-            print("⏰ 潛力股分析超時")
-            logger.warning("⏰ 潛力股分析超時")
+            print(" 潛力股分析超時")
+            logger.warning(" 潛力股分析超時")
         except Exception as e:
-            print(f"❌ 執行潛力股分析失敗: {e}")
-            logger.error(f"❌ 執行潛力股分析失敗: {e}")
+            print(f" 執行潛力股分析失敗: {e}")
+            logger.error(f" 執行潛力股分析失敗: {e}")
     
     def run(self):
         """執行每日增量收集"""
@@ -383,48 +383,48 @@ class DailyUpdateCollector:
 
         # 控制台輸出
         print("=" * 60)
-        print("🚀 台股每日增量資料收集開始")
-        print(f"⏰ 開始時間: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"📅 目標日期: {self.today}")
-        print(f"🔄 批次大小: {self.batch_size}")
-        print(f"📊 回溯天數: {self.days_back}")
+        print(" 台股每日增量資料收集開始")
+        print(f" 開始時間: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f" 目標日期: {self.today}")
+        print(f" 批次大小: {self.batch_size}")
+        print(f" 回溯天數: {self.days_back}")
         print("=" * 60)
 
         # 日誌記錄
         logger.info("=" * 60)
-        logger.info("🚀 台股每日增量資料收集開始")
-        logger.info(f"⏰ 開始時間: {start_time}")
-        logger.info(f"📅 目標日期: {self.today}")
-        logger.info(f"🔄 批次大小: {self.batch_size}")
-        logger.info(f"📊 回溯天數: {self.days_back}")
+        logger.info(" 台股每日增量資料收集開始")
+        logger.info(f" 開始時間: {start_time}")
+        logger.info(f" 目標日期: {self.today}")
+        logger.info(f" 批次大小: {self.batch_size}")
+        logger.info(f" 回溯天數: {self.days_back}")
         logger.info("=" * 60)
 
         # 定義收集任務
         tasks = [
-            ("📈 股價資料收集", self.collect_stock_prices),
-            ("💰 月營收資料收集", self.collect_monthly_revenues),
-            ("📊 財務報表檢查", self.collect_financial_statements),
-            ("🎯 股利政策檢查", self.collect_dividend_policies),
+            (" 股價資料收集", self.collect_stock_prices),
+            (" 月營收資料收集", self.collect_monthly_revenues),
+            (" 財務報表檢查", self.collect_financial_statements),
+            (" 股利政策檢查", self.collect_dividend_policies),
             ("🧠 潛力股分析更新", self.update_potential_analysis)
         ]
 
         try:
             # 使用進度條執行任務
-            with tqdm(total=len(tasks), desc="📋 總體進度", unit="任務",
+            with tqdm(total=len(tasks), desc=" 總體進度", unit="任務",
                      bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]") as pbar:
 
                 for i, (task_name, task_func) in enumerate(tasks, 1):
-                    print(f"\n📌 任務 {i}/{len(tasks)}: {task_name}")
+                    print(f"\n 任務 {i}/{len(tasks)}: {task_name}")
                     print("-" * 40)
 
-                    pbar.set_description(f"📋 執行中: {task_name}")
+                    pbar.set_description(f" 執行中: {task_name}")
 
                     try:
                         task_func()
-                        print(f"✅ {task_name} 完成")
+                        print(f" {task_name} 完成")
                     except Exception as e:
-                        print(f"❌ {task_name} 失敗: {e}")
-                        logger.error(f"❌ {task_name} 失敗: {e}")
+                        print(f" {task_name} 失敗: {e}")
+                        logger.error(f" {task_name} 失敗: {e}")
 
                     pbar.update(1)
 
@@ -436,8 +436,8 @@ class DailyUpdateCollector:
             self.show_summary(start_time)
 
         except Exception as e:
-            print(f"❌ 每日增量收集執行失敗: {e}")
-            logger.error(f"❌ 每日增量收集執行失敗: {e}")
+            print(f" 每日增量收集執行失敗: {e}")
+            logger.error(f" 每日增量收集執行失敗: {e}")
             raise
     
     def show_summary(self, start_time):
@@ -447,35 +447,35 @@ class DailyUpdateCollector:
 
         # 控制台輸出
         print("\n" + "=" * 60)
-        print("📊 每日增量收集完成摘要")
+        print(" 每日增量收集完成摘要")
         print("=" * 60)
-        print(f"⏰ 結束時間: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f" 結束時間: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"⏱️  執行時間: {duration}")
         print()
-        print("📈 資料更新統計:")
+        print(" 資料更新統計:")
         print(f"  股價資料         : +{self.stats['stock_prices']:,} 筆")
         print(f"  月營收資料       : +{self.stats['monthly_revenues']:,} 筆")
         print(f"  財務報表資料     : +{self.stats['financial_statements']:,} 筆")
         print(f"  股利政策資料     : +{self.stats['dividend_policies']:,} 筆")
         print()
-        print("🎉 每日增量收集成功完成！")
+        print(" 每日增量收集成功完成！")
         print("🌐 您可以在 Web 介面查看最新資料")
         print("=" * 60)
 
         # 日誌記錄
         logger.info("=" * 60)
-        logger.info("📊 每日增量收集完成摘要")
+        logger.info(" 每日增量收集完成摘要")
         logger.info("=" * 60)
-        logger.info(f"⏰ 結束時間: {end_time}")
+        logger.info(f" 結束時間: {end_time}")
         logger.info(f"⏱️  執行時間: {duration}")
         logger.info("")
-        logger.info("📈 資料更新統計:")
+        logger.info(" 資料更新統計:")
         logger.info(f"  股價資料         : +{self.stats['stock_prices']:,} 筆")
         logger.info(f"  月營收資料       : +{self.stats['monthly_revenues']:,} 筆")
         logger.info(f"  財務報表資料     : +{self.stats['financial_statements']:,} 筆")
         logger.info(f"  股利政策資料     : +{self.stats['dividend_policies']:,} 筆")
         logger.info("")
-        logger.info("🎉 每日增量收集成功完成！")
+        logger.info(" 每日增量收集成功完成！")
         logger.info("🌐 您可以在 Web 介面查看最新資料")
         logger.info("=" * 60)
 
@@ -497,7 +497,7 @@ def main():
         logger.info("👋 用戶中斷執行")
         sys.exit(0)
     except Exception as e:
-        logger.error(f"❌ 系統執行失敗: {e}")
+        logger.error(f" 系統執行失敗: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

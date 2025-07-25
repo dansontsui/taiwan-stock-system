@@ -30,7 +30,7 @@ def format_number(num):
 def show_system_info(query_service):
     """顯示系統資訊"""
     print("=" * 60)
-    print("📊 系統資訊")
+    print("系統資訊")
     print("=" * 60)
     
     stats = query_service.get_database_stats()
@@ -46,7 +46,7 @@ def show_system_info(query_service):
 def show_market_overview(query_service):
     """顯示市場總覽"""
     print("\n" + "=" * 60)
-    print("🏢 市場總覽")
+    print("市場總覽")
     print("=" * 60)
     
     market_summary = query_service.get_market_summary()
@@ -69,7 +69,7 @@ def show_market_overview(query_service):
 def show_stock_rankings(query_service):
     """顯示股票排行"""
     print("\n" + "=" * 60)
-    print("🏆 今日漲幅排行 TOP 10")
+    print("今日漲幅排行 TOP 10")
     print("=" * 60)
     
     gainers = query_service.get_top_performers(limit=10, performance_type='gain')
@@ -79,14 +79,16 @@ def show_stock_rankings(query_service):
         print("-" * 65)
         
         for i, stock in enumerate(gainers, 1):
-            change_pct = stock.get('change_percent', 0)
+            change_pct = stock.get('change_percent', 0) or 0
+            spread = stock.get('spread', 0) or 0
+            close_price = stock.get('close_price', 0) or 0
             print(f"{i:<4} {stock['stock_id']:<8} {stock['stock_name'][:10]:<12} "
-                  f"{stock['close_price']:<8.2f} {stock['spread']:+.2f}{'':>4} {change_pct:+.2f}%")
+                  f"{close_price:<8.2f} {spread:+.2f}{'':>4} {change_pct:+.2f}%")
     else:
         print("暫無資料")
     
     print("\n" + "=" * 60)
-    print("📉 今日跌幅排行 TOP 10")
+    print("今日跌幅排行 TOP 10")
     print("=" * 60)
     
     losers = query_service.get_top_performers(limit=10, performance_type='loss')
@@ -96,16 +98,18 @@ def show_stock_rankings(query_service):
         print("-" * 65)
         
         for i, stock in enumerate(losers, 1):
-            change_pct = stock.get('change_percent', 0)
+            change_pct = stock.get('change_percent', 0) or 0
+            spread = stock.get('spread', 0) or 0
+            close_price = stock.get('close_price', 0) or 0
             print(f"{i:<4} {stock['stock_id']:<8} {stock['stock_name'][:10]:<12} "
-                  f"{stock['close_price']:<8.2f} {stock['spread']:+.2f}{'':>4} {change_pct:+.2f}%")
+                  f"{close_price:<8.2f} {spread:+.2f}{'':>4} {change_pct:+.2f}%")
     else:
         print("暫無資料")
 
 def show_volume_leaders(query_service):
     """顯示成交量排行"""
     print("\n" + "=" * 60)
-    print("💹 成交量排行 TOP 10")
+    print("成交量排行 TOP 10")
     print("=" * 60)
     
     volume_leaders = query_service.get_volume_leaders(limit=10)
@@ -115,15 +119,17 @@ def show_volume_leaders(query_service):
         print("-" * 55)
         
         for i, stock in enumerate(volume_leaders, 1):
+            close_price = stock.get('close_price', 0) or 0
+            volume = stock.get('volume', 0) or 0
             print(f"{i:<4} {stock['stock_id']:<8} {stock['stock_name'][:10]:<12} "
-                  f"{stock['close_price']:<8.2f} {format_number(stock['volume']):<12}")
+                  f"{close_price:<8.2f} {format_number(volume):<12}")
     else:
         print("暫無資料")
 
 def show_stock_detail(query_service, stock_id):
     """顯示股票詳細資訊"""
     print(f"\n" + "=" * 60)
-    print(f"📈 股票詳細資訊: {stock_id}")
+    print(f"股票詳細資訊: {stock_id}")
     print("=" * 60)
     
     # 基本資訊
@@ -140,24 +146,25 @@ def show_stock_detail(query_service, stock_id):
     latest_price = query_service.get_latest_price(stock_id)
     if latest_price:
         print(f"\n最新價格資訊 ({latest_price['date']}):")
-        print(f"開盤價: {latest_price['open_price']:.2f}")
-        print(f"最高價: {latest_price['high_price']:.2f}")
-        print(f"最低價: {latest_price['low_price']:.2f}")
-        print(f"收盤價: {latest_price['close_price']:.2f}")
-        print(f"漲跌: {latest_price['spread']:+.2f}")
-        print(f"成交量: {format_number(latest_price['volume'])}")
-        if latest_price['trading_money']:
+        print(f"開盤價: {latest_price.get('open_price', 0) or 0:.2f}")
+        print(f"最高價: {latest_price.get('high_price', 0) or 0:.2f}")
+        print(f"最低價: {latest_price.get('low_price', 0) or 0:.2f}")
+        print(f"收盤價: {latest_price.get('close_price', 0) or 0:.2f}")
+        spread = latest_price.get('spread', 0) or 0
+        print(f"漲跌: {spread:+.2f}")
+        print(f"成交量: {format_number(latest_price.get('volume', 0) or 0)}")
+        if latest_price.get('trading_money'):
             print(f"成交金額: {format_number(latest_price['trading_money'])}")
     
     # 價格統計
     price_range = query_service.get_price_range(stock_id, days=30)
     if price_range:
         print(f"\n近30日統計:")
-        print(f"最高價: {price_range['max_price']:.2f}")
-        print(f"最低價: {price_range['min_price']:.2f}")
-        print(f"平均價: {price_range['avg_price']:.2f}")
-        print(f"總成交量: {format_number(price_range['total_volume'])}")
-        print(f"交易天數: {price_range['trading_days']}")
+        print(f"最高價: {price_range.get('max_price', 0) or 0:.2f}")
+        print(f"最低價: {price_range.get('min_price', 0) or 0:.2f}")
+        print(f"平均價: {price_range.get('avg_price', 0) or 0:.2f}")
+        print(f"總成交量: {format_number(price_range.get('total_volume', 0) or 0)}")
+        print(f"交易天數: {price_range.get('trading_days', 0) or 0}")
     
     # 如果是ETF，顯示配息資訊
     if stock_info['is_etf']:
@@ -178,7 +185,7 @@ def show_stock_detail(query_service, stock_id):
 def interactive_demo(query_service):
     """互動式演示"""
     print("\n" + "=" * 60)
-    print("🔍 互動式查詢")
+    print("互動式查詢")
     print("=" * 60)
     print("輸入股票代碼查詢詳細資訊 (輸入 'quit' 結束)")
     
@@ -202,7 +209,7 @@ def interactive_demo(query_service):
 def main():
     """主函數"""
     print("=" * 60)
-    print("📈 台股歷史股價系統 - 簡單演示")
+    print("台股歷史股價系統 - 簡單演示")
     print("=" * 60)
     
     try:
@@ -231,11 +238,11 @@ def main():
         interactive_demo(query_service)
         
         print("\n" + "=" * 60)
-        print("👋 感謝使用台股歷史股價系統！")
+        print("感謝使用台股歷史股價系統！")
         print("=" * 60)
-        
+
     except Exception as e:
-        print(f"❌ 系統錯誤: {e}")
+        print(f"[ERROR] 系統錯誤: {e}")
         import traceback
         traceback.print_exc()
 
