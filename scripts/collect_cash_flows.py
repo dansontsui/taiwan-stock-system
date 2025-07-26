@@ -287,7 +287,7 @@ def main():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--start-date', default='2015-01-01', help=' (YYYY-MM-DD)')
     parser.add_argument('--end-date', default=datetime.now().strftime('%Y-%m-%d'), help=' (YYYY-MM-DD)')
-    parser.add_argument('--batch-size', type=int, default=3, help='')
+    parser.add_argument('--batch-size', type=int, default=50, help='')
     parser.add_argument('--test', action='store_true', help='3')
     
     args = parser.parse_args()

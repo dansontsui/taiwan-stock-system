@@ -151,24 +151,24 @@ def collect_stock_prices_incremental(db_manager, finmind_collector, stock_id, st
     # 檢查現有資料
     existing_count, expected_count, completion_rate = check_existing_data(db_manager, stock_id, start_date, end_date)
 
-    print(f" {stock_id} 資料狀況:")
-    print(f"  現有資料: {existing_count:,} 筆")
-    print(f"  預期資料: {expected_count:,} 筆")
-    print(f"  完成度: {completion_rate:.1f}%")
+    print(f" {stock_id} 資料狀況:", flush=True)
+    print(f"  現有資料: {existing_count:,} 筆", flush=True)
+    print(f"  預期資料: {expected_count:,} 筆", flush=True)
+    print(f"  完成度: {completion_rate:.1f}%", flush=True)
 
     # 如果完成度超過閾值，跳過
     if completion_rate >= skip_threshold:
-        print(f" {stock_id} 完成度 {completion_rate:.1f}% >= {skip_threshold}%，跳過收集")
+        print(f" {stock_id} 完成度 {completion_rate:.1f}% >= {skip_threshold}%，跳過收集", flush=True)
         return existing_count, 0
 
     # 獲取缺失的日期範圍
     missing_ranges = get_missing_date_ranges(db_manager, stock_id, start_date, end_date)
 
     if not missing_ranges:
-        print(f" {stock_id} 無缺失資料")
+        print(f" {stock_id} 無缺失資料", flush=True)
         return existing_count, 0
 
-    print(f" {stock_id} 發現 {len(missing_ranges)} 個缺失範圍")
+    print(f" {stock_id} 發現 {len(missing_ranges)} 個缺失範圍", flush=True)
 
     total_collected = 0
 
@@ -246,20 +246,20 @@ def main():
     parser = argparse.ArgumentParser(description='智能股價資料收集')
     parser.add_argument('--start-date', default='2024-01-01', help='開始日期 (YYYY-MM-DD)')
     parser.add_argument('--end-date', default=datetime.now().strftime('%Y-%m-%d'), help='結束日期 (YYYY-MM-DD)')
-    parser.add_argument('--batch-size', type=int, default=10, help='批次大小')
+    parser.add_argument('--batch-size', type=int, default=50, help='批次大小')
     parser.add_argument('--skip-threshold', type=int, default=90, help='跳過閾值 (%)')
     parser.add_argument('--stock-id', help='指定股票代碼')
     parser.add_argument('--test', action='store_true', help='測試模式（只收集少量資料）')
 
     args = parser.parse_args()
 
-    print("=" * 60)
-    print("智能股價資料收集系統")
-    print("=" * 60)
-    print(f"收集期間: {args.start_date} ~ {args.end_date}")
-    print(f"批次大小: {args.batch_size}")
-    print(f"跳過閾值: {args.skip_threshold}%")
-    print("=" * 60)
+    print("=" * 60, flush=True)
+    print("智能股價資料收集系統", flush=True)
+    print("=" * 60, flush=True)
+    print(f"收集期間: {args.start_date} ~ {args.end_date}", flush=True)
+    print(f"批次大小: {args.batch_size}", flush=True)
+    print(f"跳過閾值: {args.skip_threshold}%", flush=True)
+    print("=" * 60, flush=True)
 
     # 初始化
     init_logging()
@@ -287,8 +287,8 @@ def main():
         # 測試模式：只處理前3檔股票
         if args.test:
             stock_ids = stock_ids[:3]
-            print("測試模式：只收集前3檔股票")
-        print(f" 準備收集 {len(stock_ids)} 檔股票資料")
+            print("🧪 測試模式：只收集前3檔股票", flush=True)
+        print(f" 準備收集 {len(stock_ids)} 檔股票資料", flush=True)
 
         total_existing = 0
         total_collected = 0
@@ -296,7 +296,7 @@ def main():
         skipped_count = 0
 
         for i, stock_id in enumerate(stock_ids, 1):
-            print(f"\n [{i}/{len(stock_ids)}] 處理 {stock_id}")
+            print(f"\n [{i}/{len(stock_ids)}] 處理 {stock_id}", flush=True)
 
             try:
                 existing, collected = collect_stock_prices_incremental(
@@ -310,24 +310,27 @@ def main():
 
                 if collected == 0:
                     skipped_count += 1
+                    print(f"   ⏭️  跳過 {stock_id} (資料已完整)", flush=True)
+                else:
+                    print(f"   ✅ {stock_id} 收集完成: +{collected} 筆", flush=True)
 
                 # 批次間休息
                 if i % args.batch_size == 0:
-                    print(f"\n  批次休息30秒... (已處理 {i}/{len(stock_ids)})")
+                    print(f"\n  批次休息30秒... (已處理 {i}/{len(stock_ids)})", flush=True)
                     time.sleep(30)
 
             except Exception as e:
-                print(f" {stock_id} 處理失敗: {e}")
+                print(f" {stock_id} 處理失敗: {e}", flush=True)
                 logger.error(f"處理 {stock_id} 失敗: {e}")
 
         # 最終統計
-        print("\n" + "=" * 60)
-        print(" 智能股價收集完成")
-        print("=" * 60)
-        print(f"處理股票: {processed_count}/{len(stock_ids)}")
-        print(f"跳過股票: {skipped_count}")
-        print(f"現有資料: {total_existing:,} 筆")
-        print(f"新收集資料: {total_collected:,} 筆")
+        print("\n" + "=" * 60, flush=True)
+        print(" 智能股價收集完成", flush=True)
+        print("=" * 60, flush=True)
+        print(f"📊 處理股票: {processed_count}/{len(stock_ids)}", flush=True)
+        print(f"⏭️  跳過股票: {skipped_count}", flush=True)
+        print(f"📈 現有資料: {total_existing:,} 筆", flush=True)
+        print(f"✨ 新收集資料: {total_collected:,} 筆", flush=True)
         print(f"總資料量: {total_existing + total_collected:,} 筆")
         print("=" * 60)
 

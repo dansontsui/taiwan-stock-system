@@ -53,7 +53,12 @@ def main():
         print("\n資料表資訊:")
         print("-" * 40)
         
-        tables = ['stocks', 'stock_prices', 'technical_indicators', 'etf_dividends', 'data_updates']
+        tables = [
+            'stocks', 'stock_prices', 'technical_indicators', 'etf_dividends', 'data_updates',
+            'cash_flow_statements', 'market_values', 'stock_splits', 'dividend_results',
+            'monthly_revenues', 'financial_statements', 'balance_sheets', 'dividend_policies',
+            'financial_ratios', 'stock_scores'
+        ]
         
         for table in tables:
             try:

@@ -147,7 +147,14 @@ def get_data_statistics():
         ('balance_sheets', '資產負債表'),
         ('dividend_policies', '股利政策'),
         ('financial_ratios', '財務比率'),
-        ('stock_scores', '潛力股評分')
+        ('stock_scores', '潛力股評分'),
+        ('cash_flow_statements', '現金流量表'),
+        ('market_values', '市值資料'),
+        ('stock_splits', '股票分割'),
+        ('dividend_results', '股利發放結果'),
+        ('technical_indicators', '技術指標'),
+        ('etf_dividends', 'ETF配息'),
+        ('data_updates', '資料更新記錄')
     ]
     
     try:
@@ -422,6 +429,8 @@ def display_progress():
             except KeyboardInterrupt:
                 print("\n👋 監控已停止")
                 break
+    except KeyboardInterrupt:
+        print("\n👋 監控已停止")
     except KeyboardInterrupt:
         print("\n👋 監控已停止")
 

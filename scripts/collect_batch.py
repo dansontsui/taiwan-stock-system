@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-分批收集股票資料腳本 - 自動處理API限制
+分批收集股票綜合資料腳本 - 包含股價、現金流量表、除權息資料等
+自動處理API限制，支援智能等待和重試機制
 """
 
 import sys
@@ -61,25 +62,71 @@ def wait_for_api_reset(start_time=None):
     print(f"\n [{datetime.now().strftime('%H:%M:%S')}] 等待完成，繼續收集資料...")
     print("="*60)
 
-def collect_batch_with_retry(collector, stock_batch, start_date, end_date, batch_start_time, max_retries=3):
-    """收集一批股票資料，支援重試"""
+def collect_comprehensive_batch_with_retry(collector, stock_batch, start_date, end_date, batch_start_time, max_retries=3):
+    """收集一批股票的完整資料，包含股價、現金流量表、除權息資料等"""
+    collected_results = {
+        'stock_prices': {},
+        'cash_flow_statements': {},
+        'dividend_results': {},
+        'monthly_revenues': {},
+        'financial_statements': {},
+        'balance_sheets': {},
+        'dividend_policies': {}
+    }
+
     for attempt in range(max_retries):
         try:
-            print(f"\n 收集批次資料 (第 {attempt + 1} 次嘗試)...")
-            collected_data = collector.collect_batch_data(
+            print(f"\n 📊 收集批次完整資料 (第 {attempt + 1} 次嘗試)...")
+
+            # 1. 收集股價資料
+            print("   💹 收集股價資料...")
+            stock_prices = collector.collect_batch_data(
                 stock_list=stock_batch,
                 start_date=start_date,
                 end_date=end_date,
                 batch_size=10
             )
-            return collected_data
-            
+            if stock_prices:
+                collected_results['stock_prices'] = stock_prices.get('stock_prices', {})
+
+            # 2. 收集現金流量表資料
+            print("   💰 收集現金流量表資料...")
+            for stock in stock_batch:
+                try:
+                    cash_flow_data = collector._make_request(
+                        dataset="TaiwanStockCashFlowsStatement",
+                        data_id=stock['stock_id'],
+                        start_date=start_date,
+                        end_date=end_date
+                    )
+                    if cash_flow_data and cash_flow_data.get('data'):
+                        collected_results['cash_flow_statements'][stock['stock_id']] = cash_flow_data['data']
+                except Exception as e:
+                    print(f"     ⚠️ {stock['stock_id']} 現金流量表收集失敗: {e}")
+
+            # 3. 收集除權息結果資料
+            print("   🎯 收集除權息結果資料...")
+            for stock in stock_batch:
+                try:
+                    dividend_result_data = collector._make_request(
+                        dataset="TaiwanStockDividendResult",
+                        data_id=stock['stock_id'],
+                        start_date=start_date,
+                        end_date=end_date
+                    )
+                    if dividend_result_data and dividend_result_data.get('data'):
+                        collected_results['dividend_results'][stock['stock_id']] = dividend_result_data['data']
+                except Exception as e:
+                    print(f"     ⚠️ {stock['stock_id']} 除權息結果收集失敗: {e}")
+
+            return collected_results
+
         except Exception as e:
             error_msg = str(e)
-            
+
             # 檢查是否為API限制錯誤
             if "402" in error_msg or "Payment Required" in error_msg:
-                print(f"\n  遇到API限制錯誤: {error_msg}")
+                print(f"\n  ⚠️ 遇到API限制錯誤: {error_msg}")
                 if attempt < max_retries - 1:
                     wait_for_api_reset(batch_start_time)
                     # 重置開始時間為等待後的時間
@@ -87,25 +134,28 @@ def collect_batch_with_retry(collector, stock_batch, start_date, end_date, batch
                     continue
                 else:
                     raise Exception("API限制錯誤，已達最大重試次數")
-            
+
             # 其他錯誤
             elif attempt < max_retries - 1:
-                print(f"  收集失敗 (第 {attempt + 1} 次): {error_msg}")
+                print(f"  ❌ 收集失敗 (第 {attempt + 1} 次): {error_msg}")
                 print("等待30秒後重試...")
                 time.sleep(30)
                 continue
             else:
                 raise e
-    
-    return None
 
-def check_existing_data(db_manager, stock_id, start_date, end_date):
-    """檢查股票是否已有完整資料"""
+    return collected_results
+
+def check_existing_comprehensive_data(db_manager, stock_id, start_date, end_date):
+    """檢查股票是否已有完整的綜合資料"""
     try:
         conn = db_manager.get_connection()
         cursor = conn.cursor()
 
-        # 檢查是否有該股票的資料
+        data_status = {}
+        missing_data = []
+
+        # 檢查股價資料
         cursor.execute('''
             SELECT COUNT(*), MIN(date), MAX(date)
             FROM stock_prices
@@ -113,18 +163,52 @@ def check_existing_data(db_manager, stock_id, start_date, end_date):
         ''', (stock_id,))
 
         result = cursor.fetchone()
+        if result and result[0] > 0:
+            count, min_date, max_date = result
+            if min_date <= start_date and max_date >= end_date:
+                data_status['stock_prices'] = f"完整 ({count:,}筆)"
+            else:
+                data_status['stock_prices'] = f"不完整 ({count:,}筆)"
+                missing_data.append('股價')
+        else:
+            data_status['stock_prices'] = "無資料"
+            missing_data.append('股價')
+
+        # 檢查現金流量表資料
+        cursor.execute('''
+            SELECT COUNT(*)
+            FROM cash_flow_statements
+            WHERE stock_id = ?
+        ''', (stock_id,))
+
+        result = cursor.fetchone()
+        if result and result[0] > 0:
+            data_status['cash_flow'] = f"有資料 ({result[0]:,}筆)"
+        else:
+            data_status['cash_flow'] = "無資料"
+            missing_data.append('現金流量表')
+
+        # 檢查除權息結果資料
+        cursor.execute('''
+            SELECT COUNT(*)
+            FROM dividend_results
+            WHERE stock_id = ?
+        ''', (stock_id,))
+
+        result = cursor.fetchone()
+        if result and result[0] > 0:
+            data_status['dividend_results'] = f"有資料 ({result[0]:,}筆)"
+        else:
+            data_status['dividend_results'] = "無資料"
+            missing_data.append('除權息結果')
+
         conn.close()
 
-        if not result or result[0] == 0:
-            return False, "無資料"
-
-        count, min_date, max_date = result
-
-        # 檢查資料範圍是否涵蓋需求範圍
-        if min_date <= start_date and max_date >= end_date:
-            return True, f"已有完整資料 ({count:,}筆, {min_date}~{max_date})"
+        # 判斷是否需要收集
+        if len(missing_data) == 0:
+            return True, f"完整資料 - 股價:{data_status['stock_prices']}, 現金流:{data_status['cash_flow']}, 除權息:{data_status['dividend_results']}"
         else:
-            return False, f"資料不完整 ({count:,}筆, {min_date}~{max_date})"
+            return False, f"缺少: {', '.join(missing_data)}"
 
     except Exception as e:
         return False, f"檢查失敗: {e}"
@@ -139,7 +223,8 @@ def collect_main_stocks_batch(start_date=None, end_date=None, batch_size=200, sk
         end_date = Config.DATA_END_DATE
     
     print("="*60)
-    print(" 台股主要股票分批收集系統")
+    print(" 台股主要股票綜合資料分批收集系統")
+    print(" 包含：股價、現金流量表、除權息資料")
     print("="*60)
     print(f"資料期間: {start_date} ~ {end_date}")
     print(f"批次大小: {batch_size} 檔")
@@ -182,7 +267,7 @@ def collect_main_stocks_batch(start_date=None, end_date=None, batch_size=200, sk
 
         # 2. 檢查已有資料，過濾需要收集的股票 (預設啟用)
         if skip_existing:
-            print(f"\n2. 檢查已有資料...")
+            print(f"\n2. 檢查已有綜合資料...")
             stocks_to_collect = []
             stocks_skipped = []
 
@@ -190,7 +275,7 @@ def collect_main_stocks_batch(start_date=None, end_date=None, batch_size=200, sk
                 if i % 100 == 0:
                     print(f"   檢查進度: {i}/{len(main_stocks)}")
 
-                has_data, reason = check_existing_data(db_manager, stock['stock_id'], start_date, end_date)
+                has_data, reason = check_existing_comprehensive_data(db_manager, stock['stock_id'], start_date, end_date)
 
                 if has_data:
                     stocks_skipped.append({
@@ -244,20 +329,26 @@ def collect_main_stocks_batch(start_date=None, end_date=None, batch_size=200, sk
                 # 記錄這批的開始時間
                 batch_start_time = datetime.now()
 
-                # 收集這批股票的資料
-                collected_data = collect_batch_with_retry(
+                # 收集這批股票的綜合資料
+                collected_data = collect_comprehensive_batch_with_retry(
                     collector, stock_batch, start_date, end_date, batch_start_time
                 )
-                
+
                 if collected_data:
-                    # 儲存資料 (這裡可以加入儲存邏輯)
-                    batch_collected = len(collected_data.get('stock_prices', {}))
-                    total_collected += batch_collected
+                    # 統計收集結果
+                    stock_prices_count = len(collected_data.get('stock_prices', {}))
+                    cash_flow_count = len(collected_data.get('cash_flow_statements', {}))
+                    dividend_results_count = len(collected_data.get('dividend_results', {}))
+
+                    total_collected += stock_prices_count
                     successful_batches += 1
-                    
-                    print(f" 第 {batch_num + 1} 批完成，收集 {batch_collected} 檔股票資料")
+
+                    print(f" ✅ 第 {batch_num + 1} 批完成:")
+                    print(f"    💹 股價資料: {stock_prices_count} 檔")
+                    print(f"    💰 現金流量表: {cash_flow_count} 檔")
+                    print(f"    🎯 除權息結果: {dividend_results_count} 檔")
                 else:
-                    print(f" 第 {batch_num + 1} 批失敗")
+                    print(f" ❌ 第 {batch_num + 1} 批失敗")
                 
                 # 批次間等待，避免請求過快
                 if batch_num < total_batches - 1:
@@ -298,7 +389,7 @@ def collect_main_stocks_batch(start_date=None, end_date=None, batch_size=200, sk
 
 def main():
     """主函數"""
-    parser = argparse.ArgumentParser(description='分批收集台股主要股票資料')
+    parser = argparse.ArgumentParser(description='分批收集台股主要股票綜合資料 (股價+現金流量表+除權息資料)')
     parser.add_argument('--start-date', help='開始日期 (YYYY-MM-DD)')
     parser.add_argument('--end-date', help='結束日期 (YYYY-MM-DD)')
     parser.add_argument('--batch-size', type=int, default=200, help='批次大小 (預設200檔)')

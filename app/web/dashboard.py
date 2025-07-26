@@ -7,6 +7,7 @@ Streamlit 儀表板
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import plotly.express as px
 from datetime import datetime, timedelta
 import sys
@@ -855,78 +856,1042 @@ def create_revenue_trend_chart(revenue_data, stock_name):
 
     return fig
 
-def show_stock_analysis(db_manager, query_service):
-    """顯示合併後的股票分析頁面"""
-    st.header("🔍 股票分析")
+def calculate_technical_indicators(df):
+    """計算技術指標"""
+    if len(df) < 20:
+        return df
 
-    # 股票選擇
-    col1, col2 = st.columns([2, 1])
+    # 移動平均線
+    df['MA5'] = df['close_price'].rolling(window=5).mean()
+    df['MA10'] = df['close_price'].rolling(window=10).mean()
+    df['MA20'] = df['close_price'].rolling(window=20).mean()
+    df['MA60'] = df['close_price'].rolling(window=60).mean() if len(df) >= 60 else None
+
+    # RSI
+    delta = df['close_price'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+    rs = gain / loss
+    df['RSI'] = 100 - (100 / (1 + rs))
+
+    # MACD
+    exp1 = df['close_price'].ewm(span=12).mean()
+    exp2 = df['close_price'].ewm(span=26).mean()
+    df['MACD'] = exp1 - exp2
+    df['MACD_signal'] = df['MACD'].ewm(span=9).mean()
+    df['MACD_histogram'] = df['MACD'] - df['MACD_signal']
+
+    # 布林通道
+    df['BB_middle'] = df['close_price'].rolling(window=20).mean()
+    bb_std = df['close_price'].rolling(window=20).std()
+    df['BB_upper'] = df['BB_middle'] + (bb_std * 2)
+    df['BB_lower'] = df['BB_middle'] - (bb_std * 2)
+
+    # 價格變化
+    df['price_change'] = df['close_price'].pct_change()
+    df['price_change_abs'] = df['close_price'].diff()
+
+    return df
+
+def show_overview_tab(df, stock_info, stock_id, db_manager):
+    """顯示總覽標籤頁"""
+    st.markdown('<div class="tab-container">', unsafe_allow_html=True)
+
+    # 最新股價資訊
+    latest = df.iloc[-1]
+    prev = df.iloc[-2] if len(df) > 1 else latest
+
+    # 計算漲跌
+    price_change = latest['close_price'] - prev['close_price']
+    price_change_pct = (price_change / prev['close_price']) * 100 if prev['close_price'] != 0 else 0
+
+    # 股價指標卡片
+    st.subheader("💰 即時股價資訊")
+
+    col1, col2, col3, col4, col5 = st.columns(5)
 
     with col1:
-        stock_id = st.text_input("股票代碼", placeholder="例如: 2330")
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">收盤價</div>
+            <div class="metric-value">{latest['close_price']:.2f}</div>
+            <div class="{'performance-positive' if price_change >= 0 else 'performance-negative'}">
+                {'+' if price_change >= 0 else ''}{price_change:.2f} ({'+' if price_change_pct >= 0 else ''}{price_change_pct:.2f}%)
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col2:
-        st.write("📅 顯示期間")
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">開盤價</div>
+            <div class="metric-value">{latest['open_price']:.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        # 初始化 session state for days
-        if 'selected_days' not in st.session_state:
-            st.session_state.selected_days = 90
+    with col3:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">最高價</div>
+            <div class="metric-value">{latest['high_price']:.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        # 使用按鈕選擇天數
-        day_options = [
-            (30, "1個月"),
-            (60, "2個月"),
-            (90, "3個月"),
-            (180, "6個月"),
-            (252, "1年")
-        ]
+    with col4:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">最低價</div>
+            <div class="metric-value">{latest['low_price']:.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        cols = st.columns(len(day_options))
-        for i, (day_value, day_label) in enumerate(day_options):
-            with cols[i]:
-                is_selected = st.session_state.selected_days == day_value
-                if is_selected:
+    with col5:
+        volume_str = format_number(latest['volume'])
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-label">成交量</div>
+            <div class="metric-value">{volume_str}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # K線圖
+    st.subheader("📊 股價走勢圖")
+    candlestick_fig = create_enhanced_candlestick_chart(df, stock_info['stock_name'])
+    st.plotly_chart(candlestick_fig, use_container_width=True)
+
+    # 成交量圖
+    volume_fig = create_volume_chart(df, f"{stock_info['stock_name']} 成交量")
+    st.plotly_chart(volume_fig, use_container_width=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def create_enhanced_candlestick_chart(df, title):
+    """創建增強版K線圖（包含移動平均線）"""
+    fig = make_subplots(
+        rows=2, cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.1,
+        subplot_titles=(title, 'RSI'),
+        row_width=[0.7, 0.3]
+    )
+
+    # K線圖
+    fig.add_trace(
+        go.Candlestick(
+            x=df['date'],
+            open=df['open_price'],
+            high=df['high_price'],
+            low=df['low_price'],
+            close=df['close_price'],
+            name="K線",
+            increasing_line_color='#00C851',
+            decreasing_line_color='#ff4444'
+        ),
+        row=1, col=1
+    )
+
+    # 移動平均線
+    if 'MA5' in df.columns:
+        fig.add_trace(
+            go.Scatter(
+                x=df['date'],
+                y=df['MA5'],
+                mode='lines',
+                name='MA5',
+                line=dict(color='orange', width=1)
+            ),
+            row=1, col=1
+        )
+
+    if 'MA20' in df.columns:
+        fig.add_trace(
+            go.Scatter(
+                x=df['date'],
+                y=df['MA20'],
+                mode='lines',
+                name='MA20',
+                line=dict(color='blue', width=1)
+            ),
+            row=1, col=1
+        )
+
+    # 布林通道
+    if 'BB_upper' in df.columns:
+        fig.add_trace(
+            go.Scatter(
+                x=df['date'],
+                y=df['BB_upper'],
+                mode='lines',
+                name='布林上軌',
+                line=dict(color='gray', width=1, dash='dash'),
+                opacity=0.5
+            ),
+            row=1, col=1
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=df['date'],
+                y=df['BB_lower'],
+                mode='lines',
+                name='布林下軌',
+                line=dict(color='gray', width=1, dash='dash'),
+                fill='tonexty',
+                fillcolor='rgba(128,128,128,0.1)',
+                opacity=0.5
+            ),
+            row=1, col=1
+        )
+
+    # RSI
+    if 'RSI' in df.columns:
+        fig.add_trace(
+            go.Scatter(
+                x=df['date'],
+                y=df['RSI'],
+                mode='lines',
+                name='RSI',
+                line=dict(color='purple', width=2)
+            ),
+            row=2, col=1
+        )
+
+        # RSI 超買超賣線
+        fig.add_hline(y=70, line_dash="dash", line_color="red", opacity=0.5, row=2, col=1)
+        fig.add_hline(y=30, line_dash="dash", line_color="green", opacity=0.5, row=2, col=1)
+
+    fig.update_layout(
+        title=title,
+        xaxis_rangeslider_visible=False,
+        height=600,
+        showlegend=True,
+        template="plotly_white"
+    )
+
+    fig.update_yaxes(title_text="價格", row=1, col=1)
+    fig.update_yaxes(title_text="RSI", row=2, col=1, range=[0, 100])
+
+    return fig
+
+def show_technical_tab(df, stock_info):
+    """顯示技術分析標籤頁"""
+    st.markdown('<div class="tab-container">', unsafe_allow_html=True)
+
+    st.subheader("📈 技術指標分析")
+
+    # 技術指標數值
+    latest = df.iloc[-1]
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        if 'RSI' in df.columns and not pd.isna(latest['RSI']):
+            rsi_color = "red" if latest['RSI'] > 70 else "green" if latest['RSI'] < 30 else "blue"
+            rsi_status = "超買" if latest['RSI'] > 70 else "超賣" if latest['RSI'] < 30 else "正常"
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-label">RSI (14日)</div>
+                <div class="metric-value" style="color: {rsi_color};">{latest['RSI']:.1f}</div>
+                <div style="color: {rsi_color};">{rsi_status}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with col2:
+        if 'MACD' in df.columns and not pd.isna(latest['MACD']):
+            macd_color = "green" if latest['MACD'] > latest['MACD_signal'] else "red"
+            macd_trend = "多頭" if latest['MACD'] > latest['MACD_signal'] else "空頭"
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-label">MACD</div>
+                <div class="metric-value" style="color: {macd_color};">{latest['MACD']:.3f}</div>
+                <div style="color: {macd_color};">{macd_trend}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with col3:
+        if 'MA20' in df.columns and not pd.isna(latest['MA20']):
+            ma_color = "green" if latest['close_price'] > latest['MA20'] else "red"
+            ma_position = "站上" if latest['close_price'] > latest['MA20'] else "跌破"
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-label">MA20位置</div>
+                <div class="metric-value" style="color: {ma_color};">{latest['MA20']:.2f}</div>
+                <div style="color: {ma_color};">{ma_position}均線</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with col4:
+        if 'BB_upper' in df.columns and not pd.isna(latest['BB_upper']):
+            bb_position = ""
+            bb_color = "blue"
+            if latest['close_price'] > latest['BB_upper']:
+                bb_position = "上軌之上"
+                bb_color = "red"
+            elif latest['close_price'] < latest['BB_lower']:
+                bb_position = "下軌之下"
+                bb_color = "green"
+            else:
+                bb_position = "軌道內"
+                bb_color = "blue"
+
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-label">布林通道</div>
+                <div class="metric-value" style="color: {bb_color};">{latest['close_price']:.2f}</div>
+                <div style="color: {bb_color};">{bb_position}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # MACD圖表
+    if 'MACD' in df.columns:
+        st.subheader("📊 MACD指標")
+        macd_fig = create_macd_chart(df, stock_info['stock_name'])
+        st.plotly_chart(macd_fig, use_container_width=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def create_macd_chart(df, title):
+    """創建MACD圖表"""
+    fig = make_subplots(
+        rows=2, cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.1,
+        subplot_titles=(f"{title} MACD", "MACD柱狀圖"),
+        row_heights=[0.7, 0.3]
+    )
+
+    # MACD線
+    fig.add_trace(
+        go.Scatter(
+            x=df['date'],
+            y=df['MACD'],
+            mode='lines',
+            name='MACD',
+            line=dict(color='blue', width=2)
+        ),
+        row=1, col=1
+    )
+
+    # 信號線
+    fig.add_trace(
+        go.Scatter(
+            x=df['date'],
+            y=df['MACD_signal'],
+            mode='lines',
+            name='Signal',
+            line=dict(color='red', width=2)
+        ),
+        row=1, col=1
+    )
+
+    # MACD柱狀圖
+    colors = ['green' if val >= 0 else 'red' for val in df['MACD_histogram']]
+    fig.add_trace(
+        go.Bar(
+            x=df['date'],
+            y=df['MACD_histogram'],
+            name='MACD Histogram',
+            marker_color=colors
+        ),
+        row=2, col=1
+    )
+
+    fig.update_layout(
+        height=400,
+        showlegend=True,
+        template="plotly_white"
+    )
+
+    return fig
+
+def show_fundamental_tab(stock_id, stock_info, db_manager):
+    """顯示基本面分析標籤頁"""
+    st.markdown('<div class="tab-container">', unsafe_allow_html=True)
+
+    conn = db_manager.get_connection()
+    cursor = conn.cursor()
+
+    # 營收分析
+    st.subheader("📈 營收分析")
+
+    try:
+        # 獲取最近12個月營收
+        cursor.execute("""
+            SELECT revenue_year, revenue_month, revenue, revenue_growth_yoy
+            FROM monthly_revenues
+            WHERE stock_id = ?
+            ORDER BY revenue_year DESC, revenue_month DESC
+            LIMIT 12
+        """, (stock_id,))
+
+        revenue_data = cursor.fetchall()
+
+        if revenue_data:
+            # 營收指標卡片
+            col1, col2, col3, col4 = st.columns(4)
+
+            with col1:
+                latest_revenue = revenue_data[0][2] / 1000000000
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">最新月營收</div>
+                    <div class="metric-value">{latest_revenue:.2f}億</div>
+                    <div>{revenue_data[0][0]}年{revenue_data[0][1]}月</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col2:
+                avg_revenue = sum([r[2] for r in revenue_data]) / len(revenue_data) / 1000000000
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">近12月平均</div>
+                    <div class="metric-value">{avg_revenue:.2f}億</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col3:
+                if revenue_data[0][3] is not None:
+                    yoy_color = "green" if revenue_data[0][3] > 0 else "red"
                     st.markdown(f"""
-                    <div style="
-                        background-color: #0066cc;
-                        color: white;
-                        padding: 5px;
-                        border-radius: 3px;
-                        text-align: center;
-                        font-size: 12px;
-                        font-weight: bold;
-                    ">
-                        {day_label}
+                    <div class="metric-card">
+                        <div class="metric-label">年成長率</div>
+                        <div class="metric-value" style="color: {yoy_color};">{revenue_data[0][3]:.1f}%</div>
                     </div>
                     """, unsafe_allow_html=True)
-                else:
-                    if st.button(day_label, key=f"days_{day_value}", use_container_width=True):
-                        st.session_state.selected_days = day_value
-                        st.rerun()
 
-        days = st.session_state.selected_days
+            with col4:
+                total_revenue = sum([r[2] for r in revenue_data]) / 1000000000
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">近12月總營收</div>
+                    <div class="metric-value">{total_revenue:.2f}億</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            # 營收趨勢圖
+            revenue_chart = create_revenue_trend_chart(revenue_data, stock_info['stock_name'])
+            if revenue_chart:
+                st.plotly_chart(revenue_chart, use_container_width=True)
+
+        else:
+            st.info("📊 該股票暫無營收資料")
+
+    except Exception as e:
+        st.error(f"❌ 載入營收資料失敗: {e}")
+
+    # 財務比率分析
+    st.subheader("💼 財務比率")
+
+    try:
+        cursor.execute("""
+            SELECT gross_margin, operating_margin, net_margin, roe, roa, debt_ratio, current_ratio, date
+            FROM financial_ratios
+            WHERE stock_id = ?
+            ORDER BY date DESC
+            LIMIT 1
+        """, (stock_id,))
+
+        financial_ratio = cursor.fetchone()
+
+        if financial_ratio:
+            col1, col2, col3, col4 = st.columns(4)
+
+            with col1:
+                if financial_ratio[0] is not None:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">毛利率</div>
+                        <div class="metric-value">{financial_ratio[0]:.1f}%</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            with col2:
+                if financial_ratio[1] is not None:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">營業利益率</div>
+                        <div class="metric-value">{financial_ratio[1]:.1f}%</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            with col3:
+                if financial_ratio[3] is not None:
+                    roe_color = "green" if financial_ratio[3] > 15 else "orange" if financial_ratio[3] > 10 else "red"
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">ROE</div>
+                        <div class="metric-value" style="color: {roe_color};">{financial_ratio[3]:.1f}%</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            with col4:
+                if financial_ratio[5] is not None:
+                    debt_color = "green" if financial_ratio[5] < 40 else "orange" if financial_ratio[5] < 60 else "red"
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">負債比率</div>
+                        <div class="metric-value" style="color: {debt_color};">{financial_ratio[5]:.1f}%</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+        else:
+            st.info("📊 該股票暫無財務比率資料")
+
+    except Exception as e:
+        st.error(f"❌ 載入財務比率失敗: {e}")
+
+    conn.close()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def show_cashflow_tab(stock_id, stock_info, db_manager):
+    """顯示現金流分析標籤頁"""
+    st.markdown('<div class="tab-container">', unsafe_allow_html=True)
+
+    st.subheader("💸 現金流分析")
+
+    conn = db_manager.get_connection()
+    cursor = conn.cursor()
+
+    try:
+        # 獲取現金流資料
+        cash_flow_types = [
+            ('CashFlowsFromOperatingActivities', '營運現金流'),
+            ('CashProvidedByInvestingActivities', '投資現金流'),
+            ('CashFlowsProvidedFromFinancingActivities', '融資現金流')
+        ]
+
+        # 檢查是否有現金流資料
+        cursor.execute("SELECT COUNT(*) FROM cash_flow_statements WHERE stock_id = ?", (stock_id,))
+        cash_flow_count = cursor.fetchone()[0]
+
+        if cash_flow_count == 0:
+            st.info("📊 該股票暫無現金流資料")
+            st.markdown('</div>', unsafe_allow_html=True)
+            return
+
+        # 獲取近5年現金流資料
+        years = ['2020', '2021', '2022', '2023', '2024', '2025']
+        cash_flow_data = {}
+
+        for cf_type, cf_name in cash_flow_types:
+            cash_flow_data[cf_name] = []
+            for year in years:
+                cursor.execute('''
+                    SELECT value
+                    FROM cash_flow_statements
+                    WHERE stock_id = ? AND type = ? AND date LIKE ?
+                    ORDER BY date DESC LIMIT 1
+                ''', (stock_id, cf_type, f'{year}%'))
+
+                result = cursor.fetchone()
+                value = result[0] / 1000000000 if result and result[0] else 0  # 轉億元
+                cash_flow_data[cf_name].append(value)
+
+        # 現金流指標卡片
+        col1, col2, col3 = st.columns(3)
+
+        # 最新年度數據
+        latest_year_idx = -1
+        for i in range(len(years)-1, -1, -1):
+            if any(cash_flow_data[cf_name][i] != 0 for cf_name in [cf[1] for cf in cash_flow_types]):
+                latest_year_idx = i
+                break
+
+        if latest_year_idx >= 0:
+            with col1:
+                operating_cf = cash_flow_data['營運現金流'][latest_year_idx]
+                cf_color = "green" if operating_cf > 0 else "red"
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">營運現金流 ({years[latest_year_idx]})</div>
+                    <div class="metric-value" style="color: {cf_color};">{operating_cf:.1f}億</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col2:
+                investing_cf = cash_flow_data['投資現金流'][latest_year_idx]
+                cf_color = "red" if investing_cf < 0 else "green"  # 投資現金流通常為負
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">投資現金流 ({years[latest_year_idx]})</div>
+                    <div class="metric-value" style="color: {cf_color};">{investing_cf:.1f}億</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col3:
+                # 自由現金流 = 營運現金流 - 投資現金流
+                free_cf = operating_cf - investing_cf
+                cf_color = "green" if free_cf > 0 else "red"
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">自由現金流 ({years[latest_year_idx]})</div>
+                    <div class="metric-value" style="color: {cf_color};">{free_cf:.1f}億</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        # 現金流趨勢圖
+        st.subheader("📊 現金流趨勢")
+        cash_flow_fig = create_cashflow_chart(cash_flow_data, years, stock_info['stock_name'])
+        st.plotly_chart(cash_flow_fig, use_container_width=True)
+
+        # 現金流健康度分析
+        st.subheader("🏥 現金流健康度")
+
+        if latest_year_idx >= 0:
+            operating_cf = cash_flow_data['營運現金流'][latest_year_idx]
+            investing_cf = cash_flow_data['投資現金流'][latest_year_idx]
+            financing_cf = cash_flow_data['融資現金流'][latest_year_idx]
+
+            health_score = 0
+            health_comments = []
+
+            # 營運現金流評分
+            if operating_cf > 0:
+                health_score += 40
+                health_comments.append("✅ 營運現金流為正，經營狀況良好")
+            else:
+                health_comments.append("❌ 營運現金流為負，需關注經營狀況")
+
+            # 投資現金流評分（適度投資為佳）
+            if -50 <= investing_cf <= 0:
+                health_score += 30
+                health_comments.append("✅ 投資現金流適中，持續投資發展")
+            elif investing_cf < -50:
+                health_score += 20
+                health_comments.append("⚠️ 投資現金流較大，大幅擴張中")
+            else:
+                health_comments.append("⚠️ 投資現金流異常，可能缺乏投資")
+
+            # 自由現金流評分
+            free_cf = operating_cf - investing_cf
+            if free_cf > 0:
+                health_score += 30
+                health_comments.append("✅ 自由現金流為正，財務彈性佳")
+            else:
+                health_comments.append("❌ 自由現金流為負，資金較緊張")
+
+            # 顯示健康度評分
+            health_color = "green" if health_score >= 80 else "orange" if health_score >= 60 else "red"
+            health_level = "優秀" if health_score >= 80 else "良好" if health_score >= 60 else "需改善"
+
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-label">現金流健康度評分</div>
+                <div class="metric-value" style="color: {health_color};">{health_score}/100</div>
+                <div style="color: {health_color};">{health_level}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # 顯示評分說明
+            for comment in health_comments:
+                st.write(comment)
+
+    except Exception as e:
+        st.error(f"❌ 載入現金流資料失敗: {e}")
+
+    conn.close()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def create_cashflow_chart(cash_flow_data, years, title):
+    """創建現金流趨勢圖"""
+    fig = go.Figure()
+
+    colors = {
+        '營運現金流': '#00C851',
+        '投資現金流': '#ff4444',
+        '融資現金流': '#2196F3'
+    }
+
+    for cf_name, values in cash_flow_data.items():
+        fig.add_trace(
+            go.Scatter(
+                x=years,
+                y=values,
+                mode='lines+markers',
+                name=cf_name,
+                line=dict(color=colors.get(cf_name, 'gray'), width=3),
+                marker=dict(size=8)
+            )
+        )
+
+    # 添加零線
+    fig.add_hline(y=0, line_dash="dash", line_color="gray", opacity=0.5)
+
+    fig.update_layout(
+        title=f"{title} 現金流趨勢",
+        xaxis_title="年份",
+        yaxis_title="現金流 (億元)",
+        height=400,
+        template="plotly_white",
+        showlegend=True
+    )
+
+    return fig
+
+def show_rating_tab(stock_id, stock_info, db_manager):
+    """顯示評分標籤頁"""
+    st.markdown('<div class="tab-container">', unsafe_allow_html=True)
+
+    st.subheader("🎯 綜合評分")
+
+    conn = db_manager.get_connection()
+    cursor = conn.cursor()
+
+    try:
+        # 獲取潛力股評分
+        cursor.execute("""
+            SELECT total_score, financial_health_score, growth_score,
+                   dividend_score, grade, analysis_date
+            FROM stock_scores
+            WHERE stock_id = ?
+            ORDER BY analysis_date DESC
+            LIMIT 1
+        """, (stock_id,))
+
+        score_data = cursor.fetchone()
+
+        if score_data:
+            total_score, financial_health, growth_potential, dividend_stability, rating, analysis_date = score_data
+
+            # 總分顯示
+            score_color = "green" if total_score >= 75 else "orange" if total_score >= 60 else "red"
+            rating_emoji = "🌟" if total_score >= 75 else "⭐" if total_score >= 60 else "💫"
+
+            st.markdown(f"""
+            <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white; border-radius: 15px; margin-bottom: 20px;">
+                <h2>{rating_emoji} 綜合評分</h2>
+                <h1 style="font-size: 48px; margin: 10px 0;">{total_score:.1f}</h1>
+                <h3>{rating}</h3>
+                <p>分析日期: {analysis_date}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # 分項評分
+            col1, col2, col3 = st.columns(3)
+
+            with col1:
+                fh_color = "green" if financial_health >= 75 else "orange" if financial_health >= 60 else "red"
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">財務健康度</div>
+                    <div class="metric-value" style="color: {fh_color};">{financial_health:.1f}</div>
+                    <div>基本面分析</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col2:
+                gp_color = "green" if growth_potential >= 75 else "orange" if growth_potential >= 60 else "red"
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">成長潛力</div>
+                    <div class="metric-value" style="color: {gp_color};">{growth_potential:.1f}</div>
+                    <div>營收成長分析</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col3:
+                ds_color = "green" if dividend_stability >= 75 else "orange" if dividend_stability >= 60 else "red"
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">股利穩定性</div>
+                    <div class="metric-value" style="color: {ds_color};">{dividend_stability:.1f}</div>
+                    <div>配息分析</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            # 評分雷達圖
+            st.subheader("📊 評分雷達圖")
+            radar_fig = create_rating_radar_chart(financial_health, growth_potential, dividend_stability, stock_info['stock_name'])
+            st.plotly_chart(radar_fig, use_container_width=True)
+
+            # 投資建議
+            st.subheader("💡 投資建議")
+
+            if total_score >= 75:
+                st.success("🌟 **優質股票** - 綜合表現優異，值得長期持有")
+                st.write("- 財務狀況健康，獲利能力強")
+                st.write("- 成長潛力佳，未來展望樂觀")
+                st.write("- 股利政策穩定，適合價值投資")
+            elif total_score >= 60:
+                st.warning("⭐ **中等股票** - 表現尚可，需持續觀察")
+                st.write("- 基本面表現中等，有改善空間")
+                st.write("- 建議搭配技術分析進行投資決策")
+                st.write("- 注意風險控制，適度配置")
+            else:
+                st.error("💫 **需謹慎** - 表現較弱，建議深入研究")
+                st.write("- 基本面存在問題，需謹慎評估")
+                st.write("- 建議等待更好的進場時機")
+                st.write("- 如已持有，考慮適時調整部位")
+
+        else:
+            st.info("📊 該股票暫無評分資料，請先執行潛力股分析")
+
+            if st.button("🔄 立即分析", key="analyze_stock"):
+                with st.spinner("正在分析中..."):
+                    try:
+                        import subprocess
+                        import os
+
+                        # 執行潛力股分析
+                        result = subprocess.run([
+                            "python", "scripts/analyze_potential_stocks.py",
+                            "--stock-id", stock_id
+                        ], capture_output=True, text=True, cwd=os.getcwd())
+
+                        if result.returncode == 0:
+                            st.success("✅ 分析完成！請重新整理頁面查看結果")
+                            st.info("💡 提示：點擊瀏覽器的重新整理按鈕或按F5來查看最新評分")
+
+                            # 顯示分析結果預覽
+                            if result.stdout:
+                                with st.expander("📋 分析日誌"):
+                                    st.text(result.stdout)
+                        else:
+                            st.error(f"❌ 分析失敗: {result.stderr}")
+                            st.info("💡 可能原因：該股票缺少必要的財務資料")
+
+                    except Exception as e:
+                        st.error(f"❌ 執行分析失敗: {e}")
+                        st.info("💡 請確保分析腳本存在且可執行")
+
+    except Exception as e:
+        st.error(f"❌ 載入評分資料失敗: {e}")
+
+    conn.close()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def create_rating_radar_chart(financial_health, growth_potential, dividend_stability, title):
+    """創建評分雷達圖"""
+    categories = ['財務健康度', '成長潛力', '股利穩定性']
+    values = [financial_health, growth_potential, dividend_stability]
+
+    # 添加第一個點到最後，形成閉合圖形
+    values += values[:1]
+    categories += categories[:1]
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatterpolar(
+        r=values,
+        theta=categories,
+        fill='toself',
+        name=title,
+        line_color='rgb(31, 78, 121)',
+        fillcolor='rgba(31, 78, 121, 0.3)'
+    ))
+
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100],
+                tickmode='linear',
+                tick0=0,
+                dtick=20
+            )),
+        showlegend=True,
+        title=f"{title} 評分分析",
+        height=400
+    )
+
+    return fig
+
+def create_revenue_trend_chart(revenue_data, title):
+    """創建營收趨勢圖"""
+    if not revenue_data:
+        return None
+
+    # 準備資料
+    dates = []
+    revenues = []
+    growth_rates = []
+
+    for year, month, revenue, growth in reversed(revenue_data):  # 反轉以時間順序顯示
+        date_str = f"{year}-{month:02d}"
+        dates.append(date_str)
+        revenues.append(revenue / 1000000000)  # 轉億元
+        growth_rates.append(growth if growth is not None else 0)
+
+    # 創建雙軸圖表
+    fig = make_subplots(
+        specs=[[{"secondary_y": True}]],
+        subplot_titles=[f"{title} 營收趨勢"]
+    )
+
+    # 營收柱狀圖
+    fig.add_trace(
+        go.Bar(
+            x=dates,
+            y=revenues,
+            name="月營收",
+            marker_color='lightblue',
+            yaxis='y'
+        ),
+        secondary_y=False,
+    )
+
+    # 成長率線圖
+    fig.add_trace(
+        go.Scatter(
+            x=dates,
+            y=growth_rates,
+            mode='lines+markers',
+            name="年成長率",
+            line=dict(color='red', width=2),
+            marker=dict(size=6),
+            yaxis='y2'
+        ),
+        secondary_y=True,
+    )
+
+    # 設定軸標題
+    fig.update_xaxes(title_text="月份")
+    fig.update_yaxes(title_text="營收 (億元)", secondary_y=False)
+    fig.update_yaxes(title_text="年成長率 (%)", secondary_y=True)
+
+    # 添加零線
+    fig.add_hline(y=0, line_dash="dash", line_color="gray", opacity=0.5, secondary_y=True)
+
+    fig.update_layout(
+        height=400,
+        showlegend=True,
+        template="plotly_white",
+        hovermode='x unified'
+    )
+
+    return fig
+
+def create_volume_chart(df, title):
+    """創建成交量圖表"""
+    fig = go.Figure()
+
+    # 成交量柱狀圖
+    colors = ['green' if close >= open_price else 'red'
+              for close, open_price in zip(df['close_price'], df['open_price'])]
+
+    fig.add_trace(go.Bar(
+        x=df['date'],
+        y=df['volume'],
+        name='成交量',
+        marker_color=colors,
+        opacity=0.7
+    ))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title="日期",
+        yaxis_title="成交量",
+        height=300,
+        template="plotly_white"
+    )
+
+    return fig
+
+def show_stock_analysis(db_manager, query_service):
+    """顯示FinMind風格的股票分析頁面"""
+
+    # 自定義CSS樣式
+    st.markdown("""
+    <style>
+    .main-header {
+        background: linear-gradient(90deg, #1f4e79 0%, #2d5aa0 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .metric-card {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-left: 4px solid #1f4e79;
+        margin-bottom: 10px;
+    }
+    .metric-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1f4e79;
+    }
+    .metric-label {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 5px;
+    }
+    .tab-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    .stock-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .performance-positive {
+        color: #00C851;
+        font-weight: bold;
+    }
+    .performance-negative {
+        color: #ff4444;
+        font-weight: bold;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # 主標題
+    st.markdown("""
+    <div class="main-header">
+        <h1>🔍 台股個股分析系統</h1>
+        <p>專業級股票分析工具 - 仿FinMind設計</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 股票選擇區域
+    col1, col2, col3 = st.columns([3, 2, 2])
+
+    with col1:
+        stock_id = st.text_input("🔍 輸入股票代碼", placeholder="例如: 2330, 2317, 2454", help="輸入台股代碼進行分析")
+
+    with col2:
+        # 時間範圍選擇
+        period_options = {
+            "1M": 30,
+            "3M": 90,
+            "6M": 180,
+            "1Y": 252,
+            "2Y": 504
+        }
+        selected_period = st.selectbox("📅 分析期間", list(period_options.keys()), index=1)
+        days = period_options[selected_period]
+
+    with col3:
+        # 分析類型選擇
+        analysis_type = st.selectbox("📊 分析類型", ["完整分析", "技術分析", "基本面分析", "現金流分析"], index=0)
 
     if stock_id:
         # 取得股票資訊
         stock_info = query_service.get_stock_info(stock_id)
 
         if not stock_info:
-            st.error("找不到該股票")
+            st.error("❌ 找不到該股票，請檢查股票代碼是否正確")
             return
 
-        # 基本資料
-        st.subheader(f"📋 {stock_info['stock_name']} ({stock_id}) 基本資料")
+        # 股票標題區域
+        st.markdown(f"""
+        <div class="stock-header">
+            <h2>📈 {stock_info['stock_name']} ({stock_id})</h2>
+            <p>市場別: {stock_info.get('market', 'N/A')} | ETF: {'是' if stock_info.get('is_etf') else '否'}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("股票名稱", stock_info['stock_name'])
-        with col2:
-            st.metric("市場別", stock_info.get('market', 'N/A'))
-        with col3:
-            etf_status = "是" if stock_info.get('is_etf') else "否"
-            st.metric("ETF", etf_status)
-
-        # 取得股價資料
+        # 獲取股價資料
         end_date = datetime.now().date()
         start_date = end_date - timedelta(days=days)
 
@@ -936,259 +1901,36 @@ def show_stock_analysis(db_manager, query_service):
             end_date.isoformat()
         )
 
-        if prices:
-            df = pd.DataFrame(prices)
-            df['date'] = pd.to_datetime(df['date'])
-            df = df.sort_values('date')
+        if not prices:
+            st.warning("⚠️ 該股票暫無股價資料")
+            return
 
-            # 最新股價資訊
-            st.subheader("💰 最新股價資訊")
-            latest = df.iloc[-1]
+        df = pd.DataFrame(prices)
+        df['date'] = pd.to_datetime(df['date'])
+        df = df.sort_values('date')
 
-            col1, col2, col3, col4, col5 = st.columns(5)
-            with col1:
-                st.metric("開盤價", f"{latest['open_price']:.2f}")
-            with col2:
-                st.metric("收盤價", f"{latest['close_price']:.2f}")
-            with col3:
-                st.metric("最高價", f"{latest['high_price']:.2f}")
-            with col4:
-                st.metric("最低價", f"{latest['low_price']:.2f}")
-            with col5:
-                st.metric("成交量", format_number(latest['volume']))
+        # 計算技術指標
+        df = calculate_technical_indicators(df)
 
-            # K線圖和成交量圖
-            st.subheader("📊 股價走勢")
+        # 創建標籤頁
+        tab1, tab2, tab3, tab4, tab5 = st.tabs([
+            "📊 總覽", "📈 技術分析", "💰 基本面", "💸 現金流", "🎯 評分"
+        ])
 
-            # K線圖
-            candlestick_fig = create_candlestick_chart(df, f"{stock_info['stock_name']} K線圖")
-            st.plotly_chart(candlestick_fig, use_container_width=True)
+        with tab1:
+            show_overview_tab(df, stock_info, stock_id, db_manager)
 
-            # 成交量圖
-            volume_fig = create_volume_chart(df, f"{stock_info['stock_name']} 成交量")
-            st.plotly_chart(volume_fig, use_container_width=True)
+        with tab2:
+            show_technical_tab(df, stock_info)
 
-        else:
-            st.warning("該股票暫無股價資料")
+        with tab3:
+            show_fundamental_tab(stock_id, stock_info, db_manager)
 
-        # 月營收資料
-        st.subheader("📈 月營收趨勢")
-        conn = db_manager.get_connection()
-        cursor = conn.cursor()
+        with tab4:
+            show_cashflow_tab(stock_id, stock_info, db_manager)
 
-        try:
-            # 獲取最近12個月營收
-            cursor.execute("""
-                SELECT revenue_year, revenue_month, revenue, revenue_growth_yoy
-                FROM monthly_revenues
-                WHERE stock_id = ?
-                ORDER BY revenue_year DESC, revenue_month DESC
-                LIMIT 12
-            """, (stock_id,))
-
-            revenue_data = cursor.fetchall()
-
-            if revenue_data:
-                # 創建營收趨勢圖
-                revenue_chart = create_revenue_trend_chart(revenue_data, stock_info['stock_name'])
-
-                if revenue_chart:
-                    st.plotly_chart(revenue_chart, use_container_width=True)
-
-                # 營收統計
-                col1, col2, col3, col4 = st.columns(4)
-                with col1:
-                    latest_revenue = revenue_data[0][2] / 1000000000  # 轉億元
-                    st.metric("最新月營收", f"{latest_revenue:.2f}億")
-                with col2:
-                    avg_revenue = sum([r[2] for r in revenue_data]) / len(revenue_data) / 1000000000
-                    st.metric("平均月營收", f"{avg_revenue:.2f}億")
-                with col3:
-                    if revenue_data[0][3] is not None:
-                        st.metric("最新成長率", f"{revenue_data[0][3]:.1f}%")
-                    else:
-                        st.metric("最新成長率", "N/A")
-                with col4:
-                    total_revenue = sum([r[2] for r in revenue_data]) / 1000000000
-                    st.metric("近12月總營收", f"{total_revenue:.2f}億")
-            else:
-                st.info("該股票暫無月營收資料")
-
-        except Exception as e:
-            st.error(f"載入月營收資料失敗: {e}")
-
-        # 財務指標
-        st.subheader("📊 財務指標")
-
-        try:
-            # 獲取最新財務比率
-            cursor.execute("""
-                SELECT gross_margin, operating_margin, net_margin, roe, debt_ratio, date
-                FROM financial_ratios
-                WHERE stock_id = ?
-                ORDER BY date DESC
-                LIMIT 1
-            """, (stock_id,))
-
-            financial_ratio = cursor.fetchone()
-
-            if financial_ratio:
-                col1, col2, col3, col4, col5 = st.columns(5)
-
-                with col1:
-                    if financial_ratio[0] is not None:
-                        st.metric("毛利率", f"{financial_ratio[0]:.1f}%")
-                    else:
-                        st.metric("毛利率", "N/A")
-
-                with col2:
-                    if financial_ratio[1] is not None:
-                        st.metric("營業利益率", f"{financial_ratio[1]:.1f}%")
-                    else:
-                        st.metric("營業利益率", "N/A")
-
-                with col3:
-                    if financial_ratio[2] is not None:
-                        st.metric("淨利率", f"{financial_ratio[2]:.1f}%")
-                    else:
-                        st.metric("淨利率", "N/A")
-
-                with col4:
-                    if financial_ratio[3] is not None:
-                        st.metric("ROE", f"{financial_ratio[3]:.1f}%")
-                    else:
-                        st.metric("ROE", "N/A")
-
-                with col5:
-                    if financial_ratio[4] is not None:
-                        st.metric("負債比率", f"{financial_ratio[4]:.1f}%")
-                    else:
-                        st.metric("負債比率", "N/A")
-
-                st.caption(f"資料日期: {financial_ratio[5]}")
-            else:
-                st.info("該股票暫無財務比率資料")
-
-        except Exception as e:
-            st.error(f"載入財務指標失敗: {e}")
-
-        # 股利政策
-        st.subheader("💰 股利政策")
-
-        try:
-            # 獲取歷年配息記錄
-            cursor.execute("""
-                SELECT year,
-                       (cash_earnings_distribution + COALESCE(cash_statutory_surplus, 0)) as cash_dividend,
-                       (stock_earnings_distribution + COALESCE(stock_statutory_surplus, 0)) as stock_dividend,
-                       (cash_earnings_distribution + COALESCE(cash_statutory_surplus, 0) +
-                        stock_earnings_distribution + COALESCE(stock_statutory_surplus, 0)) as total_dividend
-                FROM dividend_policies
-                WHERE stock_id = ?
-                ORDER BY year DESC
-                LIMIT 5
-            """, (stock_id,))
-
-            dividend_data = cursor.fetchall()
-
-            if dividend_data:
-                dividend_df = pd.DataFrame(dividend_data, columns=['年度', '現金股利', '股票股利', '總股利'])
-                st.dataframe(dividend_df, use_container_width=True)
-
-                # 配息統計
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    avg_cash_dividend = sum([d[1] for d in dividend_data if d[1]]) / len([d for d in dividend_data if d[1]]) if any(d[1] for d in dividend_data) else 0
-                    st.metric("平均現金股利", f"{avg_cash_dividend:.2f}元")
-                with col2:
-                    consecutive_years = len(dividend_data)
-                    st.metric("連續配息年數", f"{consecutive_years}年")
-                with col3:
-                    if prices and dividend_data[0][1]:
-                        yield_rate = (dividend_data[0][1] / latest['close_price']) * 100
-                        st.metric("殖利率", f"{yield_rate:.2f}%")
-                    else:
-                        st.metric("殖利率", "N/A")
-            else:
-                st.info("該股票暫無股利政策資料")
-
-        except Exception as e:
-            st.error(f"載入股利政策失敗: {e}")
-
-        # 潛力股分析
-        st.subheader("🎯 潛力股分析")
-
-        # 獲取潛力評分
-        potential_score = get_stock_potential_score(db_manager, stock_id)
-
-        if potential_score:
-            col1, col2, col3, col4, col5 = st.columns(5)
-
-            with col1:
-                grade_color = {
-                    'A+': '🟢', 'A': '🟢', 'B+': '🔵', 'B': '🔵',
-                    'C+': '🟡', 'C': '🟡', 'D': '🔴'
-                }.get(potential_score['grade'], '⚪')
-                st.metric("評等", f"{grade_color} {potential_score['grade']}")
-
-            with col2:
-                st.metric("總分", f"{potential_score['total_score']:.1f}")
-
-            with col3:
-                st.metric("財務健康", f"{potential_score['financial_health_score']:.0f}")
-
-            with col4:
-                st.metric("成長潛力", f"{potential_score['growth_score']:.0f}")
-
-            with col5:
-                st.metric("配息穩定", f"{potential_score['dividend_score']:.0f}")
-
-            # EPS預估
-            eps_prediction = get_eps_prediction(db_manager, stock_id)
-
-            if eps_prediction:
-                st.subheader("💰 EPS預估")
-
-                col1, col2, col3, col4 = st.columns(4)
-
-                with col1:
-                    st.metric("預估季營收", f"{eps_prediction['quarterly_revenue']:.1f}億")
-
-                with col2:
-                    st.metric("平均淨利率", f"{eps_prediction['avg_net_margin']:.1f}%")
-
-                with col3:
-                    st.metric("預估淨利", f"{eps_prediction['predicted_net_income']:.1f}億")
-
-                with col4:
-                    if eps_prediction['predicted_eps']:
-                        st.metric("預估EPS", f"{eps_prediction['predicted_eps']:.2f}元")
-                    else:
-                        st.metric("預估EPS", "N/A")
-
-                st.info("💡 EPS預估基於最近3個月營收和歷史平均淨利率，僅供參考")
-
-        else:
-            st.info("該股票暫無潛力分析資料，請先執行潛力股分析")
-
-            if st.button(f"🚀 分析 {stock_id} 潛力"):
-                with st.spinner("正在分析..."):
-                    import subprocess
-                    try:
-                        result = subprocess.run([
-                            "python", "scripts/analyze_potential_stocks.py",
-                            "--stock-id", stock_id
-                        ], capture_output=True, text=True, cwd=".")
-
-                        if result.returncode == 0:
-                            st.success("分析完成！請重新整理頁面查看結果。")
-                            st.rerun()
-                        else:
-                            st.error(f"分析失敗: {result.stderr}")
-                    except Exception as e:
-                        st.error(f"執行分析失敗: {e}")
-
-        conn.close()
+        with tab5:
+            show_rating_tab(stock_id, stock_info, db_manager)
 
 def show_database_status(db_manager, query_service):
     """顯示資料庫狀態頁面"""
@@ -1233,24 +1975,63 @@ def show_database_status(db_manager, query_service):
         cursor.execute("SELECT COUNT(*) FROM stock_scores")
         score_count = cursor.fetchone()[0]
 
+        # 新增表統計
+        cursor.execute("SELECT COUNT(*) FROM cash_flow_statements")
+        cash_flow_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM market_values")
+        market_value_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM stock_splits")
+        split_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM dividend_results")
+        dividend_result_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM technical_indicators")
+        tech_indicator_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM etf_dividends")
+        etf_dividend_count = cursor.fetchone()[0]
+
         # 顯示統計資訊
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
             st.metric("股票基本資料", f"{stocks_count:,}筆")
             st.metric("月營收資料", f"{revenue_count:,}筆")
+            st.metric("現金流量表", f"{cash_flow_count:,}筆")
 
         with col2:
             st.metric("股價資料", f"{price_stats[0]:,}筆")
             st.metric("綜合損益表", f"{financial_count:,}筆")
+            st.metric("市值資料", f"{market_value_count:,}筆")
 
         with col3:
             st.metric("資產負債表", f"{balance_count:,}筆")
             st.metric("股利政策", f"{dividend_count:,}筆")
+            st.metric("股票分割", f"{split_count:,}筆")
 
         with col4:
             st.metric("財務比率", f"{ratio_count:,}筆")
             st.metric("潛力股評分", f"{score_count:,}筆")
+            st.metric("技術指標", f"{tech_indicator_count:,}筆")
+
+        # 額外資料統計
+        st.subheader("📊 額外資料統計")
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric("股利發放結果", f"{dividend_result_count:,}筆")
+
+        with col2:
+            st.metric("ETF配息", f"{etf_dividend_count:,}筆")
+
+        with col3:
+            # 資料更新記錄
+            cursor.execute("SELECT COUNT(*) FROM data_updates")
+            update_count = cursor.fetchone()[0]
+            st.metric("資料更新記錄", f"{update_count:,}筆")
 
         # 資料日期範圍
         if price_stats[1] and price_stats[2]:

@@ -239,7 +239,7 @@ def main():
     parser = argparse.ArgumentParser(description='綜合批次收集所有資料類型')
     parser.add_argument('--start-date', default='2015-01-01', help='開始日期 (YYYY-MM-DD)')
     parser.add_argument('--end-date', default=datetime.now().strftime('%Y-%m-%d'), help='結束日期 (YYYY-MM-DD)')
-    parser.add_argument('--batch-size', type=int, default=3, help='批次大小')
+    parser.add_argument('--batch-size', type=int, default=50, help='批次大小')
     parser.add_argument('--test', action='store_true', help='測試模式（只收集前3檔股票）')
     
     args = parser.parse_args()
