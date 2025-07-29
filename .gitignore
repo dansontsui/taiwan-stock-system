@@ -134,6 +134,10 @@ data/*.db
 data/*.sqlite
 data/*.sqlite3
 
+# 匯出檔案 (大檔案)
+exports/*.gz
+exports/*.db
+
 # 日誌文件
 logs/*.log
 logs/*.txt
