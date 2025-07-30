@@ -1,0 +1,33 @@
+{
+  "model_name": "logistic_regression",
+  "feature_names": [
+    "price_ma_5",
+    "price_vs_ma_5",
+    "price_ma_10",
+    "price_vs_ma_10",
+    "price_ma_20",
+    "price_vs_ma_20",
+    "volume_ma_5",
+    "volume_vs_ma_5",
+    "volume_ma_10",
+    "volume_vs_ma_10",
+    "volume_ma_20",
+    "volume_vs_ma_20",
+    "price_volatility",
+    "rsi",
+    "momentum_5",
+    "momentum_20",
+    "stock_id_numeric",
+    "market_type",
+    "revenue_mom_latest",
+    "revenue_stability_cv"
+  ],
+  "metrics": {
+    "accuracy": 0.688953488372093,
+    "precision": 0.7142857142857143,
+    "recall": 0.8009708737864077,
+    "f1_score": 0.7551487414187643,
+    "roc_auc": 0.6926269874771351
+  },
+  "training_time": "2025-07-30T21:03:28.517756"
+}
