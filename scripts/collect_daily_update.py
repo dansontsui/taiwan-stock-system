@@ -23,10 +23,11 @@ from config import Config
 
 class DailyUpdateCollector:
     """每日增量資料收集器"""
-    
-    def __init__(self, batch_size=5, days_back=7):
+
+    def __init__(self, batch_size=5, days_back=7, test_mode=False):
         self.batch_size = batch_size
         self.days_back = days_back
+        self.test_mode = test_mode
         self.db_manager = SimpleDatabaseManager(Config.DATABASE_PATH)
         self.today = datetime.now().date()
         self.stats = {
@@ -36,11 +37,11 @@ class DailyUpdateCollector:
             'dividend_policies': 0,
             'updated_stocks': set()
         }
-        
+
         # 設定日誌
         log_file = project_root / "logs" / "collect_daily_update.log"
         log_file.parent.mkdir(exist_ok=True)
-        
+
         logger.add(
             log_file,
             rotation="10 MB",
@@ -48,24 +49,24 @@ class DailyUpdateCollector:
             format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
             level="INFO"
         )
-    
+
     def get_last_update_date(self, table_name, date_column='date'):
         """獲取指定表的最後更新日期"""
         conn = self.db_manager.get_connection()
         cursor = conn.cursor()
-        
+
         try:
             if table_name == 'monthly_revenues':
                 # 月營收使用特殊的日期計算
                 cursor.execute("""
-                    SELECT MAX(revenue_year || '-' || 
-                               CASE WHEN revenue_month < 10 THEN '0' || revenue_month 
+                    SELECT MAX(revenue_year || '-' ||
+                               CASE WHEN revenue_month < 10 THEN '0' || revenue_month
                                     ELSE revenue_month END || '-01') as last_date
                     FROM monthly_revenues
                 """)
             else:
                 cursor.execute(f"SELECT MAX({date_column}) FROM {table_name}")
-            
+
             result = cursor.fetchone()
             if result and result[0]:
                 if table_name == 'monthly_revenues':
@@ -75,18 +76,18 @@ class DailyUpdateCollector:
             else:
                 # 如果沒有資料，從7天前開始
                 return self.today - timedelta(days=self.days_back)
-                
+
         except Exception as e:
             logger.warning(f"獲取 {table_name} 最後更新日期失敗: {e}")
             return self.today - timedelta(days=self.days_back)
         finally:
             conn.close()
-    
+
     def get_active_stocks(self, limit=None):
         """獲取活躍股票列表"""
         conn = self.db_manager.get_connection()
         cursor = conn.cursor()
-        
+
         try:
             # 優先選擇有股價資料的股票，按資料量排序
             query = """
@@ -97,19 +98,19 @@ class DailyUpdateCollector:
                 GROUP BY s.stock_id, s.stock_name
                 ORDER BY price_count DESC
             """
-            
+
             if limit:
                 query += f" LIMIT {limit}"
-            
+
             cursor.execute(query)
             return cursor.fetchall()
-            
+
         except Exception as e:
             logger.error(f"獲取股票列表失敗: {e}")
             return []
         finally:
             conn.close()
-    
+
     def collect_stock_prices(self):
         """收集股價資料"""
         print(" 檢查股價資料更新需求...")
@@ -135,6 +136,9 @@ class DailyUpdateCollector:
             "--batch-size", str(self.batch_size)
         ]
 
+        if self.test_mode:
+            cmd.append("--test")
+
         try:
             print(" 執行中，請稍候...")
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root, timeout=1800)  # 30分鐘超時
@@ -154,7 +158,7 @@ class DailyUpdateCollector:
         except Exception as e:
             print(f" 執行股價收集腳本失敗: {e}")
             logger.error(f" 執行股價收集腳本失敗: {e}")
-    
+
     def collect_monthly_revenues(self):
         """收集月營收資料"""
         print(" 檢查月營收資料更新需求...")
@@ -196,6 +200,9 @@ class DailyUpdateCollector:
                     "--batch-size", str(self.batch_size)
                 ]
 
+                if self.test_mode:
+                    cmd.append("--test")
+
                 print(" 執行中，請稍候...")
                 result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root, timeout=1200)  # 20分鐘超時
 
@@ -219,58 +226,246 @@ class DailyUpdateCollector:
             logger.error(f" 檢查月營收資料失敗: {e}")
         finally:
             conn.close()
-    
+
     def collect_financial_statements(self):
         """收集財務報表資料"""
         logger.info(" 檢查財務報表資料...")
-        
+
         # 檢查是否有新的季報需要收集
         current_quarter = (self.today.month - 1) // 3 + 1
         current_year = self.today.year
-        
+
         # 如果是季度的第二個月之後，檢查該季度資料
         if self.today.month % 3 >= 2:  # 2月、5月、8月、11月之後
             conn = self.db_manager.get_connection()
             cursor = conn.cursor()
-            
+
             try:
                 # 檢查當前季度的資料完整性
                 cursor.execute("""
-                    SELECT COUNT(DISTINCT stock_id) 
-                    FROM financial_statements 
+                    SELECT COUNT(DISTINCT stock_id)
+                    FROM financial_statements
                     WHERE date LIKE ?
                 """, (f"{current_year}%",))
-                
+
                 current_year_count = cursor.fetchone()[0]
-                
+
                 if current_year_count < 500:  # 如果當年資料少於500檔
                     logger.info(f" 需要更新 {current_year} 年財務報表資料")
-                    
+
                     cmd = [
                         "python", "scripts/collect_financial_statements.py",
                         "--start-date", f"{current_year}-01-01",
                         "--end-date", self.today.isoformat(),
                         "--batch-size", str(max(3, self.batch_size // 2))  # 財務報表用較小批次
                     ]
-                    
+
+                    if self.test_mode:
+                        cmd.append("--test")
+
                     result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root)
-                    
+
                     if result.returncode == 0:
                         logger.info(" 財務報表資料收集完成")
-                        self.stats['financial_statements'] = self._count_new_records('financial_statements', 
+                        self.stats['financial_statements'] = self._count_new_records('financial_statements',
                                                                                    datetime(current_year, 1, 1).date())
                     else:
                         logger.error(f" 財務報表資料收集失敗: {result.stderr}")
                 else:
                     logger.info(" 財務報表資料已是最新，無需更新")
-                    
+
             except Exception as e:
                 logger.error(f" 檢查財務報表資料失敗: {e}")
             finally:
                 conn.close()
         else:
             logger.info(" 非財報更新期間，跳過財務報表收集")
-    
+
+    def collect_balance_sheets(self):
+        """收集資產負債表資料"""
+        print("[資產負債表] 檢查資產負債表資料更新需求...")
+        logger.info("[資產負債表] 檢查資產負債表資料...")
+
+        # 檢查是否有新的季報需要收集
+        current_year = self.today.year
+
+        # 如果是季度的第二個月之後，檢查該季度資料
+        if self.today.month % 3 >= 2:  # 2月、5月、8月、11月之後
+            conn = self.db_manager.get_connection()
+            cursor = conn.cursor()
+
+            try:
+                # 檢查當前年度的資產負債表資料完整性
+                cursor.execute("""
+                    SELECT COUNT(DISTINCT stock_id)
+                    FROM balance_sheets
+                    WHERE date LIKE ?
+                """, (f"{current_year}%",))
+
+                current_year_count = cursor.fetchone()[0]
+
+                if current_year_count < 500:  # 如果當年資料少於500檔
+                    print(f"[資產負債表] 需要更新 {current_year} 年資產負債表資料")
+                    logger.info(f"[資產負債表] 需要更新 {current_year} 年資產負債表資料")
+
+                    cmd = [
+                        "python", "scripts/collect_balance_sheets.py",
+                        "--start-date", f"{current_year}-01-01",
+                        "--end-date", self.today.isoformat(),
+                        "--batch-size", str(max(3, self.batch_size // 2))
+                    ]
+
+                    if self.test_mode:
+                        cmd.append("--test")
+
+                    print("[資產負債表] 執行中，請稍候...")
+                    result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root, timeout=900)
+
+                    if result.returncode == 0:
+                        print("[資產負債表] 資產負債表資料收集完成")
+                        logger.info("[資產負債表] 資產負債表資料收集完成")
+                    else:
+                        print("[資產負債表] 資產負債表資料收集失敗")
+                        logger.error(f"[資產負債表] 資產負債表資料收集失敗: {result.stderr}")
+                else:
+                    print("[資產負債表] 資產負債表資料已是最新，無需更新")
+                    logger.info("[資產負債表] 資產負債表資料已是最新，無需更新")
+
+            except subprocess.TimeoutExpired:
+                print("[資產負債表] 資產負債表收集超時")
+                logger.warning("[資產負債表] 資產負債表收集超時")
+            except Exception as e:
+                print(f"[資產負債表] 檢查資產負債表資料失敗: {e}")
+                logger.error(f"[資產負債表] 檢查資產負債表資料失敗: {e}")
+            finally:
+                conn.close()
+        else:
+            print("[資產負債表] 非財報更新期間，跳過資產負債表收集")
+            logger.info("[資產負債表] 非財報更新期間，跳過資產負債表收集")
+
+    def collect_cash_flows(self):
+        """收集現金流量表資料"""
+        print("[現金流量表] 檢查現金流量表資料更新需求...")
+        logger.info("[現金流量表] 檢查現金流量表資料...")
+
+        # 現金流量表通常與財務報表同時更新
+        current_year = self.today.year
+
+        # 如果是季度的第二個月之後，檢查該季度資料
+        if self.today.month % 3 >= 2:  # 2月、5月、8月、11月之後
+            conn = self.db_manager.get_connection()
+            cursor = conn.cursor()
+
+            try:
+                # 檢查當前年度的現金流量表資料完整性
+                cursor.execute("""
+                    SELECT COUNT(DISTINCT stock_id)
+                    FROM cash_flows
+                    WHERE date LIKE ?
+                """, (f"{current_year}%",))
+
+                current_year_count = cursor.fetchone()[0]
+
+                if current_year_count < 300:  # 如果當年資料少於300檔
+                    print(f"[現金流量表] 需要更新 {current_year} 年現金流量表資料")
+                    logger.info(f"[現金流量表] 需要更新 {current_year} 年現金流量表資料")
+
+                    cmd = [
+                        "python", "scripts/collect_cash_flows.py",
+                        "--start-date", f"{current_year}-01-01",
+                        "--end-date", self.today.isoformat(),
+                        "--batch-size", str(max(3, self.batch_size // 2))
+                    ]
+
+                    if self.test_mode:
+                        cmd.append("--test")
+
+                    print("[現金流量表] 執行中，請稍候...")
+                    result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root, timeout=900)
+
+                    if result.returncode == 0:
+                        print("[現金流量表] 現金流量表資料收集完成")
+                        logger.info("[現金流量表] 現金流量表資料收集完成")
+                    else:
+                        print("[現金流量表] 現金流量表資料收集失敗")
+                        logger.error(f"[現金流量表] 現金流量表資料收集失敗: {result.stderr}")
+                else:
+                    print("[現金流量表] 現金流量表資料已是最新，無需更新")
+                    logger.info("[現金流量表] 現金流量表資料已是最新，無需更新")
+
+            except subprocess.TimeoutExpired:
+                print("[現金流量表] 現金流量表收集超時")
+                logger.warning("[現金流量表] 現金流量表收集超時")
+            except Exception as e:
+                print(f"[現金流量表] 檢查現金流量表資料失敗: {e}")
+                logger.error(f"[現金流量表] 檢查現金流量表資料失敗: {e}")
+            finally:
+                conn.close()
+        else:
+            print("[現金流量表] 非財報更新期間，跳過現金流量表收集")
+            logger.info("[現金流量表] 非財報更新期間，跳過現金流量表收集")
+
+    def collect_dividend_results(self):
+        """收集除權除息結果資料"""
+        print("[除權除息] 檢查除權除息結果資料更新需求...")
+        logger.info("[除權除息] 檢查除權除息結果資料...")
+
+        # 除權除息結果通常在每年3-8月更新
+        if 3 <= self.today.month <= 8:  # 除權除息期間
+            current_year = self.today.year
+
+            # 先檢查當年度除權除息結果資料的完整性
+            conn = self.db_manager.get_connection()
+            cursor = conn.cursor()
+
+            try:
+                cursor.execute("""
+                    SELECT COUNT(DISTINCT stock_id)
+                    FROM dividend_results
+                    WHERE date LIKE ?
+                """, (f"{current_year}%",))
+
+                current_year_count = cursor.fetchone()[0]
+
+                # 如果當年度除權除息結果資料少於30檔股票，才執行收集
+                if current_year_count < 30:
+                    print(f"[除權除息] 需要更新 {current_year} 年除權除息結果資料")
+                    logger.info(f"[除權除息] 需要更新 {current_year} 年除權除息結果資料")
+
+                    cmd = [
+                        "python", "scripts/collect_dividend_results.py",
+                        "--start-date", f"{current_year}-01-01",
+                        "--end-date", self.today.isoformat(),
+                        "--batch-size", str(max(3, self.batch_size // 2))
+                    ]
+
+                    if self.test_mode:
+                        cmd.append("--test")
+
+                    print("[除權除息] 執行中，請稍候...")
+                    result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root, timeout=600)
+
+                    if result.returncode == 0:
+                        print("[除權除息] 除權除息結果資料收集完成")
+                        logger.info("[除權除息] 除權除息結果資料收集完成")
+                    else:
+                        print("[除權除息] 除權除息結果資料收集失敗")
+                        logger.error(f"[除權除息] 除權除息結果資料收集失敗: {result.stderr}")
+                else:
+                    print(f"[除權除息] {current_year} 年除權除息結果資料已充足 ({current_year_count} 檔)，跳過收集")
+                    logger.info(f"[除權除息] {current_year} 年除權除息結果資料已充足 ({current_year_count} 檔)，跳過收集")
+
+            except subprocess.TimeoutExpired:
+                print("[除權除息] 除權除息結果收集超時")
+                logger.warning("[除權除息] 除權除息結果收集超時，跳過此步驟")
+            except Exception as e:
+                print(f"[除權除息] 執行除權除息結果收集失敗: {e}")
+                logger.error(f"[除權除息] 執行除權除息結果收集失敗: {e}")
+            finally:
+                conn.close()
+        else:
+            print("[除權除息] 非除權除息期間，跳過除權除息結果收集")
+            logger.info("[除權除息] 非除權除息期間，跳過除權除息結果收集")
     def collect_dividend_policies(self):
         """收集股利政策資料"""
         logger.info(" 檢查股利政策資料...")
@@ -303,6 +498,9 @@ class DailyUpdateCollector:
                         "--batch-size", str(max(3, self.batch_size // 2))
                     ]
 
+                    if self.test_mode:
+                        cmd.append("--test")
+
                     result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root, timeout=300)  # 5分鐘超時
 
                     if result.returncode == 0:
@@ -322,32 +520,32 @@ class DailyUpdateCollector:
                 conn.close()
         else:
             logger.info(" 非股利公布期間，跳過股利政策收集")
-    
+
     def _count_new_records(self, table_name, since_date):
         """統計新增的記錄數量"""
         conn = self.db_manager.get_connection()
         cursor = conn.cursor()
-        
+
         try:
             if table_name == 'monthly_revenues':
                 cursor.execute("""
-                    SELECT COUNT(*) FROM monthly_revenues 
+                    SELECT COUNT(*) FROM monthly_revenues
                     WHERE created_at >= ?
                 """, (since_date.isoformat(),))
             else:
                 cursor.execute(f"""
-                    SELECT COUNT(*) FROM {table_name} 
+                    SELECT COUNT(*) FROM {table_name}
                     WHERE created_at >= ?
                 """, (since_date.isoformat(),))
-            
+
             return cursor.fetchone()[0]
-            
+
         except Exception as e:
             logger.warning(f"統計 {table_name} 新增記錄失敗: {e}")
             return 0
         finally:
             conn.close()
-    
+
     def update_potential_analysis(self):
         """更新潛力股分析"""
         print(" 檢查潛力股分析更新需求...")
@@ -359,6 +557,9 @@ class DailyUpdateCollector:
                 "python", "scripts/analyze_potential_stocks.py",
                 "--top", "100"
             ]
+
+            if self.test_mode:
+                cmd.extend(["--top", "5"])  # 測試模式只分析前5名
 
             print(" 分析中，請稍候...")
             result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root, timeout=600)  # 10分鐘超時
@@ -376,14 +577,18 @@ class DailyUpdateCollector:
         except Exception as e:
             print(f" 執行潛力股分析失敗: {e}")
             logger.error(f" 執行潛力股分析失敗: {e}")
-    
+
     def run(self):
         """執行每日增量收集"""
         start_time = datetime.now()
 
         # 控制台輸出
         print("=" * 60)
-        print(" 台股每日增量資料收集開始")
+        if self.test_mode:
+            print(" 台股每日增量資料收集開始 [測試模式]")
+            print(" 測試模式：只處理前3檔股票")
+        else:
+            print(" 台股每日增量資料收集開始")
         print(f" 開始時間: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f" 目標日期: {self.today}")
         print(f" 批次大小: {self.batch_size}")
@@ -392,7 +597,11 @@ class DailyUpdateCollector:
 
         # 日誌記錄
         logger.info("=" * 60)
-        logger.info(" 台股每日增量資料收集開始")
+        if self.test_mode:
+            logger.info(" 台股每日增量資料收集開始 [測試模式]")
+            logger.info(" 測試模式：只處理前3檔股票")
+        else:
+            logger.info(" 台股每日增量資料收集開始")
         logger.info(f" 開始時間: {start_time}")
         logger.info(f" 目標日期: {self.today}")
         logger.info(f" 批次大小: {self.batch_size}")
@@ -404,11 +613,11 @@ class DailyUpdateCollector:
             (" 股價資料收集", self.collect_stock_prices),
             (" 月營收資料收集", self.collect_monthly_revenues),
             (" 財務報表檢查", self.collect_financial_statements),
-            ("🏦 資產負債表檢查", self.collect_balance_sheets),
-            ("💰 現金流量表檢查", self.collect_cash_flows),
-            ("🎯 除權除息結果檢查", self.collect_dividend_results),
+            ("[資產負債表] 資產負債表檢查", self.collect_balance_sheets),
+            ("[現金流量表] 現金流量表檢查", self.collect_cash_flows),
+            ("[除權除息] 除權除息結果檢查", self.collect_dividend_results),
             (" 股利政策檢查", self.collect_dividend_policies),
-            ("🧠 潛力股分析更新", self.update_potential_analysis)
+            ("[潛力股分析] 潛力股分析更新", self.update_potential_analysis)
         ]
 
         try:
@@ -442,7 +651,7 @@ class DailyUpdateCollector:
             print(f" 每日增量收集執行失敗: {e}")
             logger.error(f" 每日增量收集執行失敗: {e}")
             raise
-    
+
     def show_summary(self, start_time):
         """顯示執行摘要"""
         end_time = datetime.now()
@@ -486,18 +695,20 @@ def main():
     parser = argparse.ArgumentParser(description="台股每日增量資料收集系統")
     parser.add_argument("--batch-size", type=int, default=5, help="批次大小 (預設: 5)")
     parser.add_argument("--days-back", type=int, default=7, help="往前收集天數 (預設: 7)")
-    
+    parser.add_argument("--test", action="store_true", help="測試模式：只處理前3檔股票")
+
     args = parser.parse_args()
-    
+
     try:
         collector = DailyUpdateCollector(
             batch_size=args.batch_size,
-            days_back=args.days_back
+            days_back=args.days_back,
+            test_mode=args.test
         )
         collector.run()
-        
+
     except KeyboardInterrupt:
-        logger.info("👋 用戶中斷執行")
+        logger.info("[系統] 用戶中斷執行")
         sys.exit(0)
     except Exception as e:
         logger.error(f" 系統執行失敗: {e}")

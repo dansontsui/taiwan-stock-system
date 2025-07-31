@@ -173,7 +173,7 @@ def collect_stock_prices_incremental(db_manager, finmind_collector, stock_id, st
     total_collected = 0
 
     for i, (range_start, range_end) in enumerate(missing_ranges, 1):
-        print(f"📥 收集範圍 {i}/{len(missing_ranges)}: {range_start} ~ {range_end}")
+        print(f"[收集] 收集範圍 {i}/{len(missing_ranges)}: {range_start} ~ {range_end}")
 
         try:
             # 收集該範圍的資料
@@ -327,7 +327,7 @@ def main():
         print("\n" + "=" * 60, flush=True)
         print(" 智能股價收集完成", flush=True)
         print("=" * 60, flush=True)
-        print(f"📊 處理股票: {processed_count}/{len(stock_ids)}", flush=True)
+        print(f"[統計] 處理股票: {processed_count}/{len(stock_ids)}", flush=True)
         print(f"⏭️  跳過股票: {skipped_count}", flush=True)
         print(f"📈 現有資料: {total_existing:,} 筆", flush=True)
         print(f"✨ 新收集資料: {total_collected:,} 筆", flush=True)
