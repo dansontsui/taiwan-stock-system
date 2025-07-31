@@ -54,6 +54,8 @@ def main():
         SELECT stock_id FROM stocks
         WHERE is_active = 1
         AND stock_id NOT LIKE '00%'  -- 排除ETF
+        AND stock_id GLOB '[0-9][0-9][0-9][0-9]'  -- 只要4位數字的股票代碼
+        AND LENGTH(stock_id) = 4  -- 確保長度為4
         ORDER BY stock_id
         """
 

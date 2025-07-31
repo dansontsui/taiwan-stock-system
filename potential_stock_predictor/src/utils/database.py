@@ -102,14 +102,16 @@ class DatabaseManager:
         """
         query = """
         SELECT stock_id, stock_name, market, industry, is_etf, is_active
-        FROM stocks 
+        FROM stocks
         WHERE is_active = 1
+        AND stock_id GLOB '[0-9][0-9][0-9][0-9]'  -- 只要4位數字的股票代碼
+        AND LENGTH(stock_id) = 4  -- 確保長度為4
         """
-        
+
         if exclude_patterns:
             for pattern in exclude_patterns:
                 query += f" AND stock_id NOT LIKE '{pattern}%'"
-        
+
         query += " ORDER BY stock_id"
         
         return self.execute_query_df(query)
