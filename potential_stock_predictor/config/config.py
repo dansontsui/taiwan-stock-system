@@ -11,9 +11,23 @@ from datetime import datetime, timedelta
 PROJECT_ROOT = Path(__file__).parent.parent
 MAIN_PROJECT_ROOT = PROJECT_ROOT.parent
 
-# 資料庫配置
+# 資料庫配置 - 確保路徑正確
+DATABASE_PATH = MAIN_PROJECT_ROOT / 'data' / 'taiwan_stock.db'
+# 如果上述路徑不存在，嘗試其他可能的路徑
+if not DATABASE_PATH.exists():
+    # 嘗試從當前工作目錄查找
+    alt_paths = [
+        Path('../data/taiwan_stock.db'),
+        Path('../../data/taiwan_stock.db'),
+        Path('data/taiwan_stock.db')
+    ]
+    for alt_path in alt_paths:
+        if alt_path.exists():
+            DATABASE_PATH = alt_path.resolve()
+            break
+
 DATABASE_CONFIG = {
-    'path': MAIN_PROJECT_ROOT / 'data' / 'taiwan_stock.db',
+    'path': DATABASE_PATH,
     'timeout': 30
 }
 

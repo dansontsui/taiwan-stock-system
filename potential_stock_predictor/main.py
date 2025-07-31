@@ -36,12 +36,20 @@ try:
     from src.utils.logger import setup_logger
     from config.config import ensure_directories, get_date_ranges
 except ImportError as e:
-    print(f"❌ 導入模組失敗: {e}")
+    print(f"導入模組失敗: {e}")
     print("請確保在 potential_stock_predictor 目錄下執行此程式")
+    print("如果缺少套件，請執行: pip install lightgbm xgboost optuna")
     sys.exit(1)
 
-# 設置日誌
-logger = setup_logger('potential_stock_predictor')
+# 設置日誌 - 確保顯示進度訊息
+logger = setup_logger('potential_stock_predictor', level='INFO')
+
+# 同時設置控制台輸出
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
 
 def setup_argparse():
     """設置命令列參數解析"""

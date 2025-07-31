@@ -1,0 +1,10 @@
+stock_id,prediction_date,probability,prediction,model_type,status,error,created_at
+8299,2025-07-31,0.0,0,random_forest,error,"The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- is_quarter_end
+- is_year_end
+- momentum_10
+- month
+- price_ma_60
+- ...
+",2025-07-31 10:05:07.621195

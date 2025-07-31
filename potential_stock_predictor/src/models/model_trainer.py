@@ -29,9 +29,25 @@ from sklearn.metrics import (
     roc_auc_score, precision_recall_curve, auc
 )
 from sklearn.preprocessing import StandardScaler
-import lightgbm as lgb
-import xgboost as xgb
-import optuna
+
+# 可選的高級機器學習套件
+try:
+    import lightgbm as lgb
+    HAS_LIGHTGBM = True
+except ImportError:
+    HAS_LIGHTGBM = False
+
+try:
+    import xgboost as xgb
+    HAS_XGBOOST = True
+except ImportError:
+    HAS_XGBOOST = False
+
+try:
+    import optuna
+    HAS_OPTUNA = True
+except ImportError:
+    HAS_OPTUNA = False
 
 from ..utils.database import DatabaseManager
 from ..utils.helpers import save_model, save_json

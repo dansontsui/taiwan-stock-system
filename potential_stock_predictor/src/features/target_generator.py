@@ -193,15 +193,21 @@ class TargetGenerator:
                 if stock_id.startswith('00'):
                     logger.debug(f"跳過ETF股票: {stock_id}")
                     continue
-                
+
+                # 顯示當前處理的股票
+                logger.info(f"處理股票 {i+1}/{len(stock_ids)}: {stock_id}")
+
                 targets_df = self.generate_targets(stock_id, feature_dates)
                 if not targets_df.empty:
                     all_targets.append(targets_df)
-                
-                # 進度顯示
-                if (i + 1) % 100 == 0:
-                    logger.info(f"已處理 {i + 1}/{len(stock_ids)} 個股票")
-                    
+                    logger.info(f"股票 {stock_id} 生成 {len(targets_df)} 筆目標變數")
+                else:
+                    logger.warning(f"股票 {stock_id} 沒有生成目標變數")
+
+                # 階段性進度顯示
+                if (i + 1) % 50 == 0:
+                    logger.info(f"階段進度: 已完成 {i + 1}/{len(stock_ids)} 個股票 ({(i+1)/len(stock_ids)*100:.1f}%)")
+
             except Exception as e:
                 logger.error(f"生成股票 {stock_id} 目標變數失敗: {e}")
                 continue
@@ -273,16 +279,19 @@ class TargetGenerator:
             時序目標變數DataFrame
         """
         logger.info(f"創建時序目標變數: {start_date} ~ {end_date}, 頻率: {frequency}")
-        
+
         # 生成特徵日期序列
         if frequency == 'monthly':
-            feature_dates = pd.date_range(start=start_date, end=end_date, freq='M')
+            feature_dates = pd.date_range(start=start_date, end=end_date, freq='ME')  # 月末
         elif frequency == 'quarterly':
-            feature_dates = pd.date_range(start=start_date, end=end_date, freq='Q')
+            feature_dates = pd.date_range(start=start_date, end=end_date, freq='QE')  # 季末
         else:
             raise ValueError(f"不支援的頻率: {frequency}")
-        
+
         feature_dates = [date.strftime('%Y-%m-%d') for date in feature_dates]
-        
+
+        logger.info(f"生成 {len(feature_dates)} 個時間點的目標變數: {feature_dates}")
+        logger.info(f"將處理 {len(stock_ids)} 檔股票 × {len(feature_dates)} 個時間點 = {len(stock_ids) * len(feature_dates)} 個目標變數")
+
         # 批次生成目標變數
         return self.generate_batch_targets(stock_ids, feature_dates)

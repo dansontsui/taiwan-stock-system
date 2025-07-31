@@ -72,20 +72,29 @@ class FeatureEngineer:
         # 生成各類特徵
         features = {}
         
-        # 1. 月營收特徵
-        revenue_features = self._generate_revenue_features(raw_data['monthly_revenue'])
-        features.update(revenue_features)
-        
-        # 2. 財務比率特徵
-        financial_features = self._generate_financial_features(
-            raw_data['financial_statements'],
-            raw_data['balance_sheets']
-        )
-        features.update(financial_features)
-        
-        # 3. 現金流特徵
-        cashflow_features = self._generate_cashflow_features(raw_data['cash_flow'])
-        features.update(cashflow_features)
+        # 1. 月營收特徵 (如果有營收資料)
+        if not raw_data['monthly_revenue'].empty:
+            revenue_features = self._generate_revenue_features(raw_data['monthly_revenue'])
+            features.update(revenue_features)
+        else:
+            logger.warning(f"股票 {stock_id} 沒有營收資料，跳過營收特徵")
+
+        # 2. 財務比率特徵 (如果有財務資料)
+        if not raw_data['financial_statements'].empty:
+            financial_features = self._generate_financial_features(
+                raw_data['financial_statements'],
+                raw_data['balance_sheets']
+            )
+            features.update(financial_features)
+        else:
+            logger.warning(f"股票 {stock_id} 沒有財務報表資料，跳過財務特徵")
+
+        # 3. 現金流特徵 (如果有現金流資料)
+        if not raw_data['cash_flow'].empty:
+            cashflow_features = self._generate_cashflow_features(raw_data['cash_flow'])
+            features.update(cashflow_features)
+        else:
+            logger.warning(f"股票 {stock_id} 沒有現金流資料，跳過現金流特徵")
         
         # 4. 技術指標特徵
         technical_features = self._generate_technical_features(raw_data['stock_prices'])
@@ -124,15 +133,19 @@ class FeatureEngineer:
     
     def _validate_raw_data(self, raw_data: Dict[str, pd.DataFrame]) -> bool:
         """驗證原始資料是否足夠"""
-        # 檢查股價資料
-        if raw_data['stock_prices'].empty:
+        # 只檢查股價資料（最基本的要求）
+        if 'stock_prices' not in raw_data or raw_data['stock_prices'].empty:
             return False
-        
-        # 檢查是否有最近的資料
+
+        # 檢查股價資料數量是否足夠 (降低到20天)
+        if len(raw_data['stock_prices']) < 20:
+            return False
+
+        # 檢查是否有最近的資料 (進一步放寬到2020年)
         latest_price_date = raw_data['stock_prices']['date'].max()
-        if pd.to_datetime(latest_price_date) < pd.to_datetime('2024-01-01'):
+        if pd.to_datetime(latest_price_date) < pd.to_datetime('2020-01-01'):
             return False
-        
+
         return True
     
     def _generate_revenue_features(self, revenue_df: pd.DataFrame) -> Dict[str, float]:
