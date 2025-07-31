@@ -72,27 +72,50 @@ class FeatureEngineer:
         # 生成各類特徵
         features = {}
         
+        # 記錄資料完整性
+        data_completeness = {
+            'monthly_revenue': not raw_data['monthly_revenue'].empty,
+            'financial_statements': not raw_data['financial_statements'].empty,
+            'balance_sheets': not raw_data['balance_sheets'].empty,
+            'cash_flow': not raw_data['cash_flow'].empty,
+            'stock_prices': not raw_data['stock_prices'].empty
+        }
+
+        missing_data = [k for k, v in data_completeness.items() if not v]
+        if missing_data:
+            logger.warning(f"股票 {stock_id} 缺少資料: {', '.join(missing_data)}")
+
+            # 記錄到專門的缺失資料日誌
+            missing_log_file = Path("logs/missing_data.log")
+            missing_log_file.parent.mkdir(exist_ok=True)
+
+            with open(missing_log_file, 'a', encoding='utf-8') as f:
+                f.write(f"{pd.Timestamp.now()},{stock_id},{','.join(missing_data)}\n")
+
         # 1. 月營收特徵 (如果有營收資料)
-        if not raw_data['monthly_revenue'].empty:
+        if data_completeness['monthly_revenue']:
             revenue_features = self._generate_revenue_features(raw_data['monthly_revenue'])
             features.update(revenue_features)
+            logger.info(f"股票 {stock_id} 生成 {len(revenue_features)} 個營收特徵")
         else:
             logger.warning(f"股票 {stock_id} 沒有營收資料，跳過營收特徵")
 
         # 2. 財務比率特徵 (如果有財務資料)
-        if not raw_data['financial_statements'].empty:
+        if data_completeness['financial_statements']:
             financial_features = self._generate_financial_features(
                 raw_data['financial_statements'],
                 raw_data['balance_sheets']
             )
             features.update(financial_features)
+            logger.info(f"股票 {stock_id} 生成 {len(financial_features)} 個財務特徵")
         else:
             logger.warning(f"股票 {stock_id} 沒有財務報表資料，跳過財務特徵")
 
         # 3. 現金流特徵 (如果有現金流資料)
-        if not raw_data['cash_flow'].empty:
+        if data_completeness['cash_flow']:
             cashflow_features = self._generate_cashflow_features(raw_data['cash_flow'])
             features.update(cashflow_features)
+            logger.info(f"股票 {stock_id} 生成 {len(cashflow_features)} 個現金流特徵")
         else:
             logger.warning(f"股票 {stock_id} 沒有現金流資料，跳過現金流特徵")
         

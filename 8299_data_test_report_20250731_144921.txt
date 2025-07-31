@@ -1,0 +1,26 @@
+8299 資料收集測試報告
+==================================================
+測試時間: 2025-07-31 14:49:21
+測試股票: 8299 (群聯)
+
+API測試結果:
+  股價資料: ✅ 成功
+    記錄數: 602
+    欄位: ['date', 'stock_id', 'Trading_Volume', 'Trading_money', 'open', 'max', 'min', 'close', 'spread', 'Trading_turnover']
+    樣本資料: [{'date': '2022-01-03', 'stock_id': '8299', 'Trading_Volume': 6381000, 'Trading_money': 3192868500, 'open': 518.0, 'max': 520.0, 'min': 492.0, 'close': 493.0, 'spread': -19.0, 'Trading_turnover': 5017}, {'date': '2022-01-04', 'stock_id': '8299', 'Trading_Volume': 6722000, 'Trading_money': 3270289500, 'open': 496.5, 'max': 498.0, 'min': 479.0, 'close': 488.5, 'spread': -4.5, 'Trading_turnover': 5341}, {'date': '2022-01-05', 'stock_id': '8299', 'Trading_Volume': 5462000, 'Trading_money': 2618912500, 'open': 488.5, 'max': 490.0, 'min': 474.0, 'close': 476.0, 'spread': -12.5, 'Trading_turnover': 4195}]
+  月營收資料: ✅ 成功
+    記錄數: 30
+    欄位: ['date', 'stock_id', 'country', 'revenue', 'revenue_month', 'revenue_year']
+    樣本資料: [{'date': '2022-01-01', 'stock_id': '8299', 'country': 'Taiwan', 'revenue': 4992997000, 'revenue_month': 12, 'revenue_year': 2021}, {'date': '2022-02-01', 'stock_id': '8299', 'country': 'Taiwan', 'revenue': 5418890000, 'revenue_month': 1, 'revenue_year': 2022}, {'date': '2022-03-01', 'stock_id': '8299', 'country': 'Taiwan', 'revenue': 5307336000, 'revenue_month': 2, 'revenue_year': 2022}]
+  財務報表: ✅ 成功
+    記錄數: 154
+    欄位: ['date', 'stock_id', 'type', 'value', 'origin_name']
+    樣本資料: [{'date': '2022-03-31', 'stock_id': '8299', 'type': 'PreTaxIncome', 'value': 2622638000.0, 'origin_name': '稅前淨利（淨損）'}, {'date': '2022-03-31', 'stock_id': '8299', 'type': 'TAX', 'value': 437577000.0, 'origin_name': '所得稅費用（利益）'}, {'date': '2022-03-31', 'stock_id': '8299', 'type': 'IncomeFromContinuingOperations', 'value': 2185061000.0, 'origin_name': '繼續營業單位本期淨利（淨損）'}]
+  資產負債表: ✅ 成功
+    記錄數: 842
+    欄位: ['date', 'stock_id', 'type', 'value', 'origin_name']
+    樣本資料: [{'date': '2022-03-31', 'stock_id': '8299', 'type': 'CashAndCashEquivalents', 'value': 12813839000.0, 'origin_name': '現金及約當現金'}, {'date': '2022-03-31', 'stock_id': '8299', 'type': 'CashAndCashEquivalents_per', 'value': 20.29, 'origin_name': '現金及約當現金'}, {'date': '2022-03-31', 'stock_id': '8299', 'type': 'CurrentFinancialAssetsAtFairvalueThroughProfitOrLoss', 'value': 1132712000.0, 'origin_name': '透過損益按公允價值衡量之金融資產－流動'}]
+  現金流量表: ✅ 成功
+    記錄數: 256
+    欄位: ['date', 'stock_id', 'type', 'value', 'origin_name']
+    樣本資料: [{'date': '2022-03-31', 'stock_id': '8299', 'type': 'CashFlowsProvidedFromFinancingActivities', 'value': 1097076000.0, 'origin_name': '籌資活動之淨現金流入（流出）'}, {'date': '2022-03-31', 'stock_id': '8299', 'type': 'DecreaseInShortTermLoans', 'value': -1366181000.0, 'origin_name': '短期借款減少'}, {'date': '2022-03-31', 'stock_id': '8299', 'type': 'RentalPrincipalRepayments', 'value': -13717000.0, 'origin_name': '租賃本金償還'}]
