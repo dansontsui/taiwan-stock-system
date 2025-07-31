@@ -80,9 +80,11 @@ def show_menu():
     print(f"{Colors.YELLOW}完整收集與系統:{Colors.NC}")
     print("8. 完整資料收集 (全部階段)")
     print("9. 完整資料收集 (測試模式)")
-    print("10. 啟動Web介面")
+    print("10. 每日增量更新 (智能檢查)")
+    print("11. 每日增量更新 (測試模式)")
+    print("12. 啟動Web介面")
     print()
-    print("11. 顯示說明")
+    print("13. 顯示說明")
     print("0. 退出")
     print()
     print("=" * 60)
@@ -102,6 +104,8 @@ def show_help():
     print("  python start.py analysis     # 執行潛力股分析")
     print("  python start.py complete     # 完整資料收集")
     print("  python start.py complete-test # 完整資料收集 (測試模式)")
+    print("  python start.py daily        # 每日增量更新")
+    print("  python start.py daily-test   # 每日增量更新 (測試模式)")
     print("  python start.py web          # 啟動Web介面")
     print("  python start.py help         # 顯示說明")
     print()
@@ -111,6 +115,7 @@ def show_help():
     print("  資產負債: 資產負債表、財務比率")
     print("  股利資料: 股利政策、除權除息結果")
     print("  潛力分析: 股票評分、潛力股排名")
+    print("  每日更新: 智能檢查並更新需要的資料")
     print()
     print(f"{Colors.YELLOW}[提示]:{Colors.NC}")
     print("  - 首次使用請先執行: pip install -r requirements.txt")
@@ -122,11 +127,11 @@ def get_user_choice():
     """取得使用者選擇"""
     while True:
         try:
-            choice = input(f"{Colors.YELLOW}請輸入選項 (0-11): {Colors.NC}").strip()
-            if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']:
+            choice = input(f"{Colors.YELLOW}請輸入選項 (0-13): {Colors.NC}").strip()
+            if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']:
                 return choice
             else:
-                print(f"{Colors.RED}[ERROR] 請輸入有效的選項 (0-11){Colors.NC}")
+                print(f"{Colors.RED}[ERROR] 請輸入有效的選項 (0-13){Colors.NC}")
         except KeyboardInterrupt:
             print(f"\n{Colors.YELLOW}[WARNING] 使用者中斷執行{Colors.NC}")
             sys.exit(0)
@@ -188,10 +193,18 @@ def execute_choice(choice, python_cmd):
         run_command(python_cmd, 'c.py', ['complete-test'])
 
     elif choice == '10':
+        print(f"{Colors.GREEN}[DAILY] 啟動每日增量更新{Colors.NC}")
+        run_command(python_cmd, 'scripts/collect_daily_update.py')
+
+    elif choice == '11':
+        print(f"{Colors.GREEN}[DAILY-TEST] 啟動每日增量更新 (測試模式){Colors.NC}")
+        run_command(python_cmd, 'scripts/collect_daily_update.py', ['--test'])
+
+    elif choice == '12':
         print(f"{Colors.GREEN}[WEB] 啟動Web介面{Colors.NC}")
         run_command(python_cmd, 'run.py')
 
-    elif choice == '11':
+    elif choice == '13':
         show_help()
         input(f"\n{Colors.BLUE}按 Enter 鍵返回選單...{Colors.NC}")
 
@@ -247,6 +260,14 @@ def main():
         elif arg in ['complete-test', 'ct']:
             print(f"{Colors.GREEN}[COMPLETE-TEST] 啟動完整資料收集 (測試模式){Colors.NC}")
             run_command(python_cmd, 'c.py', ['complete-test'])
+
+        elif arg in ['daily', 'daily-update']:
+            print(f"{Colors.GREEN}[DAILY] 啟動每日增量更新{Colors.NC}")
+            run_command(python_cmd, 'scripts/collect_daily_update.py')
+
+        elif arg in ['daily-test', 'dt']:
+            print(f"{Colors.GREEN}[DAILY-TEST] 啟動每日增量更新 (測試模式){Colors.NC}")
+            run_command(python_cmd, 'scripts/collect_daily_update.py', ['--test'])
 
         elif arg in ['web', 'w']:
             print(f"{Colors.GREEN}[WEB] 啟動Web介面{Colors.NC}")
