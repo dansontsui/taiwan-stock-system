@@ -14,6 +14,7 @@ import numpy as np
 from typing import Dict, List, Optional, Tuple
 import logging
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from ..utils.database import DatabaseManager
 from ..utils.helpers import (
@@ -49,26 +50,36 @@ class FeatureEngineer:
     def generate_features(self, stock_id: str, end_date: str) -> pd.DataFrame:
         """
         為單一股票生成所有特徵
-        
+
         Args:
             stock_id: 股票代碼
             end_date: 特徵計算的截止日期
-            
+
         Returns:
             特徵DataFrame
         """
         logger.info(f"為股票 {stock_id} 生成特徵，截止日期: {end_date}")
-        
-        # 計算需要的歷史資料範圍
-        start_date = self._calculate_start_date(end_date)
-        
-        # 收集所有原始資料
-        raw_data = self._collect_raw_data(stock_id, start_date, end_date)
-        
-        if not self._validate_raw_data(raw_data):
-            logger.warning(f"股票 {stock_id} 原始資料不足，跳過特徵生成")
+
+        # 智能計算實際可用的資料範圍
+        actual_start_date, actual_end_date = self._calculate_smart_date_range(stock_id, end_date)
+
+        if actual_start_date is None:
+            logger.warning(f"股票 {stock_id} 沒有足夠的歷史資料，跳過特徵生成")
             return pd.DataFrame()
-        
+
+        # 如果調整了日期範圍，記錄信息
+        original_start = self._calculate_start_date(end_date)
+        if actual_start_date != original_start:
+            logger.info(f"[SMART] 股票 {stock_id} 智能調整資料範圍: {actual_start_date} ~ {actual_end_date} (原始: {original_start} ~ {end_date})")
+
+        # 收集所有原始資料
+        raw_data = self._collect_raw_data(stock_id, actual_start_date, actual_end_date)
+
+        # 最終驗證資料是否足夠
+        if not self._validate_raw_data(raw_data):
+            logger.warning(f"股票 {stock_id} 即使調整日期後資料仍不足，跳過特徵生成")
+            return pd.DataFrame()
+
         # 生成各類特徵
         features = {}
         
@@ -141,6 +152,77 @@ class FeatureEngineer:
         # 回看2年的資料以確保有足夠的歷史資料計算特徵
         start_dt = end_dt - timedelta(days=2*365)
         return start_dt.strftime('%Y-%m-%d')
+
+    def _calculate_smart_date_range(self, stock_id: str, end_date: str) -> tuple:
+        """
+        智能計算股票的實際可用資料範圍
+
+        Args:
+            stock_id: 股票代碼
+            end_date: 期望的結束日期
+
+        Returns:
+            (actual_start_date, actual_end_date) 或 (None, None) 如果資料不足
+        """
+        # 1. 先檢查股票的實際資料範圍
+        actual_range = self._get_stock_data_range(stock_id)
+        if not actual_range:
+            return None, None
+
+        stock_first_date, stock_last_date = actual_range
+
+        # 2. 計算理想的開始日期（往前推2年）
+        ideal_start_date = self._calculate_start_date(end_date)
+
+        # 3. 智能調整開始日期
+        # 使用股票實際開始日期和理想開始日期中較晚的那個
+        actual_start_date = max(stock_first_date, ideal_start_date)
+
+        # 4. 調整結束日期
+        # 使用股票實際結束日期和期望結束日期中較早的那個
+        actual_end_date = min(stock_last_date, end_date)
+
+        # 5. 檢查調整後的時間範圍是否足夠
+        start_dt = pd.to_datetime(actual_start_date)
+        end_dt = pd.to_datetime(actual_end_date)
+        days_diff = (end_dt - start_dt).days
+
+        # 至少需要90天的資料來計算技術指標
+        if days_diff < 90:
+            logger.debug(f"股票 {stock_id} 調整後的時間範圍太短: {days_diff} 天")
+            return None, None
+
+        return actual_start_date, actual_end_date
+
+    def _get_stock_data_range(self, stock_id: str) -> tuple:
+        """
+        獲取股票的實際資料日期範圍
+
+        Returns:
+            (first_date, last_date) 或 None 如果沒有資料
+        """
+        try:
+            # 查詢股票的資料範圍
+            query = """
+            SELECT MIN(date) as first_date, MAX(date) as last_date
+            FROM stock_prices
+            WHERE stock_id = ?
+            """
+
+            with self.db_manager.get_connection() as conn:
+                result = pd.read_sql_query(query, conn, params=[stock_id])
+
+            if result.empty or pd.isna(result.iloc[0]['first_date']):
+                return None
+
+            first_date = result.iloc[0]['first_date']
+            last_date = result.iloc[0]['last_date']
+
+            return first_date, last_date
+
+        except Exception as e:
+            logger.error(f"獲取股票 {stock_id} 資料範圍失敗: {e}")
+            return None
     
     def _collect_raw_data(self, stock_id: str, start_date: str, end_date: str) -> Dict[str, pd.DataFrame]:
         """收集原始資料"""
@@ -160,15 +242,12 @@ class FeatureEngineer:
         if 'stock_prices' not in raw_data or raw_data['stock_prices'].empty:
             return False
 
-        # 檢查股價資料數量是否足夠 (降低到20天)
-        if len(raw_data['stock_prices']) < 20:
+        # 檢查股價資料數量是否足夠 (降低到30天，因為需要計算技術指標)
+        if len(raw_data['stock_prices']) < 30:
             return False
 
-        # 檢查是否有最近的資料 (進一步放寬到2020年)
-        latest_price_date = raw_data['stock_prices']['date'].max()
-        if pd.to_datetime(latest_price_date) < pd.to_datetime('2020-01-01'):
-            return False
-
+        # 移除過於嚴格的日期限制，讓系統能處理更多歷史資料
+        # 只要有足夠數量的資料就可以生成特徵
         return True
     
     def _generate_revenue_features(self, revenue_df: pd.DataFrame) -> Dict[str, float]:

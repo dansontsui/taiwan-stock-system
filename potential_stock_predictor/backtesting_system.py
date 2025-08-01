@@ -324,8 +324,19 @@ class BacktestingSystem:
             logging.warning(f"{prediction_date} 沒有特徵資料")
             return pd.DataFrame()
         
-        # 準備預測資料
-        X = features_df[model_info['feature_cols']].fillna(0)
+        # 準備預測資料 - 使用完整的資料清理
+        X = features_df[model_info['feature_cols']].copy()
+        X, cleaned_feature_cols = self.clean_feature_data(X, model_info['feature_cols'], "[PREDICT] ")
+
+        # 確保特徵欄位一致
+        if set(cleaned_feature_cols) != set(model_info['feature_cols']):
+            logging.warning(f"[PREDICT] 特徵欄位不一致，調整中...")
+            # 如果清理後的特徵少了，用0填充
+            for col in model_info['feature_cols']:
+                if col not in cleaned_feature_cols:
+                    X[col] = 0
+            X = X[model_info['feature_cols']]
+
         X_scaled = model_info['scaler'].transform(X)
         
         # 預測
@@ -687,8 +698,18 @@ class BacktestingSystem:
                 print(f"  [ERROR] 無法生成特徵")
                 continue
 
-            # 預測
-            X = features[model_info['feature_cols']].fillna(0)
+            # 預測 - 使用完整的資料清理
+            X = features[model_info['feature_cols']].copy()
+            X, cleaned_feature_cols = self.clean_feature_data(X, model_info['feature_cols'], f"[SINGLE-{stock_id}] ")
+
+            # 確保特徵欄位一致
+            if set(cleaned_feature_cols) != set(model_info['feature_cols']):
+                # 如果清理後的特徵少了，用0填充
+                for col in model_info['feature_cols']:
+                    if col not in cleaned_feature_cols:
+                        X[col] = 0
+                X = X[model_info['feature_cols']]
+
             X_scaled = model_info['scaler'].transform(X)
             prediction_prob = model_info['model'].predict_proba(X_scaled)[0, 1]
 
