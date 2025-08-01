@@ -328,42 +328,59 @@ def main():
     parser.add_argument('--end-date', default=datetime.now().strftime('%Y-%m-%d'), help='結束日期 (YYYY-MM-DD)')
     parser.add_argument('--batch-size', type=int, default=5, help='批次大小')
     parser.add_argument('--test', action='store_true', help='測試模式 (只收集前5檔股票)')
-    
+    parser.add_argument('--stock-id', help='指定股票代碼')
+
     args = parser.parse_args()
-    
+
     print("=" * 60)
-    print("台股綜合損益表資料收集系統")
+    if args.stock_id:
+        print(f"台股綜合損益表資料收集系統 - 個股 {args.stock_id}")
+    else:
+        print("台股綜合損益表資料收集系統")
     print("=" * 60)
-    
+
     # 初始化日誌
     init_logging()
     logger.info("開始收集綜合損益表資料")
-    
+
     try:
         # 獲取股票清單
         db_manager = DatabaseManager(Config.DATABASE_PATH)
         conn = db_manager.get_connection()
         cursor = conn.cursor()
-        
-        # 只選擇真正的上市公司股票 (4位數字股票代碼)
-        cursor.execute("""
-            SELECT stock_id, stock_name 
-            FROM stocks 
-            WHERE is_etf = 0 
-            AND LENGTH(stock_id) = 4 
-            AND stock_id GLOB '[0-9][0-9][0-9][0-9]'
-            AND market IN ('TWSE', 'TPEx')
-            ORDER BY stock_id
-        """)
-        stock_list = [{'stock_id': row[0], 'stock_name': row[1]} for row in cursor.fetchall()]
+
+        if args.stock_id:
+            # 指定個股
+            cursor.execute("""
+                SELECT stock_id, stock_name
+                FROM stocks
+                WHERE stock_id = ?
+            """, (args.stock_id,))
+            stock_list = [{'stock_id': row[0], 'stock_name': row[1]} for row in cursor.fetchall()]
+        else:
+            # 只選擇真正的上市公司股票 (4位數字股票代碼)
+            cursor.execute("""
+                SELECT stock_id, stock_name
+                FROM stocks
+                WHERE is_etf = 0
+                AND LENGTH(stock_id) = 4
+                AND stock_id GLOB '[0-9][0-9][0-9][0-9]'
+                AND market IN ('TWSE', 'TPEx')
+                ORDER BY stock_id
+            """)
+            stock_list = [{'stock_id': row[0], 'stock_name': row[1]} for row in cursor.fetchall()]
+
         conn.close()
-        
-        if args.test:
+
+        if args.test and not args.stock_id:
             stock_list = stock_list[:5]
             print(" 測試模式：只收集前5檔股票")
-        
+
         if not stock_list:
-            print(" 未找到股票資料，請先執行股票清單收集")
+            if args.stock_id:
+                print(f" 找不到股票代碼: {args.stock_id}")
+            else:
+                print(" 未找到股票資料，請先執行股票清單收集")
             return
         
         # 開始收集

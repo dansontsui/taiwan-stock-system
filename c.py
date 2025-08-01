@@ -90,7 +90,34 @@ def run_collect(start_date, end_date, batch_size, stock_scope):
         print(f"\n[ERROR] 基礎資料收集錯誤: {e}")
         return False
 
-def run_financial_collection(test_mode=False):
+def run_collect_with_stock(start_date, end_date, batch_size, stock_scope, stock_id):
+    """執行基礎資料收集 - 指定個股"""
+    script_path = Path(__file__).parent / "simple_collect.py"
+
+    cmd = [
+        sys.executable,
+        str(script_path),
+        "--test",  # 個股模式使用測試範圍
+        "--stock-id", stock_id
+    ]
+
+    print(f"[START] 啟動基礎資料收集: 個股 {stock_id}, 批次大小 {batch_size}")
+    print(f"[DATE] {start_date} ~ {end_date}")
+    print("[INFO] 按 Ctrl+C 停止")
+    print("=" * 50)
+
+    try:
+        subprocess.run(cmd, check=True)
+        print(f"[SUCCESS] 個股 {stock_id} 基礎資料收集完成")
+        return True
+    except KeyboardInterrupt:
+        print(f"\n[WARNING] 個股 {stock_id} 基礎資料收集已停止")
+        return False
+    except Exception as e:
+        print(f"\n[ERROR] 個股 {stock_id} 基礎資料收集錯誤: {e}")
+        return False
+
+def run_financial_collection(test_mode=False, stock_id=None):
     """執行財務報表資料收集"""
     start_date, end_date = get_financial_dates()
     args = [
@@ -100,10 +127,12 @@ def run_financial_collection(test_mode=False):
     ]
     if test_mode:
         args.append('--test')
+    if stock_id:
+        args.extend(['--stock-id', stock_id])
 
     return run_script('collect_financial_statements.py', args, '財務報表資料收集')
 
-def run_balance_collection(test_mode=False):
+def run_balance_collection(test_mode=False, stock_id=None):
     """執行資產負債表資料收集"""
     start_date, end_date = get_financial_dates()
     args = [
@@ -113,10 +142,12 @@ def run_balance_collection(test_mode=False):
     ]
     if test_mode:
         args.append('--test')
+    if stock_id:
+        args.extend(['--stock-id', stock_id])
 
     return run_script('collect_balance_sheets.py', args, '資產負債表資料收集')
 
-def run_dividend_collection(test_mode=False):
+def run_dividend_collection(test_mode=False, stock_id=None):
     """執行股利資料收集"""
     start_date, end_date = get_dividend_dates()
     args = [
@@ -126,6 +157,8 @@ def run_dividend_collection(test_mode=False):
     ]
     if test_mode:
         args.append('--test')
+    if stock_id:
+        args.extend(['--stock-id', stock_id])
 
     # 收集股利政策
     success1 = run_script('collect_dividend_data.py', args, '股利政策資料收集')
@@ -143,9 +176,12 @@ def run_analysis(stock_id=None, top=20):
 
     return run_script('analyze_potential_stocks.py', args, '潛力股分析')
 
-def run_complete_collection(test_mode=False):
+def run_complete_collection(test_mode=False, stock_id=None):
     """執行完整資料收集"""
-    print("[COMPLETE] 開始完整資料收集流程")
+    if stock_id:
+        print(f"[COMPLETE] 開始完整資料收集流程 - 個股 {stock_id}")
+    else:
+        print("[COMPLETE] 開始完整資料收集流程")
     print("=" * 60)
 
     success_count = 0
@@ -154,34 +190,44 @@ def run_complete_collection(test_mode=False):
     # 階段1: 基礎資料收集
     print("\n階段 1/5: 基礎資料收集 (股價、月營收、現金流)")
     start_date, end_date = get_default_dates()
-    scope = "test" if test_mode else "all"
-    if run_collect(start_date, end_date, 5, scope):
-        success_count += 1
+    if stock_id:
+        # 個股模式：使用 test 範圍但指定股票
+        scope = "test"
+        if run_collect_with_stock(start_date, end_date, 5, scope, stock_id):
+            success_count += 1
+    else:
+        # 全部股票模式
+        scope = "test" if test_mode else "all"
+        if run_collect(start_date, end_date, 5, scope):
+            success_count += 1
 
     # 階段2: 財務報表收集
     print("\n階段 2/5: 財務報表資料收集")
-    if run_financial_collection(test_mode):
+    if run_financial_collection(test_mode, stock_id):
         success_count += 1
 
     # 階段3: 資產負債表收集
     print("\n階段 3/5: 資產負債表資料收集")
-    if run_balance_collection(test_mode):
+    if run_balance_collection(test_mode, stock_id):
         success_count += 1
 
     # 階段4: 股利資料收集
     print("\n階段 4/5: 股利資料收集")
-    if run_dividend_collection(test_mode):
+    if run_dividend_collection(test_mode, stock_id):
         success_count += 1
 
     # 階段5: 潛力股分析
     print("\n階段 5/5: 潛力股分析")
     top_count = 5 if test_mode else 50
-    if run_analysis(top=top_count):
+    if run_analysis(top=top_count, stock_id=stock_id):
         success_count += 1
 
     # 總結
     print("\n" + "=" * 60)
-    print(f"[COMPLETE] 完整收集流程結束")
+    if stock_id:
+        print(f"[COMPLETE] 個股 {stock_id} 完整收集流程結束")
+    else:
+        print(f"[COMPLETE] 完整收集流程結束")
     print(f"[RESULT] 成功完成 {success_count}/{total_steps} 個階段")
     if success_count == total_steps:
         print("[SUCCESS] 所有階段都成功完成！")
@@ -228,8 +274,20 @@ def main():
         print("[DEFAULT] 執行完整資料收集 (預設)")
         run_complete_collection(test_mode=False)
 
-    elif len(sys.argv) == 2:
-        option = sys.argv[1].lower()
+    elif len(sys.argv) >= 2:
+        # 解析參數
+        args = sys.argv[1:]
+        option = args[0].lower()
+        stock_id = None
+
+        # 檢查是否有 --stock-id 參數
+        if '--stock-id' in args:
+            stock_id_index = args.index('--stock-id')
+            if stock_id_index + 1 < len(args):
+                stock_id = args[stock_id_index + 1]
+            else:
+                print("[ERROR] --stock-id 參數需要指定股票代碼")
+                return
 
         if option in ['all', 'a']:
             print("[ALL] 收集基礎資料 - 所有股票")
@@ -244,28 +302,46 @@ def main():
             run_collect(start_date, end_date, 1, "test")
 
         elif option in ['financial', 'f']:
-            print("[FINANCIAL] 收集財務報表資料")
-            run_financial_collection(test_mode=False)
+            if stock_id:
+                print(f"[FINANCIAL] 收集財務報表資料 - 個股 {stock_id}")
+            else:
+                print("[FINANCIAL] 收集財務報表資料")
+            run_financial_collection(test_mode=False, stock_id=stock_id)
 
         elif option in ['balance', 'b']:
-            print("[BALANCE] 收集資產負債表資料")
-            run_balance_collection(test_mode=False)
+            if stock_id:
+                print(f"[BALANCE] 收集資產負債表資料 - 個股 {stock_id}")
+            else:
+                print("[BALANCE] 收集資產負債表資料")
+            run_balance_collection(test_mode=False, stock_id=stock_id)
 
         elif option in ['dividend', 'd']:
-            print("[DIVIDEND] 收集股利相關資料")
-            run_dividend_collection(test_mode=False)
+            if stock_id:
+                print(f"[DIVIDEND] 收集股利相關資料 - 個股 {stock_id}")
+            else:
+                print("[DIVIDEND] 收集股利相關資料")
+            run_dividend_collection(test_mode=False, stock_id=stock_id)
 
         elif option in ['analysis', 'analyze']:
-            print("[ANALYSIS] 執行潛力股分析")
-            run_analysis(top=50)
+            if stock_id:
+                print(f"[ANALYSIS] 執行潛力股分析 - 個股 {stock_id}")
+            else:
+                print("[ANALYSIS] 執行潛力股分析")
+            run_analysis(top=50, stock_id=stock_id)
 
         elif option in ['complete', 'c']:
-            print("[COMPLETE] 執行完整資料收集")
-            run_complete_collection(test_mode=False)
+            if stock_id:
+                print(f"[COMPLETE] 執行完整資料收集 - 個股 {stock_id}")
+            else:
+                print("[COMPLETE] 執行完整資料收集")
+            run_complete_collection(test_mode=False, stock_id=stock_id)
 
         elif option in ['complete-test', 'ct']:
-            print("[COMPLETE-TEST] 執行完整資料收集 (測試模式)")
-            run_complete_collection(test_mode=True)
+            if stock_id:
+                print(f"[COMPLETE-TEST] 執行完整資料收集 (測試模式) - 個股 {stock_id}")
+            else:
+                print("[COMPLETE-TEST] 執行完整資料收集 (測試模式)")
+            run_complete_collection(test_mode=True, stock_id=stock_id)
 
         elif option in ['help', 'h', '--help', '-h']:
             show_help()
@@ -273,10 +349,6 @@ def main():
         else:
             print(f"[ERROR] 未知選項: {option}")
             print("[INFO] 使用 'python c.py help' 查看說明")
-
-    else:
-        print("[ERROR] 參數過多")
-        print("[INFO] 使用 'python c.py help' 查看說明")
 
 if __name__ == "__main__":
     main()

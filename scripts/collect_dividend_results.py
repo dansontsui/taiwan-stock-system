@@ -264,38 +264,59 @@ def collect_dividend_result_batch(stock_list, start_date, end_date, batch_size=3
     return total_saved, total_analysis, failed_stocks
 
 def main():
-    """"""
-    parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--start-date', default='2015-01-01', help=' (YYYY-MM-DD)')
-    parser.add_argument('--end-date', default=datetime.now().strftime('%Y-%m-%d'), help=' (YYYY-MM-DD)')
-    parser.add_argument('--batch-size', type=int, default=3, help='')
-    parser.add_argument('--test', action='store_true', help='3')
-    
+    """主函數"""
+    parser = argparse.ArgumentParser(description='收集台股除權除息結果資料')
+    parser.add_argument('--start-date', default='2015-01-01', help='開始日期 (YYYY-MM-DD)')
+    parser.add_argument('--end-date', default=datetime.now().strftime('%Y-%m-%d'), help='結束日期 (YYYY-MM-DD)')
+    parser.add_argument('--batch-size', type=int, default=3, help='批次大小')
+    parser.add_argument('--test', action='store_true', help='測試模式 (只收集前3檔股票)')
+    parser.add_argument('--stock-id', help='指定股票代碼')
+
     args = parser.parse_args()
     
+    print("=" * 60)
+    if args.stock_id:
+        print(f"台股除權除息結果資料收集系統 - 個股 {args.stock_id}")
+    else:
+        print("台股除權除息結果資料收集系統")
+    print("=" * 60)
+
     try:
         db_manager = DatabaseManager(Config.DATABASE_PATH)
         conn = db_manager.get_connection()
         cursor = conn.cursor()
-        
-        cursor.execute("""
-            SELECT stock_id, stock_name 
-            FROM stocks 
-            WHERE is_etf = 0 
-            AND LENGTH(stock_id) = 4 
-            AND stock_id GLOB '[0-9][0-9][0-9][0-9]'
-            AND market IN ('TWSE', 'TPEx')
-            ORDER BY stock_id
-        """)
-        stock_list = [{'stock_id': row[0], 'stock_name': row[1]} for row in cursor.fetchall()]
+
+        if args.stock_id:
+            # 指定個股
+            cursor.execute("""
+                SELECT stock_id, stock_name
+                FROM stocks
+                WHERE stock_id = ?
+            """, (args.stock_id,))
+            stock_list = [{'stock_id': row[0], 'stock_name': row[1]} for row in cursor.fetchall()]
+        else:
+            cursor.execute("""
+                SELECT stock_id, stock_name
+                FROM stocks
+                WHERE is_etf = 0
+                AND LENGTH(stock_id) = 4
+                AND stock_id GLOB '[0-9][0-9][0-9][0-9]'
+                AND market IN ('TWSE', 'TPEx')
+                ORDER BY stock_id
+            """)
+            stock_list = [{'stock_id': row[0], 'stock_name': row[1]} for row in cursor.fetchall()]
+
         conn.close()
-        
-        if args.test:
+
+        if args.test and not args.stock_id:
             stock_list = stock_list[:3]
-            print("3")
-        
+            print("測試模式：只收集前3檔股票")
+
         if not stock_list:
-            print("")
+            if args.stock_id:
+                print(f"找不到股票代碼: {args.stock_id}")
+            else:
+                print("未找到股票資料")
             return
         
         total_saved, total_analysis, failed_stocks = collect_dividend_result_batch(

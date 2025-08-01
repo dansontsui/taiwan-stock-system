@@ -19,30 +19,41 @@ os.environ['PYTHONIOENCODING'] = 'utf-8'
 DATABASE_PATH = "data/taiwan_stock.db"
 API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRlIjoiMjAyNS0wNy0yMyAyMDo1MzowNyIsInVzZXJfaWQiOiJkYW5zb24udHN1aSIsImlwIjoiMTIyLjExNi4xNzQuNyJ9.YkvySt5dqxDg_4NHsJzcmmH1trIQUBOy_wHJkR9Ibmk"
 
-def get_stock_list(limit=None):
+def get_stock_list(limit=None, stock_id=None):
     """獲取股票清單"""
     try:
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
-        
-        query = """
-        SELECT stock_id, stock_name
-        FROM stocks
-        WHERE LENGTH(stock_id) = 4
-        AND stock_id GLOB '[0-9][0-9][0-9][0-9]'
-        AND stock_id NOT LIKE '00%'
-        ORDER BY stock_id
-        """
-        
-        if limit:
-            query += f" LIMIT {limit}"
-        
-        cursor.execute(query)
+
+        if stock_id:
+            # 指定個股
+            query = """
+            SELECT stock_id, stock_name
+            FROM stocks
+            WHERE stock_id = ?
+            """
+            cursor.execute(query, (stock_id,))
+        else:
+            # 所有股票
+            query = """
+            SELECT stock_id, stock_name
+            FROM stocks
+            WHERE LENGTH(stock_id) = 4
+            AND stock_id GLOB '[0-9][0-9][0-9][0-9]'
+            AND stock_id NOT LIKE '00%'
+            ORDER BY stock_id
+            """
+
+            if limit:
+                query += f" LIMIT {limit}"
+
+            cursor.execute(query)
+
         stocks = cursor.fetchall()
         conn.close()
-        
+
         return [{'stock_id': row[0], 'stock_name': row[1]} for row in stocks]
-        
+
     except Exception as e:
         print(f"獲取股票清單失敗: {e}")
         return []
@@ -187,23 +198,34 @@ def save_cash_flow(df, stock_id):
         print(f"儲存現金流失敗: {e}")
         return 0
 
-def collect_all_data(test_mode=False):
+def collect_all_data(test_mode=False, stock_id=None):
     """收集所有資料"""
-    
+
     print("=" * 60)
-    print("簡化版資料收集")
+    if stock_id:
+        print(f"簡化版資料收集 - 個股 {stock_id}")
+    else:
+        print("簡化版資料收集")
     print("=" * 60)
-    
+
     # 獲取股票清單
-    limit = 3 if test_mode else None
-    stocks = get_stock_list(limit)
-    
+    if stock_id:
+        stocks = get_stock_list(stock_id=stock_id)
+    else:
+        limit = 3 if test_mode else None
+        stocks = get_stock_list(limit)
+
     if not stocks:
-        print("沒有找到股票")
+        if stock_id:
+            print(f"找不到股票代碼: {stock_id}")
+        else:
+            print("沒有找到股票")
         return
-    
+
     print(f"找到 {len(stocks)} 檔股票")
-    if test_mode:
+    if stock_id:
+        print(f"個股模式：收集 {stock_id}")
+    elif test_mode:
         print("測試模式：只收集前3檔")
     
     # 資料集定義
@@ -266,13 +288,14 @@ def collect_all_data(test_mode=False):
 def main():
     """主函數"""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description='簡化版資料收集')
     parser.add_argument('--test', action='store_true', help='測試模式')
-    
+    parser.add_argument('--stock-id', help='指定股票代碼')
+
     args = parser.parse_args()
-    
-    collect_all_data(test_mode=args.test)
+
+    collect_all_data(test_mode=args.test, stock_id=args.stock_id)
 
 if __name__ == "__main__":
     main()

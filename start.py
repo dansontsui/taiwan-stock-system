@@ -9,6 +9,8 @@ import sys
 import os
 import subprocess
 import shutil
+import sqlite3
+from pathlib import Path
 from pathlib import Path
 
 # 顏色定義 (支援 Windows 和 Unix)
@@ -82,12 +84,222 @@ def show_menu():
     print("9. 完整資料收集 (測試模式)")
     print("10. 每日增量更新 (智能檢查)")
     print("11. 每日增量更新 (測試模式)")
-    print("12. 啟動Web介面")
+    print("12. 個股資料缺失查詢")
+    print("13. 啟動Web介面")
     print()
-    print("13. 顯示說明")
+    print("14. 顯示說明")
     print("0. 退出")
     print()
     print("=" * 60)
+
+def check_specific_stock(stock_id, conn, cursor):
+    """檢查特定股票的資料情況"""
+    # 檢查股票是否存在
+    cursor.execute("SELECT stock_id, stock_name, market FROM stocks WHERE stock_id = ?", (stock_id,))
+    stock_info = cursor.fetchone()
+
+    if not stock_info:
+        print(f'{Colors.RED}❌ 找不到股票代碼: {stock_id}{Colors.NC}')
+        return False
+
+    stock_name = stock_info[1]
+    market = stock_info[2]
+
+    print(f'{Colors.BLUE}🔍 個股資料查詢: {stock_id} ({stock_name}) [{market}]{Colors.NC}')
+    print('=' * 60)
+
+    tables_to_check = [
+        ('stock_prices', '股價資料'),
+        ('monthly_revenues', '月營收資料'),
+        ('financial_statements', '財務報表資料'),
+        ('dividend_policies', '股利政策資料'),
+        ('stock_scores', '潛力股分析'),
+        ('dividend_results', '除權除息'),
+        ('cash_flow_statements', '現金流量表')
+    ]
+
+    missing_count = 0
+    total_tables = len(tables_to_check)
+
+    for table_name, table_desc in tables_to_check:
+        # 檢查資料表是否存在
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+        if not cursor.fetchone():
+            print(f'{table_desc:15} : {Colors.RED}❌ 資料表不存在{Colors.NC}')
+            missing_count += 1
+            continue
+
+        # 檢查該股票是否有資料
+        cursor.execute(f"SELECT COUNT(*) FROM {table_name} WHERE stock_id = ?", (stock_id,))
+        record_count = cursor.fetchone()[0]
+
+        if record_count > 0:
+            # 獲取最新資料日期
+            try:
+                cursor.execute(f"SELECT MAX(date) FROM {table_name} WHERE stock_id = ?", (stock_id,))
+                latest_date = cursor.fetchone()[0]
+                if not latest_date:
+                    try:
+                        cursor.execute(f"SELECT MAX(analysis_date) FROM {table_name} WHERE stock_id = ?", (stock_id,))
+                        latest_date = cursor.fetchone()[0]
+                    except:
+                        latest_date = '無日期'
+            except:
+                try:
+                    cursor.execute(f"SELECT MAX(analysis_date) FROM {table_name} WHERE stock_id = ?", (stock_id,))
+                    latest_date = cursor.fetchone()[0]
+                except:
+                    latest_date = '無日期'
+
+            print(f'{table_desc:15} : {Colors.GREEN}✅ {record_count:,} 筆記錄 (最新: {latest_date}){Colors.NC}')
+        else:
+            print(f'{table_desc:15} : {Colors.RED}❌ 無資料{Colors.NC}')
+            missing_count += 1
+
+    # 顯示完整度統計
+    completeness = ((total_tables - missing_count) / total_tables) * 100
+    print(f'\n{Colors.YELLOW}資料完整度: {completeness:.1f}% ({total_tables-missing_count}/{total_tables}){Colors.NC}')
+
+    if completeness >= 85:
+        status_color = Colors.GREEN
+        status = "優秀"
+    elif completeness >= 60:
+        status_color = Colors.YELLOW
+        status = "良好"
+    else:
+        status_color = Colors.RED
+        status = "需改善"
+
+    print(f'{Colors.BLUE}整體評級: {status_color}{status}{Colors.NC}')
+    return True
+
+def check_missing_data():
+    """檢查個股資料缺失情況"""
+    db_path = Path('data/taiwan_stock.db')
+    if not db_path.exists():
+        print(f"{Colors.RED}[ERROR] 找不到資料庫檔案{Colors.NC}")
+        return
+
+    print(f"{Colors.BLUE}台股個股資料缺失查詢{Colors.NC}")
+    print("=" * 60)
+
+    # 詢問查詢類型
+    print(f"{Colors.YELLOW}請選擇查詢類型:{Colors.NC}")
+    print("1. 整體資料庫覆蓋率分析")
+    print("2. 單一個股資料查詢")
+    print("0. 返回")
+
+    while True:
+        try:
+            choice = input(f"{Colors.YELLOW}請輸入選項 (0-2): {Colors.NC}").strip()
+            if choice in ['0', '1', '2']:
+                break
+            else:
+                print(f"{Colors.RED}[ERROR] 請輸入有效的選項 (0-2){Colors.NC}")
+        except KeyboardInterrupt:
+            print(f"\n{Colors.BLUE}[INFO] 操作已取消{Colors.NC}")
+            return
+
+    if choice == '0':
+        return
+
+    conn = sqlite3.connect(str(db_path))
+    cursor = conn.cursor()
+
+    try:
+        if choice == '2':
+            # 單一個股查詢
+            while True:
+                stock_id = input(f"{Colors.YELLOW}請輸入股票代碼 (或輸入 'q' 退出): {Colors.NC}").strip().upper()
+                if stock_id.lower() == 'q':
+                    break
+                if not stock_id:
+                    print(f"{Colors.RED}[ERROR] 請輸入有效的股票代碼{Colors.NC}")
+                    continue
+
+                print()
+                if check_specific_stock(stock_id, conn, cursor):
+                    print(f"\n{Colors.GREEN}查詢完成{Colors.NC}")
+
+                # 詢問是否繼續查詢
+                continue_query = input(f"\n{Colors.YELLOW}是否查詢其他股票? (y/n): {Colors.NC}").strip().lower()
+                if continue_query != 'y':
+                    break
+                print()
+
+            conn.close()
+            return
+
+        # choice == '1' - 整體分析
+        # 獲取股票總數
+        cursor.execute("""
+            SELECT COUNT(*) FROM stocks
+            WHERE is_active = 1 AND stock_id NOT LIKE '00%'
+            AND stock_id GLOB '[0-9]*'
+        """)
+        total_stocks = cursor.fetchone()[0]
+        print(f"{Colors.GREEN}總股票數: {total_stocks:,} 檔{Colors.NC}")
+
+        # 檢查各資料表
+        tables = [
+            ('stock_prices', '股價資料'),
+            ('monthly_revenues', '月營收資料'),
+            ('financial_statements', '財務報表資料'),
+            ('dividend_policies', '股利政策資料'),
+            ('stock_scores', '潛力股分析'),
+            ('dividend_results', '除權除息'),
+            ('cash_flow_statements', '現金流量表')
+        ]
+
+        print(f"\n{Colors.YELLOW}各資料表覆蓋情況:{Colors.NC}")
+        print("-" * 60)
+
+        for table_name, table_desc in tables:
+            # 檢查資料表是否存在
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+            if not cursor.fetchone():
+                print(f'{table_desc:15} : {Colors.RED}資料表不存在{Colors.NC}')
+                continue
+
+            # 獲取有資料的股票數
+            cursor.execute(f"""
+                SELECT COUNT(DISTINCT stock_id)
+                FROM {table_name}
+                WHERE stock_id IN (
+                    SELECT stock_id FROM stocks
+                    WHERE is_active = 1 AND stock_id NOT LIKE '00%'
+                    AND stock_id GLOB '[0-9]*'
+                )
+            """)
+            has_data_count = cursor.fetchone()[0]
+
+            coverage_rate = (has_data_count / total_stocks) * 100 if total_stocks > 0 else 0
+            missing_count = total_stocks - has_data_count
+
+            # 狀態顏色
+            if coverage_rate >= 95:
+                color = Colors.GREEN
+                status = "優秀"
+            elif coverage_rate >= 80:
+                color = Colors.YELLOW
+                status = "良好"
+            elif coverage_rate >= 50:
+                color = Colors.YELLOW
+                status = "普通"
+            else:
+                color = Colors.RED
+                status = "需改善"
+
+            print(f'{table_desc:15} : {color}{coverage_rate:5.1f}% ({has_data_count:,}/{total_stocks:,}) 缺失 {missing_count:,} - {status}{Colors.NC}')
+
+        print(f"\n{Colors.GREEN}查詢完成{Colors.NC}")
+        print(f"{Colors.BLUE}提示: 可使用 'python start.py daily' 進行資料更新{Colors.NC}")
+
+    except Exception as e:
+        print(f"{Colors.RED}[ERROR] 查詢過程發生錯誤: {e}{Colors.NC}")
+
+    finally:
+        conn.close()
 
 def show_help():
     """顯示說明"""
@@ -106,6 +318,7 @@ def show_help():
     print("  python start.py complete-test # 完整資料收集 (測試模式)")
     print("  python start.py daily        # 每日增量更新")
     print("  python start.py daily-test   # 每日增量更新 (測試模式)")
+    print("  python start.py check        # 個股資料缺失查詢")
     print("  python start.py web          # 啟動Web介面")
     print("  python start.py help         # 顯示說明")
     print()
@@ -116,6 +329,7 @@ def show_help():
     print("  股利資料: 股利政策、除權除息結果")
     print("  潛力分析: 股票評分、潛力股排名")
     print("  每日更新: 智能檢查並更新需要的資料")
+    print("  資料查詢: 檢查個股資料完整性和缺失情況")
     print()
     print(f"{Colors.YELLOW}[提示]:{Colors.NC}")
     print("  - 首次使用請先執行: pip install -r requirements.txt")
@@ -127,11 +341,11 @@ def get_user_choice():
     """取得使用者選擇"""
     while True:
         try:
-            choice = input(f"{Colors.YELLOW}請輸入選項 (0-13): {Colors.NC}").strip()
-            if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']:
+            choice = input(f"{Colors.YELLOW}請輸入選項 (0-14): {Colors.NC}").strip()
+            if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14']:
                 return choice
             else:
-                print(f"{Colors.RED}[ERROR] 請輸入有效的選項 (0-13){Colors.NC}")
+                print(f"{Colors.RED}[ERROR] 請輸入有效的選項 (0-14){Colors.NC}")
         except KeyboardInterrupt:
             print(f"\n{Colors.YELLOW}[WARNING] 使用者中斷執行{Colors.NC}")
             sys.exit(0)
@@ -185,8 +399,32 @@ def execute_choice(choice, python_cmd):
         run_command(python_cmd, 'c.py', ['analysis'])
 
     elif choice == '8':
-        print(f"{Colors.GREEN}[COMPLETE] 啟動完整資料收集{Colors.NC}")
-        run_command(python_cmd, 'c.py', ['complete'])
+        print(f"{Colors.GREEN}[COMPLETE] 完整資料收集 (全部階段){Colors.NC}")
+        print("=" * 60)
+        print("請選擇收集範圍:")
+        print("1. 所有股票 (2,822檔) - 完整收集")
+        print("2. 指定個股 - 單一股票完整收集")
+        print("0. 返回")
+        print()
+
+        sub_choice = input("請輸入選項 (0-2): ").strip()
+
+        if sub_choice == '1':
+            print(f"{Colors.GREEN}[COMPLETE-ALL] 啟動完整資料收集 - 所有股票{Colors.NC}")
+            run_command(python_cmd, 'c.py', ['complete'])
+        elif sub_choice == '2':
+            stock_id = input("請輸入股票代碼 (例如: 2330): ").strip()
+            if stock_id:
+                print(f"{Colors.GREEN}[COMPLETE-STOCK] 啟動完整資料收集 - 個股 {stock_id}{Colors.NC}")
+                run_command(python_cmd, 'c.py', ['complete', '--stock-id', stock_id])
+            else:
+                print(f"{Colors.RED}❌ 股票代碼不能為空{Colors.NC}")
+                input("按 Enter 鍵返回選單...")
+        elif sub_choice == '0':
+            return
+        else:
+            print(f"{Colors.RED}❌ 無效選項{Colors.NC}")
+            input("按 Enter 鍵返回選單...")
 
     elif choice == '9':
         print(f"{Colors.GREEN}[COMPLETE-TEST] 啟動完整資料收集 (測試模式){Colors.NC}")
@@ -201,10 +439,14 @@ def execute_choice(choice, python_cmd):
         run_command(python_cmd, 'scripts/collect_daily_update.py', ['--test'])
 
     elif choice == '12':
+        print(f"{Colors.GREEN}[CHECK] 個股資料缺失查詢{Colors.NC}")
+        check_missing_data()
+
+    elif choice == '13':
         print(f"{Colors.GREEN}[WEB] 啟動Web介面{Colors.NC}")
         run_command(python_cmd, 'run.py')
 
-    elif choice == '13':
+    elif choice == '14':
         show_help()
         input(f"\n{Colors.BLUE}按 Enter 鍵返回選單...{Colors.NC}")
 
@@ -268,6 +510,10 @@ def main():
         elif arg in ['daily-test', 'dt']:
             print(f"{Colors.GREEN}[DAILY-TEST] 啟動每日增量更新 (測試模式){Colors.NC}")
             run_command(python_cmd, 'scripts/collect_daily_update.py', ['--test'])
+
+        elif arg in ['check', 'missing']:
+            print(f"{Colors.GREEN}[CHECK] 個股資料缺失查詢{Colors.NC}")
+            check_missing_data()
 
         elif arg in ['web', 'w']:
             print(f"{Colors.GREEN}[WEB] 啟動Web介面{Colors.NC}")
