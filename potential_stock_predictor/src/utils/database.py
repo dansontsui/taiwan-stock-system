@@ -79,16 +79,31 @@ class DatabaseManager:
     def execute_query_df(self, query: str, params: Tuple = ()) -> pd.DataFrame:
         """
         執行查詢並返回DataFrame
-        
+
         Args:
             query: SQL查詢語句
             params: 查詢參數
-            
+
         Returns:
             查詢結果DataFrame
         """
         with self.get_connection() as conn:
-            return pd.read_sql_query(query, conn, params=params)
+            try:
+                # 嘗試使用 params 參數
+                if params:
+                    return pd.read_sql_query(query, conn, params=list(params))
+                else:
+                    return pd.read_sql_query(query, conn)
+            except Exception as e:
+                logger.error(f"查詢執行失敗: {e}")
+                logger.error(f"查詢語句: {query}")
+                logger.error(f"參數: {params}")
+                # 如果 params 方式失敗，嘗試使用 cursor 方式
+                cursor = conn.cursor()
+                cursor.execute(query, params)
+                columns = [description[0] for description in cursor.description]
+                rows = cursor.fetchall()
+                return pd.DataFrame(rows, columns=columns)
     
     def get_stock_list(self, exclude_patterns: List[str] = None) -> pd.DataFrame:
         """

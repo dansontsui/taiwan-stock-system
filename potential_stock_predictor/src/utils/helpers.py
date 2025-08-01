@@ -194,8 +194,8 @@ def load_model(file_path: str):
 
 def save_json(data: Dict, file_path: str):
     """
-    儲存JSON檔案
-    
+    儲存JSON檔案 - 使用 ASCII 編碼確保跨平台兼容性
+
     Args:
         data: 資料字典
         file_path: 儲存路徑
@@ -206,15 +206,25 @@ def save_json(data: Dict, file_path: str):
 
 def load_json(file_path: str) -> Dict:
     """
-    載入JSON檔案
-    
+    載入JSON檔案 - 支援多種編碼
+
     Args:
         file_path: 檔案路徑
-        
+
     Returns:
         資料字典
     """
-    with open(file_path, 'r', encoding='utf-8') as f:
+    # 嘗試不同編碼
+    encodings = ['utf-8', 'ascii', 'cp1252', 'big5']
+    for encoding in encodings:
+        try:
+            with open(file_path, 'r', encoding=encoding) as f:
+                return json.load(f)
+        except (UnicodeDecodeError, UnicodeError):
+            continue
+
+    # 如果所有編碼都失敗，使用錯誤處理
+    with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
         return json.load(f)
 
 def get_financial_quarter(date: str) -> Tuple[int, int]:

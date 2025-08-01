@@ -58,7 +58,7 @@ def setup_logger(name: str = 'potential_stock_predictor',
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
     
-    # 檔案處理器（支援輪轉）
+    # 檔案處理器（支援輪轉）- 使用 UTF-8 編碼支援中文
     file_handler = logging.handlers.RotatingFileHandler(
         log_file_path,
         maxBytes=LOGGING_CONFIG['max_file_size'],

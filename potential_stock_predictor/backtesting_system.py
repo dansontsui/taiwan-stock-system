@@ -22,13 +22,13 @@ from src.features.feature_engineering import FeatureEngineer
 from src.features.target_generator import TargetGenerator
 import pickle
 
-# 設置日誌
+# 設置日誌 - 使用 UTF-8 編碼支援中文顯示
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('backtesting.log')
+        logging.FileHandler('backtesting.log', encoding='utf-8')
     ]
 )
 
@@ -509,10 +509,10 @@ class BacktestingSystem:
             }
             report['period_results'].append(period_summary)
         
-        # 保存到檔案
+        # 保存到檔案 - 使用 ASCII 編碼確保跨平台兼容性
         report_file = f"backtest_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(report_file, 'w', encoding='utf-8') as f:
-            json.dump(report, f, ensure_ascii=False, indent=2)
+        with open(report_file, 'w', encoding='ascii', errors='replace') as f:
+            json.dump(report, f, ensure_ascii=True, indent=2)
         
         logging.info(f"回測報告已保存: {report_file}")
         
@@ -845,8 +845,8 @@ class BacktestingSystem:
             'detailed_results': serializable_results
         }
 
-        with open(report_file, 'w', encoding='utf-8') as f:
-            json.dump(report_data, f, ensure_ascii=False, indent=2)
+        with open(report_file, 'w', encoding='ascii', errors='replace') as f:
+            json.dump(report_data, f, ensure_ascii=True, indent=2)
 
         print(f"\n[SAVE] 報告已保存: {report_file}")
 
