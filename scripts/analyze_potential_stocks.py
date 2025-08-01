@@ -8,9 +8,13 @@ import sys
 import os
 import json
 import argparse
+import warnings
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
+
+# 隱藏 DeprecationWarning
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 # 添加專案根目錄到 Python 路徑
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
