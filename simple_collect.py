@@ -15,6 +15,66 @@ from datetime import datetime, timedelta
 # 設置編碼
 os.environ['PYTHONIOENCODING'] = 'utf-8'
 
+# 導入智能等待模組
+try:
+    from scripts.smart_wait import reset_execution_timer, smart_wait_for_api_reset, is_api_limit_error
+except ImportError:
+    # 如果無法導入，使用本地版本
+    print("[WARNING] 無法導入智能等待模組，使用本地版本")
+
+    # 全局變數追蹤執行時間
+    execution_start_time = None
+
+    def reset_execution_timer():
+        global execution_start_time
+        execution_start_time = datetime.now()
+        print(f"[TIMER] 重置執行時間計時器: {execution_start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+    def smart_wait_for_api_reset():
+        global execution_start_time
+        total_wait_minutes = 70
+        executed_minutes = 0
+
+        if execution_start_time:
+            elapsed = datetime.now() - execution_start_time
+            executed_minutes = elapsed.total_seconds() / 60
+
+        remaining_wait_minutes = max(0, total_wait_minutes - executed_minutes)
+
+        print(f"\n🚫 API請求限制已達上限")
+        print("=" * 60)
+        print(f"📊 執行統計:")
+        print(f"   總執行時間: {executed_minutes:.1f} 分鐘")
+        print(f"   API重置週期: {total_wait_minutes} 分鐘")
+        print(f"   需要等待: {remaining_wait_minutes:.1f} 分鐘")
+        print("=" * 60)
+
+        if remaining_wait_minutes <= 0:
+            print("✅ 已超過API重置週期，立即重置計時器並繼續")
+            reset_execution_timer()
+            return
+
+        print(f"⏳ 智能等待 {remaining_wait_minutes:.1f} 分鐘...")
+        total_wait_seconds = int(remaining_wait_minutes * 60)
+
+        if total_wait_seconds > 0:
+            for remaining in range(total_wait_seconds, 0, -60):
+                hours = remaining // 3600
+                minutes = (remaining % 3600) // 60
+                current_time = datetime.now().strftime("%H:%M:%S")
+                progress = ((total_wait_seconds - remaining) / total_wait_seconds) * 100
+
+                print(f"\r⏰ [{current_time}] 剩餘: {hours:02d}:{minutes:02d}:00 | 進度: {progress:.1f}%", end="", flush=True)
+                time.sleep(60)
+
+        print(f"\n✅ [{datetime.now().strftime('%H:%M:%S')}] 智能等待完成，重置計時器並繼續收集...")
+        print("=" * 60)
+        reset_execution_timer()
+
+    def is_api_limit_error(error_msg):
+        api_limit_keywords = ["402", "Payment Required", "API請求限制", "rate limit", "quota exceeded"]
+        return any(keyword.lower() in error_msg.lower() for keyword in api_limit_keywords)
+
 # 配置
 DATABASE_PATH = "data/taiwan_stock.db"
 API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRlIjoiMjAyNS0wNy0yMyAyMDo1MzowNyIsInVzZXJfaWQiOiJkYW5zb24udHN1aSIsImlwIjoiMTIyLjExNi4xNzQuNyJ9.YkvySt5dqxDg_4NHsJzcmmH1trIQUBOy_wHJkR9Ibmk"
@@ -58,8 +118,10 @@ def get_stock_list(limit=None, stock_id=None):
         print(f"獲取股票清單失敗: {e}")
         return []
 
-def collect_stock_data(stock_id, dataset, start_date, end_date):
-    """收集單一股票的資料"""
+def collect_stock_data(stock_id, dataset, start_date, end_date, retry_count=0):
+    """收集單一股票的資料 - 支援智能等待"""
+    max_retries = 3
+
     try:
         url = "https://api.finmindtrade.com/api/v4/data"
         params = {
@@ -69,18 +131,48 @@ def collect_stock_data(stock_id, dataset, start_date, end_date):
             "end_date": end_date,
             "token": API_TOKEN
         }
-        
+
         response = requests.get(url, params=params, timeout=30)
-        
+
         if response.status_code == 200:
             data = response.json()
             if 'data' in data and data['data']:
                 return pd.DataFrame(data['data'])
-        
-        return None
-        
+            return None
+
+        elif response.status_code == 402:
+            # API請求限制，使用智能等待
+            error_msg = f"402 Payment Required for {dataset} {stock_id}"
+            print(f"收集 {stock_id} {dataset} 遇到API限制: {error_msg}")
+
+            if is_api_limit_error(error_msg):
+                smart_wait_for_api_reset()
+
+                # 重試
+                if retry_count < max_retries:
+                    print(f"重試收集 {stock_id} {dataset} (第 {retry_count + 1} 次)")
+                    return collect_stock_data(stock_id, dataset, start_date, end_date, retry_count + 1)
+                else:
+                    print(f"收集 {stock_id} {dataset} 達到最大重試次數")
+                    return None
+            else:
+                print(f"收集 {stock_id} {dataset} 失敗: HTTP {response.status_code}")
+                return None
+
+        else:
+            print(f"收集 {stock_id} {dataset} 失敗: HTTP {response.status_code}")
+            return None
+
     except Exception as e:
+        error_msg = str(e)
         print(f"收集 {stock_id} {dataset} 失敗: {e}")
+
+        # 檢查是否為API限制相關錯誤
+        if is_api_limit_error(error_msg) and retry_count < max_retries:
+            smart_wait_for_api_reset()
+            print(f"重試收集 {stock_id} {dataset} (第 {retry_count + 1} 次)")
+            return collect_stock_data(stock_id, dataset, start_date, end_date, retry_count + 1)
+
         return None
 
 def save_stock_prices(df, stock_id):
@@ -207,6 +299,9 @@ def collect_all_data(test_mode=False, stock_id=None, start_date=None, end_date=N
     else:
         print("簡化版資料收集")
     print("=" * 60)
+
+    # 重置執行時間計時器
+    reset_execution_timer()
 
     # 獲取股票清單
     if stock_id:

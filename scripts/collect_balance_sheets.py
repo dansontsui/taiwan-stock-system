@@ -24,6 +24,66 @@ from app.utils.simple_database import SimpleDatabaseManager as DatabaseManager
 from app.services.data_collector import FinMindDataCollector
 from loguru import logger
 
+# 導入智能等待模組
+try:
+    from scripts.smart_wait import reset_execution_timer, smart_wait_for_api_reset, is_api_limit_error
+except ImportError:
+    # 如果無法導入，使用本地版本
+    print("[WARNING] 無法導入智能等待模組，使用本地版本")
+
+    # 全局變數追蹤執行時間
+    execution_start_time = None
+
+    def reset_execution_timer():
+        global execution_start_time
+        execution_start_time = datetime.now()
+        print(f"[TIMER] 重置執行時間計時器: {execution_start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+    def smart_wait_for_api_reset():
+        global execution_start_time
+        total_wait_minutes = 70
+        executed_minutes = 0
+
+        if execution_start_time:
+            elapsed = datetime.now() - execution_start_time
+            executed_minutes = elapsed.total_seconds() / 60
+
+        remaining_wait_minutes = max(0, total_wait_minutes - executed_minutes)
+
+        print(f"\n🚫 API請求限制已達上限")
+        print("=" * 60)
+        print(f"📊 執行統計:")
+        print(f"   總執行時間: {executed_minutes:.1f} 分鐘")
+        print(f"   API重置週期: {total_wait_minutes} 分鐘")
+        print(f"   需要等待: {remaining_wait_minutes:.1f} 分鐘")
+        print("=" * 60)
+
+        if remaining_wait_minutes <= 0:
+            print("✅ 已超過API重置週期，立即重置計時器並繼續")
+            reset_execution_timer()
+            return
+
+        print(f"⏳ 智能等待 {remaining_wait_minutes:.1f} 分鐘...")
+        total_wait_seconds = int(remaining_wait_minutes * 60)
+
+        if total_wait_seconds > 0:
+            for remaining in range(total_wait_seconds, 0, -60):
+                hours = remaining // 3600
+                minutes = (remaining % 3600) // 60
+                current_time = datetime.now().strftime("%H:%M:%S")
+                progress = ((total_wait_seconds - remaining) / total_wait_seconds) * 100
+
+                print(f"\r⏰ [{current_time}] 剩餘: {hours:02d}:{minutes:02d}:00 | 進度: {progress:.1f}%", end="", flush=True)
+                time.sleep(60)
+
+        print(f"\n✅ [{datetime.now().strftime('%H:%M:%S')}] 智能等待完成，重置計時器並繼續收集...")
+        print("=" * 60)
+        reset_execution_timer()
+
+    def is_api_limit_error(error_msg):
+        api_limit_keywords = ["402", "Payment Required", "API請求限制", "rate limit", "quota exceeded"]
+        return any(keyword.lower() in error_msg.lower() for keyword in api_limit_keywords)
+
 def init_logging():
     """初始化日誌"""
     log_dir = os.path.join(Config.BASE_DIR, 'logs')
@@ -37,20 +97,7 @@ def init_logging():
         level="INFO"
     )
 
-def wait_for_api_reset():
-    """等待API限制重置 - 70分鐘"""
-    wait_minutes = 70
-    print(f"\n 遇到API限制，等待 {wait_minutes} 分鐘...")
-    print("=" * 60)
-    
-    for remaining in range(wait_minutes * 60, 0, -60):
-        hours = remaining // 3600
-        minutes = (remaining % 3600) // 60
-        current_time = datetime.now().strftime("%H:%M:%S")
-        print(f"\r [{current_time}] 剩餘等待時間: {hours:02d}:{minutes:02d}:00", end="", flush=True)
-        time.sleep(60)
-    
-    print(f"\n [{datetime.now().strftime('%H:%M:%S')}] 等待完成，繼續收集...")
+
 
 def get_balance_sheet_data(collector, stock_id, start_date, end_date):
     """獲取資產負債表資料"""
@@ -242,8 +289,9 @@ def collect_balance_sheet_batch(stock_list, start_date, end_date, batch_size=3):
                 logger.error(f"收集 {stock_id} 資產負債表失敗: {error_msg}")
                 failed_stocks.append((stock_id, error_msg))
                 
-                if "API請求限制" in error_msg or "402" in error_msg:
-                    wait_for_api_reset()
+                # 如果是API限制錯誤，智能等待
+                if is_api_limit_error(error_msg):
+                    smart_wait_for_api_reset()
                 else:
                     time.sleep(5)
         
@@ -281,6 +329,9 @@ def main():
 
     init_logging()
     logger.info("開始收集資產負債表資料")
+
+    # 重置執行時間計時器
+    reset_execution_timer()
 
     try:
         db_manager = DatabaseManager(Config.DATABASE_PATH)

@@ -7,3 +7,4 @@ description: "Example description"
 3 測試的時候把終端機結果都輸入到log , 然後你用log檢查結果
 4 我同步也要看到測試過程終端機資料
 5 所有檔案要mac / windows都能執行
+6 不要發生 UnicodeEncodeError: 'cp950' codec can't encode character

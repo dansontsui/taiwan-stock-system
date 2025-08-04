@@ -384,9 +384,6 @@ def run_stock_by_stock_collection(test_mode=True, auto_mode=False):
         logger.info(f"開始處理股票 {i}/{total_stocks}: {stock_id}")
         print(f"{'='*60}")
 
-        # 先檢查資料完整性
-        if stock_id == '1103' :
-            print("1103")
         is_complete, completeness_info = check_stock_data_completeness(stock_id, logger)
 
         if is_complete and not test_mode:  # 測試模式總是執行收集

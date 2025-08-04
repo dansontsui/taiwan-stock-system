@@ -30,13 +30,56 @@ except ImportError as e:
     print("請確認在正確的專案目錄中執行")
     sys.exit(1)
 
-def wait_for_api_reset():
-    """API請求限制等待"""
-    print("API請求限制，等待70分鐘後重試...")
-    for i in range(70, 0, -1):
-        print(f"\r剩餘等待時間: {i} 分鐘", end="", flush=True)
-        time.sleep(60)
-    print("\n等待完成，繼續收集...")
+# 導入智能等待模組
+try:
+    from scripts.smart_wait import reset_execution_timer, smart_wait_for_api_reset, is_api_limit_error
+except ImportError:
+    print("[WARNING] 無法導入智能等待模組，使用本地版本")
+
+    execution_start_time = None
+
+    def reset_execution_timer():
+        global execution_start_time
+        execution_start_time = datetime.now()
+        print(f"[TIMER] 重置執行時間計時器: {execution_start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+    def smart_wait_for_api_reset():
+        global execution_start_time
+        total_wait_minutes = 70
+        executed_minutes = 0
+
+        if execution_start_time:
+            elapsed = datetime.now() - execution_start_time
+            executed_minutes = elapsed.total_seconds() / 60
+
+        remaining_wait_minutes = max(0, total_wait_minutes - executed_minutes)
+
+        print(f"\n🚫 API請求限制已達上限")
+        print(f"📊 總執行時間: {executed_minutes:.1f} 分鐘，需要等待: {remaining_wait_minutes:.1f} 分鐘")
+
+        if remaining_wait_minutes <= 0:
+            print("✅ 已超過API重置週期，立即重置計時器並繼續")
+            reset_execution_timer()
+            return
+
+        print(f"⏳ 智能等待 {remaining_wait_minutes:.1f} 分鐘...")
+        total_wait_seconds = int(remaining_wait_minutes * 60)
+
+        if total_wait_seconds > 0:
+            for remaining in range(total_wait_seconds, 0, -60):
+                hours = remaining // 3600
+                minutes = (remaining % 3600) // 60
+                print(f"\r⏰ 剩餘: {hours:02d}:{minutes:02d}:00", end="", flush=True)
+                time.sleep(60)
+
+        print(f"\n✅ 智能等待完成，重置計時器並繼續收集...")
+        reset_execution_timer()
+
+    def is_api_limit_error(error_msg):
+        api_limit_keywords = ["402", "Payment Required", "API請求限制", "rate limit", "quota exceeded"]
+        return any(keyword.lower() in error_msg.lower() for keyword in api_limit_keywords)
+
+
 
 def get_dividend_result_data(collector, stock_id, start_date, end_date):
     """"""
@@ -244,8 +287,9 @@ def collect_dividend_result_batch(stock_list, start_date, end_date, batch_size=3
                 logger.error(f"收集 {stock_id} 除權除息結果失敗: {error_msg}")
                 failed_stocks.append((stock_id, error_msg))
                 
-                if "API" in error_msg or "402" in error_msg:
-                    wait_for_api_reset()
+                # 如果是API限制錯誤，智能等待
+                if is_api_limit_error(error_msg):
+                    smart_wait_for_api_reset()
                 else:
                     time.sleep(5)
         
@@ -280,6 +324,9 @@ def main():
     else:
         print("台股除權除息結果資料收集系統")
     print("=" * 60)
+
+    # 重置執行時間計時器
+    reset_execution_timer()
 
     try:
         db_manager = DatabaseManager(Config.DATABASE_PATH)
