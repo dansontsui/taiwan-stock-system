@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-完整的台股資料收集啟動器
+完整的台股資料收集啟動器 - 支援斷點續傳
 用法: python c.py [選項]
 """
 
@@ -10,6 +10,14 @@ import sqlite3
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
+
+# 導入進度管理器
+try:
+    from scripts.progress_manager import ProgressManager, TaskType, TaskStatus
+    PROGRESS_ENABLED = True
+except ImportError:
+    print("[WARNING] 無法導入進度管理器，斷點續傳功能將被停用")
+    PROGRESS_ENABLED = False
 
 def get_default_dates():
     """獲取預設日期範圍 (10年)"""
@@ -345,18 +353,47 @@ def check_stock_data_completeness(stock_id, logger):
         logger.error(error_msg)
         return False, error_msg
 
-def run_stock_by_stock_collection(test_mode=True, auto_mode=False):
-    """執行逐股完整資料收集 - 每支股票收集完全部資料再換下一隻"""
+def run_stock_by_stock_collection(test_mode=True, auto_mode=False, resume_task_id=None):
+    """執行逐股完整資料收集 - 每支股票收集完全部資料再換下一隻，支援斷點續傳"""
     # 設定日誌
     logger = setup_logging()
 
     mode_desc = "測試模式" if test_mode else ("自動執行模式" if auto_mode else "手動模式")
+    if resume_task_id:
+        mode_desc += f" (續傳任務: {resume_task_id})"
+
     print(f"[STOCK-BY-STOCK] 開始逐股完整資料收集流程 - {mode_desc}")
     logger.info(f"開始逐股完整資料收集流程 - {mode_desc}")
     print("=" * 60)
 
+    # 初始化進度管理器
+    progress_manager = None
+    task_id = None
+
+    if PROGRESS_ENABLED:
+        progress_manager = ProgressManager()
+
+        # 如果指定續傳任務ID，載入現有任務
+        if resume_task_id:
+            task_progress = progress_manager.load_task_progress(resume_task_id)
+            if task_progress:
+                task_id = resume_task_id
+                print(f"✅ 載入續傳任務: {task_progress.task_name}")
+                print(f"   進度: {task_progress.completed_stocks}/{task_progress.total_stocks}")
+                logger.info(f"載入續傳任務: {task_progress.task_name}, 進度: {task_progress.completed_stocks}/{task_progress.total_stocks}")
+            else:
+                print(f"❌ 找不到任務: {resume_task_id}")
+                logger.error(f"找不到任務: {resume_task_id}")
+                return False
+
     # 獲取股票清單
-    if test_mode:
+    if resume_task_id and task_id:
+        # 續傳模式：只處理待處理的股票
+        pending_stocks = progress_manager.get_pending_stocks(task_id)
+        stock_list = [stock['stock_id'] for stock in pending_stocks]
+        print(f"[RESUME] 續傳模式，找到 {len(stock_list)} 檔待處理股票")
+        logger.info(f"續傳模式，找到 {len(stock_list)} 檔待處理股票")
+    elif test_mode:
         stock_list = get_test_stock_list()
         print(f"[TEST] 測試模式，處理 {len(stock_list)} 檔股票")
         logger.info(f"測試模式，處理 {len(stock_list)} 檔股票")
@@ -368,6 +405,54 @@ def run_stock_by_stock_collection(test_mode=True, auto_mode=False):
             return False
         print(f"[ALL] 處理 {len(stock_list)} 檔股票")
         logger.info(f"處理 {len(stock_list)} 檔股票")
+
+    if not stock_list:
+        if resume_task_id:
+            print("[INFO] 沒有待處理的股票，任務可能已完成")
+            logger.info("沒有待處理的股票，任務可能已完成")
+        else:
+            print("[ERROR] 股票清單為空")
+            logger.error("股票清單為空")
+        return False
+
+    # 創建新任務（如果不是續傳模式）
+    if PROGRESS_ENABLED and not resume_task_id:
+        task_name = f"逐股完整收集_{mode_desc}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+        # 準備股票清單格式
+        stock_list_for_task = []
+        for stock_id in stock_list:
+            # 從資料庫獲取股票名稱
+            try:
+                db_path = Path('data/taiwan_stock.db')
+                if db_path.exists():
+                    conn = sqlite3.connect(str(db_path))
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT stock_name FROM stocks WHERE stock_id = ?", (stock_id,))
+                    result = cursor.fetchone()
+                    stock_name = result[0] if result else stock_id
+                    conn.close()
+                else:
+                    stock_name = stock_id
+            except:
+                stock_name = stock_id
+
+            stock_list_for_task.append({'stock_id': stock_id, 'stock_name': stock_name})
+
+        parameters = {
+            'test_mode': test_mode,
+            'auto_mode': auto_mode,
+            'collection_type': 'stock_by_stock'
+        }
+
+        task_id = progress_manager.create_task(
+            task_type=TaskType.COMPREHENSIVE,
+            task_name=task_name,
+            stock_list=stock_list_for_task,
+            parameters=parameters
+        )
+        print(f"📝 創建任務: {task_id}")
+        logger.info(f"創建任務: {task_id}")
 
     print(f"[STOCKS] 前10檔: {', '.join(stock_list[:10])}{'...' if len(stock_list) > 10 else ''}")
     logger.info(f"股票清單: {', '.join(stock_list)}")
@@ -384,24 +469,49 @@ def run_stock_by_stock_collection(test_mode=True, auto_mode=False):
         logger.info(f"開始處理股票 {i}/{total_stocks}: {stock_id}")
         print(f"{'='*60}")
 
+        # 更新進度：開始處理股票
+        if PROGRESS_ENABLED and task_id:
+            progress_manager.update_stock_progress(
+                task_id, stock_id, TaskStatus.IN_PROGRESS
+            )
+
         is_complete, completeness_info = check_stock_data_completeness(stock_id, logger)
 
         if is_complete and not test_mode:  # 測試模式總是執行收集
             print(f"[SKIP] {completeness_info} - 跳過")
             skipped_stocks.append(stock_id)
+
+            # 更新進度：跳過股票
+            if PROGRESS_ENABLED and task_id:
+                progress_manager.update_stock_progress(
+                    task_id, stock_id, TaskStatus.SKIPPED
+                )
             continue
 
         # 為每支股票執行完整收集流程
-        stock_success = run_single_stock_complete_collection(stock_id, test_mode, logger)
+        stock_success = run_single_stock_complete_collection(stock_id, test_mode, logger, progress_manager, task_id)
 
         if stock_success:
             success_stocks += 1
             print(f"[SUCCESS] 股票 {stock_id} 完整收集成功")
             logger.info(f"股票 {stock_id} 完整收集成功")
+
+            # 更新進度：股票完成
+            if PROGRESS_ENABLED and task_id:
+                progress_manager.update_stock_progress(
+                    task_id, stock_id, TaskStatus.COMPLETED
+                )
         else:
             failed_stocks.append(stock_id)
             print(f"[FAILED] 股票 {stock_id} 完整收集失敗")
             logger.error(f"股票 {stock_id} 完整收集失敗")
+
+            # 更新進度：股票失敗
+            if PROGRESS_ENABLED and task_id:
+                progress_manager.update_stock_progress(
+                    task_id, stock_id, TaskStatus.FAILED,
+                    error_message="完整收集流程失敗"
+                )
 
         # 顯示進度
         processed = success_stocks + len(failed_stocks)
@@ -459,7 +569,7 @@ def run_stock_by_stock_collection(test_mode=True, auto_mode=False):
 
     return success_stocks > 0
 
-def run_single_stock_complete_collection(stock_id, test_mode=True, logger=None):
+def run_single_stock_complete_collection(stock_id, test_mode=True, logger=None, progress_manager=None, task_id=None):
     """執行單一股票的完整資料收集"""
     print(f"[SINGLE-STOCK] 開始股票 {stock_id} 的完整資料收集")
     if logger:
@@ -468,38 +578,92 @@ def run_single_stock_complete_collection(stock_id, test_mode=True, logger=None):
     success_count = 0
     total_steps = 5
 
+    # 資料集名稱對應
+    dataset_names = [
+        "basic_data",
+        "financial_statements",
+        "balance_sheets",
+        "dividend_data",
+        "analysis"
+    ]
+
     # 階段1: 基礎資料收集
     print(f"\n[{stock_id}] 階段 1/5: 基礎資料收集 (股價、月營收、現金流)")
     start_date, end_date = get_default_dates()
     if run_collect_with_stock(start_date, end_date, 5, "test", stock_id):
         success_count += 1
         print(f"[{stock_id}] ✅ 基礎資料收集完成")
+        # 更新進度
+        if progress_manager and task_id:
+            progress_manager.update_stock_progress(
+                task_id, stock_id, TaskStatus.IN_PROGRESS,
+                completed_datasets=[dataset_names[0]]
+            )
     else:
         print(f"[{stock_id}] ❌ 基礎資料收集失敗")
+        if progress_manager and task_id:
+            progress_manager.update_stock_progress(
+                task_id, stock_id, TaskStatus.IN_PROGRESS,
+                failed_datasets=[dataset_names[0]],
+                error_message="基礎資料收集失敗"
+            )
 
     # 階段2: 財務報表收集
     print(f"\n[{stock_id}] 階段 2/5: 財務報表資料收集")
     if run_financial_collection(test_mode, stock_id):
         success_count += 1
         print(f"[{stock_id}] ✅ 財務報表收集完成")
+        if progress_manager and task_id:
+            progress_manager.update_stock_progress(
+                task_id, stock_id, TaskStatus.IN_PROGRESS,
+                completed_datasets=[dataset_names[1]]
+            )
     else:
         print(f"[{stock_id}] ❌ 財務報表收集失敗")
+        if progress_manager and task_id:
+            progress_manager.update_stock_progress(
+                task_id, stock_id, TaskStatus.IN_PROGRESS,
+                failed_datasets=[dataset_names[1]],
+                error_message="財務報表收集失敗"
+            )
 
     # 階段3: 資產負債表收集
     print(f"\n[{stock_id}] 階段 3/5: 資產負債表資料收集")
     if run_balance_collection(test_mode, stock_id):
         success_count += 1
         print(f"[{stock_id}] ✅ 資產負債表收集完成")
+        if progress_manager and task_id:
+            progress_manager.update_stock_progress(
+                task_id, stock_id, TaskStatus.IN_PROGRESS,
+                completed_datasets=[dataset_names[2]]
+            )
     else:
         print(f"[{stock_id}] ❌ 資產負債表收集失敗")
+        if progress_manager and task_id:
+            progress_manager.update_stock_progress(
+                task_id, stock_id, TaskStatus.IN_PROGRESS,
+                failed_datasets=[dataset_names[2]],
+                error_message="資產負債表收集失敗"
+            )
 
     # 階段4: 股利資料收集
     print(f"\n[{stock_id}] 階段 4/5: 股利資料收集")
     if run_dividend_collection(test_mode, stock_id):
         success_count += 1
         print(f"[{stock_id}] ✅ 股利資料收集完成")
+        if progress_manager and task_id:
+            progress_manager.update_stock_progress(
+                task_id, stock_id, TaskStatus.IN_PROGRESS,
+                completed_datasets=[dataset_names[3]]
+            )
     else:
         print(f"[{stock_id}] ❌ 股利資料收集失敗")
+        if progress_manager and task_id:
+            progress_manager.update_stock_progress(
+                task_id, stock_id, TaskStatus.IN_PROGRESS,
+                failed_datasets=[dataset_names[3]],
+                error_message="股利資料收集失敗"
+            )
 
     # 階段5: 潛力股分析
     print(f"\n[{stock_id}] 階段 5/5: 潛力股分析")
@@ -507,8 +671,19 @@ def run_single_stock_complete_collection(stock_id, test_mode=True, logger=None):
     if run_analysis(top=top_count, stock_id=stock_id):
         success_count += 1
         print(f"[{stock_id}] ✅ 潛力股分析完成")
+        if progress_manager and task_id:
+            progress_manager.update_stock_progress(
+                task_id, stock_id, TaskStatus.IN_PROGRESS,
+                completed_datasets=[dataset_names[4]]
+            )
     else:
         print(f"[{stock_id}] ❌ 潛力股分析失敗")
+        if progress_manager and task_id:
+            progress_manager.update_stock_progress(
+                task_id, stock_id, TaskStatus.IN_PROGRESS,
+                failed_datasets=[dataset_names[4]],
+                error_message="潛力股分析失敗"
+            )
 
     # 單股總結
     print(f"\n[{stock_id}] 完整收集結果: {success_count}/{total_steps} 個階段成功")
@@ -685,12 +860,32 @@ def main():
             run_complete_collection(test_mode=True, stock_id=stock_id)
 
         elif option in ['stock-by-stock-test', 'sbs-test', 'sbs']:
-            print("[STOCK-BY-STOCK-TEST] 執行逐股完整收集 (測試模式)")
-            run_stock_by_stock_collection(test_mode=True, auto_mode=False)
+            # 檢查是否有續傳參數
+            resume_task_id = None
+            if '--resume-task' in args:
+                resume_task_index = args.index('--resume-task')
+                if resume_task_index + 1 < len(args):
+                    resume_task_id = args[resume_task_index + 1]
+
+            if resume_task_id:
+                print(f"[STOCK-BY-STOCK-TEST] 續傳逐股完整收集 (測試模式) - 任務: {resume_task_id}")
+            else:
+                print("[STOCK-BY-STOCK-TEST] 執行逐股完整收集 (測試模式)")
+            run_stock_by_stock_collection(test_mode=True, auto_mode=False, resume_task_id=resume_task_id)
 
         elif option in ['stock-by-stock-auto', 'sbs-auto', 'sbs-all']:
-            print("[STOCK-BY-STOCK-AUTO] 執行逐股完整收集 (自動執行)")
-            run_stock_by_stock_collection(test_mode=False, auto_mode=True)
+            # 檢查是否有續傳參數
+            resume_task_id = None
+            if '--resume-task' in args:
+                resume_task_index = args.index('--resume-task')
+                if resume_task_index + 1 < len(args):
+                    resume_task_id = args[resume_task_index + 1]
+
+            if resume_task_id:
+                print(f"[STOCK-BY-STOCK-AUTO] 續傳逐股完整收集 (自動執行) - 任務: {resume_task_id}")
+            else:
+                print("[STOCK-BY-STOCK-AUTO] 執行逐股完整收集 (自動執行)")
+            run_stock_by_stock_collection(test_mode=False, auto_mode=True, resume_task_id=resume_task_id)
 
         elif option in ['help', 'h', '--help', '-h']:
             show_help()

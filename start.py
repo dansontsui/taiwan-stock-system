@@ -440,12 +440,135 @@ def execute_choice(choice, python_cmd):
 
     elif choice == '11':
         print(f"{Colors.GREEN}[STOCK-BY-STOCK-AUTO] 啟動逐股完整收集 (自動執行){Colors.NC}")
-        print(f"{Colors.YELLOW}[WARNING] 這將處理所有股票，需要很長時間！{Colors.NC}")
-        confirm = input(f"{Colors.YELLOW}確定要繼續嗎？(y/N): {Colors.NC}").strip().lower()
-        if confirm == 'y':
-            run_command(python_cmd, 'c.py', ['stock-by-stock-auto'])
-        else:
-            print(f"{Colors.BLUE}[CANCELLED] 已取消執行{Colors.NC}")
+        print("=" * 60)
+
+        # 檢查是否有進度管理功能
+        try:
+            from scripts.progress_manager import ProgressManager
+            progress_manager = ProgressManager()
+            tasks = progress_manager.list_tasks()
+
+            # 過濾出逐股收集的未完成任務
+            stock_by_stock_tasks = []
+            for task in tasks:
+                if (task.get('task_type') == 'comprehensive' and
+                    task.get('status') in ['not_started', 'in_progress'] and
+                    ('逐股' in str(task.get('task_name', '')) or
+                     'stock_by_stock' in str(task.get('task_name', '')).lower())):
+                    stock_by_stock_tasks.append(task)
+
+            if stock_by_stock_tasks:
+                print(f"{Colors.YELLOW}發現 {len(stock_by_stock_tasks)} 個未完成的逐股收集任務:{Colors.NC}")
+                for i, task in enumerate(stock_by_stock_tasks, 1):
+                    progress_pct = (task['completed_stocks'] / task['total_stocks'] * 100) if task['total_stocks'] > 0 else 0
+                    print(f"  {i}. {task['task_name']}")
+                    print(f"     進度: {task['completed_stocks']}/{task['total_stocks']} ({progress_pct:.1f}%)")
+                    print(f"     ID: {task['task_id']}")
+                print()
+
+                print("請選擇操作:")
+                print("1. 開始新的逐股收集任務")
+                print("2. 續傳現有任務")
+                print("3. 重置並重新開始任務")
+                print("0. 返回")
+                print()
+
+                sub_choice = input("請輸入選項 (0-3): ").strip()
+
+                if sub_choice == '1':
+                    # 開始新任務
+                    print(f"{Colors.YELLOW}[WARNING] 這將處理所有股票，需要很長時間！{Colors.NC}")
+                    confirm = input(f"{Colors.YELLOW}確定要開始新任務嗎？(y/N): {Colors.NC}").strip().lower()
+                    if confirm == 'y':
+                        run_command(python_cmd, 'c.py', ['stock-by-stock-auto'])
+                    else:
+                        print(f"{Colors.BLUE}[CANCELLED] 已取消執行{Colors.NC}")
+
+                elif sub_choice == '2':
+                    # 續傳任務
+                    if len(stock_by_stock_tasks) == 1:
+                        task_id = stock_by_stock_tasks[0]['task_id']
+                        print(f"{Colors.GREEN}續傳任務: {stock_by_stock_tasks[0]['task_name']}{Colors.NC}")
+                    else:
+                        print("請選擇要續傳的任務:")
+                        for i, task in enumerate(stock_by_stock_tasks, 1):
+                            print(f"  {i}. {task['task_name']}")
+
+                        task_choice = input(f"請輸入任務編號 (1-{len(stock_by_stock_tasks)}): ").strip()
+                        try:
+                            task_index = int(task_choice) - 1
+                            if 0 <= task_index < len(stock_by_stock_tasks):
+                                task_id = stock_by_stock_tasks[task_index]['task_id']
+                                print(f"{Colors.GREEN}續傳任務: {stock_by_stock_tasks[task_index]['task_name']}{Colors.NC}")
+                            else:
+                                print(f"{Colors.RED}❌ 無效的任務編號{Colors.NC}")
+                                return
+                        except ValueError:
+                            print(f"{Colors.RED}❌ 請輸入有效的數字{Colors.NC}")
+                            return
+
+                    run_command(python_cmd, 'c.py', ['stock-by-stock-auto', '--resume-task', task_id])
+
+                elif sub_choice == '3':
+                    # 重置任務
+                    if len(stock_by_stock_tasks) == 1:
+                        task_id = stock_by_stock_tasks[0]['task_id']
+                        task_name = stock_by_stock_tasks[0]['task_name']
+                    else:
+                        print("請選擇要重置的任務:")
+                        for i, task in enumerate(stock_by_stock_tasks, 1):
+                            print(f"  {i}. {task['task_name']}")
+
+                        task_choice = input(f"請輸入任務編號 (1-{len(stock_by_stock_tasks)}): ").strip()
+                        try:
+                            task_index = int(task_choice) - 1
+                            if 0 <= task_index < len(stock_by_stock_tasks):
+                                task_id = stock_by_stock_tasks[task_index]['task_id']
+                                task_name = stock_by_stock_tasks[task_index]['task_name']
+                            else:
+                                print(f"{Colors.RED}❌ 無效的任務編號{Colors.NC}")
+                                return
+                        except ValueError:
+                            print(f"{Colors.RED}❌ 請輸入有效的數字{Colors.NC}")
+                            return
+
+                    print(f"{Colors.YELLOW}⚠️ 即將重置任務: {task_name}{Colors.NC}")
+                    print(f"   任務ID: {task_id}")
+                    print(f"   這將清除所有進度記錄，重新開始收集")
+
+                    confirm = input(f"{Colors.YELLOW}確定要重置嗎？(y/N): {Colors.NC}").strip().lower()
+                    if confirm == 'y':
+                        progress_manager.reset_task(task_id)
+                        print(f"{Colors.GREEN}✅ 任務已重置{Colors.NC}")
+
+                        start_confirm = input(f"{Colors.YELLOW}是否立即開始重置後的任務？(y/N): {Colors.NC}").strip().lower()
+                        if start_confirm == 'y':
+                            run_command(python_cmd, 'c.py', ['stock-by-stock-auto', '--resume-task', task_id])
+                    else:
+                        print(f"{Colors.BLUE}[CANCELLED] 已取消重置{Colors.NC}")
+
+                elif sub_choice == '0':
+                    return
+                else:
+                    print(f"{Colors.RED}❌ 無效選項{Colors.NC}")
+                    input("按 Enter 鍵返回選單...")
+            else:
+                # 沒有未完成任務，直接開始新任務
+                print(f"{Colors.YELLOW}[WARNING] 這將處理所有股票，需要很長時間！{Colors.NC}")
+                confirm = input(f"{Colors.YELLOW}確定要繼續嗎？(y/N): {Colors.NC}").strip().lower()
+                if confirm == 'y':
+                    run_command(python_cmd, 'c.py', ['stock-by-stock-auto'])
+                else:
+                    print(f"{Colors.BLUE}[CANCELLED] 已取消執行{Colors.NC}")
+
+        except ImportError:
+            # 沒有進度管理功能，使用原來的邏輯
+            print(f"{Colors.YELLOW}[WARNING] 這將處理所有股票，需要很長時間！{Colors.NC}")
+            confirm = input(f"{Colors.YELLOW}確定要繼續嗎？(y/N): {Colors.NC}").strip().lower()
+            if confirm == 'y':
+                run_command(python_cmd, 'c.py', ['stock-by-stock-auto'])
+            else:
+                print(f"{Colors.BLUE}[CANCELLED] 已取消執行{Colors.NC}")
 
     elif choice == '12':
         print(f"{Colors.GREEN}[DAILY] 啟動每日增量更新{Colors.NC}")

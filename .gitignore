@@ -182,3 +182,7 @@ test*.log
 *.bak
 *.backup
 *~
+
+# 進度管理備份文件
+data/progress/backups/
+data/test_progress/
