@@ -20,22 +20,22 @@ except ImportError:
     PROGRESS_ENABLED = False
 
 def get_default_dates():
-    """獲取預設日期範圍 (10年)"""
+    """獲取預設日期範圍 (固定起始日期)"""
     end_date = datetime.now().date()
-    start_date = end_date - timedelta(days=10*365)
-    return start_date.isoformat(), end_date.isoformat()
+    start_date = "2010-01-01"  # 固定起始日期，避免資料遺失
+    return start_date, end_date.isoformat()
 
 def get_financial_dates():
-    """獲取財務資料日期範圍 (10年)"""
+    """獲取財務資料日期範圍 (固定起始日期)"""
     end_date = datetime.now().date()
-    start_date = end_date - timedelta(days=10*365)
-    return start_date.isoformat(), end_date.isoformat()
+    start_date = "2010-01-01"  # 固定起始日期，避免資料遺失
+    return start_date, end_date.isoformat()
 
 def get_dividend_dates():
-    """獲取股利資料日期範圍 (10年)"""
+    """獲取股利資料日期範圍 (固定起始日期)"""
     end_date = datetime.now().date()
-    start_date = end_date - timedelta(days=10*365)
-    return start_date.isoformat(), end_date.isoformat()
+    start_date = "2010-01-01"  # 固定起始日期，避免資料遺失
+    return start_date, end_date.isoformat()
 
 def run_script(script_name, args=None, description=""):
     """執行指定腳本"""
