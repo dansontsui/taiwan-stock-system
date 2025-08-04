@@ -150,17 +150,17 @@ def ensure_directories():
 
 # 獲取日期範圍
 def get_date_ranges():
-    """獲取訓練和預測的日期範圍"""
+    """獲取訓練和預測的日期範圍 (固定起始日期)"""
     end_date = datetime.now().date()
-    
-    # 訓練資料：過去5年
-    train_start = end_date - timedelta(days=5*365)
-    
+
+    # 訓練資料：固定起始日期，避免資料遺失
+    train_start = "2010-01-01"
+
     # 預測資料：最近3個月
     predict_start = end_date - timedelta(days=90)
-    
+
     return {
-        'train_start': train_start.isoformat(),
+        'train_start': train_start,
         'train_end': end_date.isoformat(),
         'predict_start': predict_start.isoformat(),
         'predict_end': end_date.isoformat()

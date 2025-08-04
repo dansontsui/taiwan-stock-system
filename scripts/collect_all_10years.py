@@ -32,11 +32,11 @@ def init_logging():
     )
 
 def calculate_date_range():
-    """計算十年日期範圍"""
+    """計算日期範圍 (固定起始日期)"""
     end_date = datetime.now().date()
-    start_date = end_date - timedelta(days=365 * 10)  # 十年
-    
-    return start_date.isoformat(), end_date.isoformat()
+    start_date = "2010-01-01"  # 固定起始日期，避免資料遺失
+
+    return start_date, end_date.isoformat()
 
 def run_script_with_retry(script_name, args, max_retries=3):
     """執行腳本並處理重試"""

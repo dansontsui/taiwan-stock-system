@@ -368,10 +368,8 @@ def collect_all_data(test_mode=False, stock_id=None, start_date=None, end_date=N
 
     # 設定日期範圍
     if start_date is None:
-        from datetime import datetime, timedelta
-        end_date_obj = datetime.now().date()
-        start_date_obj = end_date_obj - timedelta(days=10*365)  # 預設10年
-        start_date = start_date_obj.isoformat()
+        from datetime import datetime
+        start_date = "2010-01-01"  # 固定起始日期，避免資料遺失
 
     if end_date is None:
         from datetime import datetime
