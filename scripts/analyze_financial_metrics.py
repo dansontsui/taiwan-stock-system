@@ -17,14 +17,23 @@ from app.utils.simple_database import SimpleDatabaseManager as DatabaseManager
 from app.services.data_collector import FinMindDataCollector
 from loguru import logger
 
-def get_financial_statements_sample(collector, stock_id="2330", start_date="2023-01-01"):
+def get_financial_statements_sample(collector, stock_id="2330", start_date=None, end_date=None):
     """獲取財務報表範例資料"""
+    # 設定預設日期範圍
+    if start_date is None:
+        from datetime import datetime, timedelta
+        start_date = (datetime.now() - timedelta(days=2*365)).strftime("%Y-%m-%d")  # 預設2年前
+
+    if end_date is None:
+        from datetime import datetime
+        end_date = datetime.now().strftime("%Y-%m-%d")  # 預設今天
+
     try:
         data = collector._make_request(
             dataset="TaiwanStockFinancialStatements",
             data_id=stock_id,
             start_date=start_date,
-            end_date="2025-07-23"
+            end_date=end_date
         )
         
         if data and 'data' in data and data['data']:

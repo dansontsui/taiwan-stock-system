@@ -198,7 +198,7 @@ def save_cash_flow(df, stock_id):
         print(f"儲存現金流失敗: {e}")
         return 0
 
-def collect_all_data(test_mode=False, stock_id=None):
+def collect_all_data(test_mode=False, stock_id=None, start_date=None, end_date=None):
     """收集所有資料"""
 
     print("=" * 60)
@@ -235,8 +235,18 @@ def collect_all_data(test_mode=False, stock_id=None):
         "TaiwanStockCashFlowsStatement": ("現金流", save_cash_flow)
     }
     
-    start_date = "2024-01-01"
-    end_date = "2024-06-30"
+    # 設定日期範圍
+    if start_date is None:
+        from datetime import datetime, timedelta
+        end_date_obj = datetime.now().date()
+        start_date_obj = end_date_obj - timedelta(days=10*365)  # 預設10年
+        start_date = start_date_obj.isoformat()
+
+    if end_date is None:
+        from datetime import datetime
+        end_date = datetime.now().date().isoformat()
+
+    print(f"資料收集日期範圍: {start_date} ~ {end_date}")
     
     total_stats = {}
     
@@ -292,10 +302,17 @@ def main():
     parser = argparse.ArgumentParser(description='簡化版資料收集')
     parser.add_argument('--test', action='store_true', help='測試模式')
     parser.add_argument('--stock-id', help='指定股票代碼')
+    parser.add_argument('--start-date', help='開始日期 (YYYY-MM-DD)')
+    parser.add_argument('--end-date', help='結束日期 (YYYY-MM-DD)')
 
     args = parser.parse_args()
 
-    collect_all_data(test_mode=args.test, stock_id=args.stock_id)
+    collect_all_data(
+        test_mode=args.test,
+        stock_id=args.stock_id,
+        start_date=args.start_date,
+        end_date=args.end_date
+    )
 
 if __name__ == "__main__":
     main()

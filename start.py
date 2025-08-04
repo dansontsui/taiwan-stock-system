@@ -82,12 +82,14 @@ def show_menu():
     print(f"{Colors.YELLOW}完整收集與系統:{Colors.NC}")
     print("8. 完整資料收集 (全部階段)")
     print("9. 完整資料收集 (測試模式)")
-    print("10. 每日增量更新 (智能檢查)")
-    print("11. 每日增量更新 (測試模式)")
-    print("12. 個股資料缺失查詢")
-    print("13. 啟動Web介面")
+    print("10. 逐股完整收集 (測試模式) - 每支股票收集完全部資料再換下一隻")
+    print("11. 逐股完整收集 (自動執行) - 所有股票逐一完整收集")
+    print("12. 每日增量更新 (智能檢查)")
+    print("13. 每日增量更新 (測試模式)")
+    print("14. 個股資料缺失查詢")
+    print("15. 啟動Web介面")
     print()
-    print("14. 顯示說明")
+    print("16. 顯示說明")
     print("0. 退出")
     print()
     print("=" * 60)
@@ -316,6 +318,8 @@ def show_help():
     print("  python start.py analysis     # 執行潛力股分析")
     print("  python start.py complete     # 完整資料收集")
     print("  python start.py complete-test # 完整資料收集 (測試模式)")
+    print("  python start.py stock-by-stock-test # 逐股完整收集 (測試模式)")
+    print("  python start.py stock-by-stock-auto # 逐股完整收集 (自動執行)")
     print("  python start.py daily        # 每日增量更新")
     print("  python start.py daily-test   # 每日增量更新 (測試模式)")
     print("  python start.py check        # 個股資料缺失查詢")
@@ -341,11 +345,11 @@ def get_user_choice():
     """取得使用者選擇"""
     while True:
         try:
-            choice = input(f"{Colors.YELLOW}請輸入選項 (0-14): {Colors.NC}").strip()
-            if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14']:
+            choice = input(f"{Colors.YELLOW}請輸入選項 (0-16): {Colors.NC}").strip()
+            if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']:
                 return choice
             else:
-                print(f"{Colors.RED}[ERROR] 請輸入有效的選項 (0-14){Colors.NC}")
+                print(f"{Colors.RED}[ERROR] 請輸入有效的選項 (0-16){Colors.NC}")
         except KeyboardInterrupt:
             print(f"\n{Colors.YELLOW}[WARNING] 使用者中斷執行{Colors.NC}")
             sys.exit(0)
@@ -431,22 +435,35 @@ def execute_choice(choice, python_cmd):
         run_command(python_cmd, 'c.py', ['complete-test'])
 
     elif choice == '10':
+        print(f"{Colors.GREEN}[STOCK-BY-STOCK] 啟動逐股完整收集 (測試模式){Colors.NC}")
+        run_command(python_cmd, 'c.py', ['stock-by-stock-test'])
+
+    elif choice == '11':
+        print(f"{Colors.GREEN}[STOCK-BY-STOCK-AUTO] 啟動逐股完整收集 (自動執行){Colors.NC}")
+        print(f"{Colors.YELLOW}[WARNING] 這將處理所有股票，需要很長時間！{Colors.NC}")
+        confirm = input(f"{Colors.YELLOW}確定要繼續嗎？(y/N): {Colors.NC}").strip().lower()
+        if confirm == 'y':
+            run_command(python_cmd, 'c.py', ['stock-by-stock-auto'])
+        else:
+            print(f"{Colors.BLUE}[CANCELLED] 已取消執行{Colors.NC}")
+
+    elif choice == '12':
         print(f"{Colors.GREEN}[DAILY] 啟動每日增量更新{Colors.NC}")
         run_command(python_cmd, 'scripts/collect_daily_update.py')
 
-    elif choice == '11':
+    elif choice == '13':
         print(f"{Colors.GREEN}[DAILY-TEST] 啟動每日增量更新 (測試模式){Colors.NC}")
         run_command(python_cmd, 'scripts/collect_daily_update.py', ['--test'])
 
-    elif choice == '12':
+    elif choice == '14':
         print(f"{Colors.GREEN}[CHECK] 個股資料缺失查詢{Colors.NC}")
         check_missing_data()
 
-    elif choice == '13':
+    elif choice == '15':
         print(f"{Colors.GREEN}[WEB] 啟動Web介面{Colors.NC}")
         run_command(python_cmd, 'run.py')
 
-    elif choice == '14':
+    elif choice == '16':
         show_help()
         input(f"\n{Colors.BLUE}按 Enter 鍵返回選單...{Colors.NC}")
 
@@ -502,6 +519,15 @@ def main():
         elif arg in ['complete-test', 'ct']:
             print(f"{Colors.GREEN}[COMPLETE-TEST] 啟動完整資料收集 (測試模式){Colors.NC}")
             run_command(python_cmd, 'c.py', ['complete-test'])
+
+        elif arg in ['stock-by-stock-test', 'sbs-test', 'sbs']:
+            print(f"{Colors.GREEN}[STOCK-BY-STOCK] 啟動逐股完整收集 (測試模式){Colors.NC}")
+            run_command(python_cmd, 'c.py', ['stock-by-stock-test'])
+
+        elif arg in ['stock-by-stock-auto', 'sbs-auto', 'sbs-all']:
+            print(f"{Colors.GREEN}[STOCK-BY-STOCK-AUTO] 啟動逐股完整收集 (自動執行){Colors.NC}")
+            print(f"{Colors.YELLOW}[WARNING] 這將處理所有股票，需要很長時間！{Colors.NC}")
+            run_command(python_cmd, 'c.py', ['stock-by-stock-auto'])
 
         elif arg in ['daily', 'daily-update']:
             print(f"{Colors.GREEN}[DAILY] 啟動每日增量更新{Colors.NC}")
