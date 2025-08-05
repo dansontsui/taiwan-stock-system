@@ -360,7 +360,7 @@ class DailyUpdateCollector:
                 # 檢查當前年度的現金流量表資料完整性
                 cursor.execute("""
                     SELECT COUNT(DISTINCT stock_id)
-                    FROM cash_flows
+                    FROM cash_flow_statements
                     WHERE date LIKE ?
                 """, (f"{current_year}%",))
 
