@@ -38,7 +38,7 @@ def run_script_async(script_path, args=None, description=""):
                 cmd.extend(args)
             
             print(f"🔄 開始執行: {description}")
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
             
             if result.returncode == 0:
                 print(f"✅ 完成: {description}")

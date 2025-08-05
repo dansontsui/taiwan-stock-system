@@ -364,8 +364,17 @@ def collect_batch_with_resume(task_type=TaskType.COMPREHENSIVE, test_mode=False,
         print("沒有待處理的股票")
         return
 
-    # 重置執行時間計時器
-    reset_execution_timer()
+    # 初始化執行時間計時器（如果尚未初始化）
+    try:
+        from scripts.smart_wait import get_smart_wait_manager
+        manager = get_smart_wait_manager()
+        if manager.execution_start_time is None:
+            from datetime import datetime
+            manager.execution_start_time = datetime.now()
+            print(f"[TIMER] 初始化執行時間計時器: {manager.execution_start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    except ImportError:
+        # 如果無法導入智能等待模組，使用本地初始化
+        print("[WARNING] 無法導入智能等待模組，跳過計時器初始化")
     
     # 開始收集
     total_stats = {}

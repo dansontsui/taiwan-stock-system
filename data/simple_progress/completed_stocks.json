@@ -1,0 +1,380 @@
+[
+  {
+    "stock_id": "2330",
+    "stock_name": "台積電",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T08:51:46.425051"
+  },
+  {
+    "stock_id": "1101",
+    "stock_name": "台泥",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:16:39.363888"
+  },
+  {
+    "stock_id": "1102",
+    "stock_name": "亞泥",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:18:11.947408"
+  },
+  {
+    "stock_id": "1103",
+    "stock_name": "嘉泥",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:20:06.474402"
+  },
+  {
+    "stock_id": "1104",
+    "stock_name": "環泥",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:22:38.713908"
+  },
+  {
+    "stock_id": "1107",
+    "stock_name": "建台",
+    "datasets": [
+      "股價",
+      "月營收"
+    ],
+    "completed_at": "2025-08-05T09:22:47.041846"
+  },
+  {
+    "stock_id": "1108",
+    "stock_name": "幸福",
+    "datasets": [
+      "股價",
+      "月營收",
+      "現金流"
+    ],
+    "completed_at": "2025-08-05T09:24:57.889531"
+  },
+  {
+    "stock_id": "1109",
+    "stock_name": "信大",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:29:06.912788"
+  },
+  {
+    "stock_id": "1110",
+    "stock_name": "東泥",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:29:56.817813"
+  },
+  {
+    "stock_id": "1201",
+    "stock_name": "味全",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:30:38.151203"
+  },
+  {
+    "stock_id": "1203",
+    "stock_name": "味王",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:31:17.951029"
+  },
+  {
+    "stock_id": "1210",
+    "stock_name": "大成",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:32:58.344085"
+  },
+  {
+    "stock_id": "1213",
+    "stock_name": "大飲",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:33:40.335144"
+  },
+  {
+    "stock_id": "1215",
+    "stock_name": "卜蜂",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:34:20.195579"
+  },
+  {
+    "stock_id": "1216",
+    "stock_name": "統一",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:35:02.666093"
+  },
+  {
+    "stock_id": "1217",
+    "stock_name": "愛之味",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:35:43.003194"
+  },
+  {
+    "stock_id": "1218",
+    "stock_name": "泰山",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:36:25.865764"
+  },
+  {
+    "stock_id": "1219",
+    "stock_name": "福壽",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:37:06.607519"
+  },
+  {
+    "stock_id": "1220",
+    "stock_name": "台榮",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:38:02.642243"
+  },
+  {
+    "stock_id": "1225",
+    "stock_name": "福懋油",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:38:47.919337"
+  },
+  {
+    "stock_id": "1227",
+    "stock_name": "佳格",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:39:30.035264"
+  },
+  {
+    "stock_id": "1229",
+    "stock_name": "聯華",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:40:11.486749"
+  },
+  {
+    "stock_id": "1230",
+    "stock_name": "聯成食",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:40:51.093413"
+  },
+  {
+    "stock_id": "1231",
+    "stock_name": "聯華食",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:41:32.875078"
+  },
+  {
+    "stock_id": "1232",
+    "stock_name": "大統益",
+    "datasets": [
+      "已存在完整資料"
+    ],
+    "completed_at": "2025-08-05T09:41:32.986102"
+  },
+  {
+    "stock_id": "1233",
+    "stock_name": "天仁",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:42:16.410678"
+  },
+  {
+    "stock_id": "1234",
+    "stock_name": "黑松",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:42:55.280781"
+  },
+  {
+    "stock_id": "1235",
+    "stock_name": "興泰",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:43:35.206951"
+  },
+  {
+    "stock_id": "1236",
+    "stock_name": "宏亞",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:44:14.131990"
+  },
+  {
+    "stock_id": "1240",
+    "stock_name": "茂生農經",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:45:25.077724"
+  },
+  {
+    "stock_id": "1256",
+    "stock_name": "鮮活果汁-KY",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:46:03.919604"
+  },
+  {
+    "stock_id": "1258",
+    "stock_name": "其祥-KY",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:46:41.998598"
+  },
+  {
+    "stock_id": "1259",
+    "stock_name": "安心",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:47:23.369612"
+  },
+  {
+    "stock_id": "1260",
+    "stock_name": "富味鄉",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:48:07.030266"
+  },
+  {
+    "stock_id": "1262",
+    "stock_name": "綠悅-KY",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:48:45.513029"
+  },
+  {
+    "stock_id": "1264",
+    "stock_name": "德麥",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T09:49:27.352038"
+  },
+  {
+    "stock_id": "1268",
+    "stock_name": "漢來美食",
+    "datasets": [
+      "股價",
+      "月營收",
+      "現金流"
+    ],
+    "completed_at": "2025-08-05T10:13:27.664178"
+  },
+  {
+    "stock_id": "1269",
+    "stock_name": "乾杯",
+    "datasets": [
+      "股價",
+      "現金流"
+    ],
+    "completed_at": "2025-08-05T10:14:30.585216"
+  },
+  {
+    "stock_id": "1271",
+    "stock_name": "晨暉生技",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T10:23:03.916505"
+  },
+  {
+    "stock_id": "1293",
+    "stock_name": "利統",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T10:42:44.241612"
+  },
+  {
+    "stock_id": "1294",
+    "stock_name": "漢田生技",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T10:46:59.937473"
+  },
+  {
+    "stock_id": "1295",
+    "stock_name": "生合",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T10:47:32.443133"
+  },
+  {
+    "stock_id": "1301",
+    "stock_name": "台塑",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T10:48:03.571808"
+  },
+  {
+    "stock_id": "1303",
+    "stock_name": "南亞",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-05T10:48:31.548633"
+  },
+  {
+    "stock_id": "1304",
+    "stock_name": "台聚",
+    "datasets": [
+      "股價",
+      "月營收",
+      "現金流"
+    ],
+    "completed_at": "2025-08-05T10:48:39.902753"
+  },
+  {
+    "stock_id": "1305",
+    "stock_name": "華夏",
+    "datasets": [
+      "股價",
+      "月營收",
+      "現金流"
+    ],
+    "completed_at": "2025-08-05T10:51:16.262482"
+  }
+]

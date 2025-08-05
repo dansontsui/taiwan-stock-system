@@ -13,13 +13,13 @@ class SmartWaitManager:
     def __init__(self, api_reset_minutes=70):
         """
         初始化智能等待管理器
-        
+
         Args:
             api_reset_minutes: API重置週期（分鐘）
         """
         self.api_reset_minutes = api_reset_minutes
         self.execution_start_time = None
-        self.reset_execution_timer()
+        # 不在初始化時重置計時器，讓調用方決定何時初始化
     
     def reset_execution_timer(self):
         """重置執行時間計時器"""

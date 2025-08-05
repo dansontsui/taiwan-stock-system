@@ -309,9 +309,12 @@ def collect_dividend_result_batch(stock_list, start_date, end_date, batch_size=3
 
 def main():
     """主函數"""
+    # 確保 datetime 在函數作用域中可用
+    from datetime import datetime as dt
+
     parser = argparse.ArgumentParser(description='收集台股除權除息結果資料')
     parser.add_argument('--start-date', default='2015-01-01', help='開始日期 (YYYY-MM-DD)')
-    parser.add_argument('--end-date', default=datetime.now().strftime('%Y-%m-%d'), help='結束日期 (YYYY-MM-DD)')
+    parser.add_argument('--end-date', default=dt.now().strftime('%Y-%m-%d'), help='結束日期 (YYYY-MM-DD)')
     parser.add_argument('--batch-size', type=int, default=3, help='批次大小')
     parser.add_argument('--test', action='store_true', help='測試模式 (只收集前3檔股票)')
     parser.add_argument('--stock-id', help='指定股票代碼')
@@ -325,8 +328,21 @@ def main():
         print("台股除權除息結果資料收集系統")
     print("=" * 60)
 
-    # 重置執行時間計時器
-    reset_execution_timer()
+    # 初始化執行時間計時器（如果尚未初始化）
+    try:
+        from scripts.smart_wait import get_smart_wait_manager
+        manager = get_smart_wait_manager()
+        if manager.execution_start_time is None:
+            from datetime import datetime
+            manager.execution_start_time = datetime.now()
+            print(f"[TIMER] 初始化執行時間計時器: {manager.execution_start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    except ImportError:
+        # 如果無法導入智能等待模組，使用本地初始化
+        global execution_start_time
+        if execution_start_time is None:
+            from datetime import datetime
+            execution_start_time = datetime.now()
+            print(f"[TIMER] 初始化執行時間計時器: {execution_start_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     try:
         db_manager = DatabaseManager(Config.DATABASE_PATH)

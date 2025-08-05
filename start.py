@@ -507,7 +507,7 @@ def execute_choice(choice, python_cmd):
                             print(f"{Colors.RED}❌ 請輸入有效的數字{Colors.NC}")
                             return
 
-                    run_command(python_cmd, 'c.py', ['stock-by-stock-auto', '--resume-task', task_id])
+                    run_command(python_cmd, 'c.py', ['stock-by-stock-auto', '--resume'])
 
                 elif sub_choice == '3':
                     # 重置任務
@@ -543,7 +543,7 @@ def execute_choice(choice, python_cmd):
 
                         start_confirm = input(f"{Colors.YELLOW}是否立即開始重置後的任務？(y/N): {Colors.NC}").strip().lower()
                         if start_confirm == 'y':
-                            run_command(python_cmd, 'c.py', ['stock-by-stock-auto', '--resume-task', task_id])
+                            run_command(python_cmd, 'c.py', ['stock-by-stock-auto', '--resume'])
                     else:
                         print(f"{Colors.BLUE}[CANCELLED] 已取消重置{Colors.NC}")
 

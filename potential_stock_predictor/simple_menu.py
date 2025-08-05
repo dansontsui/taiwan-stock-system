@@ -40,7 +40,7 @@ def run_command_simple(command, description="執行中..."):
     
     try:
         # 直接執行，不捕獲輸出，讓結果直接顯示
-        result = subprocess.run(command, shell=True, text=True)
+        result = subprocess.run(command, shell=True, text=True, encoding="utf-8", errors="replace")
         
         if result.returncode == 0:
             print("\n執行成功！")

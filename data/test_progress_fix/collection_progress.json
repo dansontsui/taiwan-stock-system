@@ -1,0 +1,36 @@
+{
+  "tasks": {
+    "comprehensive_end_date_2024-12-31_start_date_2024-01-01_stock_id_1101_test_mode_True_20250804_181149": {
+      "task_id": "comprehensive_end_date_2024-12-31_start_date_2024-01-01_stock_id_1101_test_mode_True_20250804_181149",
+      "task_type": "comprehensive",
+      "task_name": "進度修復測試任務",
+      "status": "not_started",
+      "total_stocks": 1,
+      "completed_stocks": 0,
+      "failed_stocks": 0,
+      "skipped_stocks": 0,
+      "start_time": "2025-08-04T18:11:49.745941",
+      "last_updated": "2025-08-04T18:11:49.745945",
+      "end_time": null,
+      "parameters": {
+        "start_date": "2024-01-01",
+        "end_date": "2024-12-31",
+        "test_mode": true,
+        "stock_id": "1101"
+      },
+      "stock_progress": {
+        "1101": {
+          "stock_id": "1101",
+          "stock_name": "台泥",
+          "status": "not_started",
+          "completed_datasets": [],
+          "failed_datasets": [],
+          "last_updated": "2025-08-04T18:11:49.745952",
+          "retry_count": 0,
+          "error_message": null
+        }
+      }
+    }
+  },
+  "last_updated": "2025-08-04T18:11:49.746174"
+}

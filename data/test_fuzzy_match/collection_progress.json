@@ -1,0 +1,34 @@
+{
+  "tasks": {
+    "comprehensive_stock_1101_test_20250804_181829": {
+      "task_id": "comprehensive_stock_1101_test_20250804_181829",
+      "task_type": "comprehensive",
+      "task_name": "模糊匹配測試任務",
+      "status": "not_started",
+      "total_stocks": 1,
+      "completed_stocks": 0,
+      "failed_stocks": 0,
+      "skipped_stocks": 0,
+      "start_time": "2025-08-04T18:18:29.333645",
+      "last_updated": "2025-08-04T18:18:29.333650",
+      "end_time": null,
+      "parameters": {
+        "stock_id": "1101",
+        "test_mode": true
+      },
+      "stock_progress": {
+        "1101": {
+          "stock_id": "1101",
+          "stock_name": "台泥",
+          "status": "not_started",
+          "completed_datasets": [],
+          "failed_datasets": [],
+          "last_updated": "2025-08-04T18:18:29.333660",
+          "retry_count": 0,
+          "error_message": null
+        }
+      }
+    }
+  },
+  "last_updated": "2025-08-04T18:18:29.333883"
+}
