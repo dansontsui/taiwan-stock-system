@@ -11,6 +11,10 @@ import requests
 import pandas as pd
 import sqlite3
 from datetime import datetime
+from dotenv import load_dotenv
+
+# 載入環境變數
+load_dotenv()
 
 # 添加專案根目錄到 Python 路徑
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -19,9 +23,9 @@ try:
     from config import Config
 except ImportError:
     class Config:
-        DATABASE_PATH = "data/taiwan_stock.db"
-        FINMIND_API_URL = "https://api.finmindtrade.com/api/v4/data"
-        FINMIND_API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRlIjoiMjAyNS0wNy0yMyAyMDo1MzowNyIsInVzZXJfaWQiOiJkYW5zb24udHN1aSIsImlwIjoiMTIyLjExNi4xNzQuNyJ9.YkvySt5dqxDg_4NHsJzcmmH1trIQUBOy_wHJkR9Ibmk"
+        DATABASE_PATH = os.getenv('DATABASE_PATH', "data/taiwan_stock.db")
+        FINMIND_API_URL = os.getenv('FINMIND_API_URL', "https://api.finmindtrade.com/api/v4/data")
+        FINMIND_API_TOKEN = os.getenv('FINMIND_API_TOKEN', '')
 
 def get_cash_flow_data_direct(stock_id="8299", start_date="2022-01-01", end_date="2024-06-30"):
     """直接從FinMind API獲取現金流資料"""

@@ -25,10 +25,15 @@ except ImportError:
     import sqlite3
     from datetime import datetime
 
+    # 載入環境變數
+    import os
+    from dotenv import load_dotenv
+    load_dotenv()
+
     class Config:
-        DATABASE_PATH = "data/taiwan_stock.db"
-        FINMIND_API_URL = "https://api.finmindtrade.com/api/v4/data"
-        FINMIND_API_TOKEN = ""
+        DATABASE_PATH = os.getenv('DATABASE_PATH', "data/taiwan_stock.db")
+        FINMIND_API_URL = os.getenv('FINMIND_API_URL', "https://api.finmindtrade.com/api/v4/data")
+        FINMIND_API_TOKEN = os.getenv('FINMIND_API_TOKEN', '')
 
     class DatabaseManager:
         def __init__(self, db_path):

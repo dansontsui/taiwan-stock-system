@@ -80,9 +80,14 @@ def wait_for_api_recovery(stock_id="2330", dataset="TaiwanStockPrice"):
             time.sleep(60)
         print()  # 換行
 
+# 載入環境變數
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 # 配置
-DATABASE_PATH = "data/taiwan_stock.db"
-API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRlIjoiMjAyNS0wNy0yMyAyMDo1MzowNyIsInVzZXJfaWQiOiJkYW5zb24udHN1aSIsImlwIjoiMTIyLjExNi4xNzQuNyJ9.YkvySt5dqxDg_4NHsJzcmmH1trIQUBOy_wHJkR9Ibmk"
+DATABASE_PATH = os.getenv('DATABASE_PATH', "data/taiwan_stock.db")
+API_TOKEN = os.getenv('FINMIND_API_TOKEN', '')
 
 def get_stock_list(limit=None, stock_id=None):
     """獲取股票清單"""
@@ -126,13 +131,13 @@ def get_stock_list(limit=None, stock_id=None):
 def collect_stock_data(stock_id, dataset, start_date, end_date, retry_count=0):
     """收集單一股票的資料 - 支援智能等待"""
     max_retries = 3
-
+    
     try:
         url = "https://api.finmindtrade.com/api/v4/data"
 
         # 如果是股價資料，暫時改為昨天開始以減少資料量
         actual_start_date = start_date
-        if dataset in ["TaiwanStockPrice", "price"]:
+        if dataset in ["TaiwanStockPrice", "price"] and False:
             from datetime import datetime, timedelta
             yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
             actual_start_date = yesterday

@@ -34,9 +34,14 @@ except ImportError:
     def is_api_limit_error(error_msg):
         return "402" in error_msg
 
+# 載入環境變數
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 # 配置
-DATABASE_PATH = "data/taiwan_stock.db"
-API_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRlIjoiMjAyNS0wNy0yMyAyMDo1MzowNyIsInVzZXJfaWQiOiJkYW5zb24udHN1aSIsImlwIjoiMTIyLjExNi4xNzQuNyJ9.YkvySt5dqxDg_4NHsJzcmmH1trIQUBOy_wHJkR9Ibmk"
+DATABASE_PATH = os.getenv('DATABASE_PATH', "data/taiwan_stock.db")
+API_TOKEN = os.getenv('FINMIND_API_TOKEN', '')
 
 def get_stock_list(limit=None):
     """獲取股票清單"""

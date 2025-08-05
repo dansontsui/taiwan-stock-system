@@ -16,5 +16,11 @@
     "stock_name": "乾杯",
     "error_message": "完整收集流程失敗",
     "failed_at": "2025-08-05T10:13:34.892508"
+  },
+  {
+    "stock_id": "1475",
+    "stock_name": "業旺",
+    "error_message": "完整收集流程失敗",
+    "failed_at": "2025-08-05T11:46:45.625455"
   }
 ]
