@@ -3,6 +3,14 @@
 """
 Taiwan Stock System - 跨平台啟動腳本
 使用方法: python start.py [選項]
+
+系統架構說明:
+1. start.py - 主要啟動腳本，提供互動式選單和命令列介面
+2. c.py - 核心資料收集控制器，協調各種收集腳本
+3. simple_collect.py - 基礎資料收集腳本 (股價、營收、現金流)
+4. scripts/ - 各種專門的資料收集腳本
+5. app/ - Web 應用程式架構
+6. run.py - Web 介面啟動器
 """
 
 import sys

@@ -1,8 +1,17 @@
 {
+<<<<<<< HEAD
   "stock_id": "8277",
   "stock_name": "商丞",
   "current_index": 2244,
   "total_stocks": 2391,
   "last_updated": "2025-08-06T15:08:17.069869",
   "progress_percent": 93.85
+=======
+  "stock_id": "1101",
+  "stock_name": "台泥",
+  "current_index": 1,
+  "total_stocks": 2391,
+  "last_updated": "2025-08-05T19:54:15.181643",
+  "progress_percent": 0.04
+>>>>>>> 506e8fdfba67c454b508b3568017755c7afb1322
 }
