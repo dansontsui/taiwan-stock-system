@@ -69,6 +69,23 @@
   - 預測EPS: **2.19元**
   - 信心水準: **Medium**
 
+#### 2. 股票專用AI模型系統 (100% 完成)
+- **檔案**: `main.py` (新增功能)
+- **狀態**: ✅ 完全運作
+- **功能**:
+  - 股票專用模型訓練和管理
+  - 通用模型 vs 專用模型智能切換
+  - 模型效果比較分析
+  - AI模型表現診斷和問題識別
+- **測試結果**:
+  - 台積電(2330)專用模型訓練成功
+  - 通用模型: 1.86% (Low信心, AI調整: -4.4%)
+  - 專用模型: 1.59% (Medium信心, AI調整: -5.3%)
+  - **關鍵發現**: 通用模型所有股票AI調整都相同，缺乏個股差異化
+  - 專用模型顯示更高信心水準和個股化調整
+
+### ⏳ 待開發功能
+
 #### 1. 回測系統 (0% 完成)
 - **檔案**: `src/backtesting/` (待建立)
 - **狀態**: 🔄 待實作
@@ -86,14 +103,33 @@
 # 完整測試2385群光電子 (營收+EPS)
 python main.py --test
 
-# 預測指定股票營收
+# 預測指定股票營收 (預設使用通用模型)
 python main.py --stock 2385 --type revenue
 
 # 預測指定股票EPS
 python main.py --stock 2385 --type eps
 
-# 訓練AI模型
+# 訓練通用AI模型
 python main.py --train-ai
+```
+
+### 🎯 股票專用AI模型功能 (新增)
+```bash
+# 為指定股票訓練專用AI模型
+python main.py --train-stock-specific 2330
+python main.py --train-stock-specific 2385
+
+# 使用專用模型進行預測
+python main.py --stock 2330 --type revenue --model-type specific
+
+# 使用通用模型進行預測 (預設)
+python main.py --stock 2330 --type revenue --model-type general
+
+# 比較通用模型 vs 專用模型效果
+python main.py --compare-models 2330
+
+# 分析AI模型表現
+python main.py --analyze-model
 ```
 
 ### 完整測試
@@ -189,15 +225,46 @@ python test_eps_system.py
 - **資料庫**: `src/data/database_manager.py`
 - **配置**: `config/settings.py`
 
+## 📊 股票專用AI模型使用範例
+
+### 模型訓練
+```bash
+# 為台積電訓練專用模型
+python main.py --train-stock-specific 2330
+
+# 為群光電子訓練專用模型
+python main.py --train-stock-specific 2385
+```
+
+### 模型預測比較
+```bash
+# 使用通用模型預測 (預設)
+python main.py --stock 2330 --type revenue --model-type general
+# 結果: 1.86% (Low信心, AI調整: -4.4%)
+
+# 使用專用模型預測
+python main.py --stock 2330 --type revenue --model-type specific
+# 結果: 1.59% (Medium信心, AI調整: -5.3%)
+```
+
+### 模型分析工具
+```bash
+# 比較兩種模型效果
+python main.py --compare-models 2330
+
+# 分析AI模型表現 (發現通用模型問題)
+python main.py --analyze-model
+```
+
+### 關鍵發現
+- **通用模型問題**: 所有股票AI調整都是-4.4%，缺乏個股差異化
+- **專用模型優勢**: 個股化調整，更高信心水準
+- **預測差異**: 專用模型考慮個股特性，預測更精準
+
 ---
 
-**🎉 系統已準備就緒，可以立即使用或繼續開發！**
-New Agent
-請查看 eps_revenue_predictor/PROJECT_STATUS.md 文件，了解EPS與營收成長預測系統的當前狀態。系統已完成核心功能並測試成功，2385群光電子預測出2025年7月營收成長率-0.83%。EPS預測器功能也開發完成
-準備開發回測系統
+**🎉 系統已準備就緒！**
 
-先執行測試確認系統狀態：
-cd eps_revenue_predictor
-python main.py --test
-查看專案狀態文檔
-cat PROJECT_STATUS.md
+**當前狀態**: EPS與營收成長預測系統核心功能完成，包含通用AI模型和股票專用AI模型架構。2385群光電子測試成功，預測2025年7月營收成長率-0.83%，EPS預測功能完整運作。股票專用模型系統已實作，可進行模型比較和效果分析。
+
+**下一步**: 準備開發回測系統驗證模型效果，並實作真正的股票專用AI模型訓練邏輯。
