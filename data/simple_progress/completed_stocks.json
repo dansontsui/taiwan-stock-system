@@ -17870,5 +17870,85 @@
       "完整收集成功"
     ],
     "completed_at": "2025-08-06T15:02:27.589364"
+  },
+  {
+    "stock_id": "8213",
+    "stock_name": "志超",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-06T15:03:04.759623"
+  },
+  {
+    "stock_id": "8215",
+    "stock_name": "明基材",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-06T15:03:46.017255"
+  },
+  {
+    "stock_id": "8222",
+    "stock_name": "寶一",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-06T15:04:17.513899"
+  },
+  {
+    "stock_id": "8227",
+    "stock_name": "巨有科技",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-06T15:04:46.235258"
+  },
+  {
+    "stock_id": "8234",
+    "stock_name": "新漢",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-06T15:05:22.061696"
+  },
+  {
+    "stock_id": "8240",
+    "stock_name": "華宏",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-06T15:05:55.881402"
+  },
+  {
+    "stock_id": "8249",
+    "stock_name": "菱光",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-06T15:06:29.962965"
+  },
+  {
+    "stock_id": "8255",
+    "stock_name": "朋程",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-06T15:07:04.276405"
+  },
+  {
+    "stock_id": "8261",
+    "stock_name": "富鼎",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-06T15:07:38.798995"
+  },
+  {
+    "stock_id": "8271",
+    "stock_name": "宇瞻",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-06T15:08:14.162684"
   }
 ]

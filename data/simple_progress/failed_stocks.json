@@ -28,5 +28,11 @@
     "stock_name": "飛宏",
     "error_message": "完整收集流程失敗",
     "failed_at": "2025-08-05T17:39:41.891700"
+  },
+  {
+    "stock_id": "8272",
+    "stock_name": "全景軟體",
+    "error_message": "完整收集流程失敗",
+    "failed_at": "2025-08-06T15:08:17.067871"
   }
 ]
