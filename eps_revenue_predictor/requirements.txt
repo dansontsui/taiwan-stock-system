@@ -1,0 +1,27 @@
+# EPS Revenue Predictor Dependencies
+
+# Core Data Processing
+pandas>=1.5.0
+numpy>=1.21.0
+
+# Database
+sqlite3  # Built-in with Python
+
+# Machine Learning (Lightweight)
+scikit-learn>=1.1.0
+
+# Utilities
+python-dateutil>=2.8.0
+
+# Logging and Configuration
+pyyaml>=6.0
+
+# Optional: Advanced ML (for specialized AI model)
+lightgbm>=3.3.0
+
+# Development and Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Documentation
+markdown>=3.4.0

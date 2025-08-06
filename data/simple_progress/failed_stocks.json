@@ -22,5 +22,11 @@
     "stock_name": "業旺",
     "error_message": "完整收集流程失敗",
     "failed_at": "2025-08-05T11:46:45.625455"
+  },
+  {
+    "stock_id": "2457",
+    "stock_name": "飛宏",
+    "error_message": "完整收集流程失敗",
+    "failed_at": "2025-08-05T17:39:41.891700"
   }
 ]
