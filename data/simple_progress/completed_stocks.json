@@ -17966,5 +17966,167 @@
       "完整收集成功"
     ],
     "completed_at": "2025-08-08T08:21:49.601206"
+  },
+  {
+    "stock_id": "8279",
+    "stock_name": "生展",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T15:55:26.309044"
+  },
+  {
+    "stock_id": "8284",
+    "stock_name": "三竹",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T15:56:06.470908"
+  },
+  {
+    "stock_id": "8289",
+    "stock_name": "泰藝",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T15:56:53.180035"
+  },
+  {
+    "stock_id": "8291",
+    "stock_name": "尚茂",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T15:57:29.290448"
+  },
+  {
+    "stock_id": "8298",
+    "stock_name": "威睿",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T15:57:59.544030"
+  },
+  {
+    "stock_id": "8299",
+    "stock_name": "群聯",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T15:58:39.260546"
+  },
+  {
+    "stock_id": "8329",
+    "stock_name": "台視",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T15:59:14.701529"
+  },
+  {
+    "stock_id": "8341",
+    "stock_name": "日友",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T15:59:49.689539"
+  },
+  {
+    "stock_id": "8342",
+    "stock_name": "益張",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T16:00:26.999229"
+  },
+  {
+    "stock_id": "8345",
+    "stock_name": "超秦",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T16:00:52.940119"
+  },
+  {
+    "stock_id": "8349",
+    "stock_name": "恒耀",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T16:01:30.403765"
+  },
+  {
+    "stock_id": "8354",
+    "stock_name": "冠好",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T16:02:08.957615"
+  },
+  {
+    "stock_id": "8358",
+    "stock_name": "金居",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T16:02:45.700227"
+  },
+  {
+    "stock_id": "8359",
+    "stock_name": "錢櫃",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T16:03:19.958474"
+  },
+  {
+    "stock_id": "8367",
+    "stock_name": "建新國際",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T16:03:52.629827"
+  },
+  {
+    "stock_id": "8374",
+    "stock_name": "羅昇",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T16:04:29.413484"
+  },
+  {
+    "stock_id": "8383",
+    "stock_name": "千附",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T16:05:05.951332"
+  },
+  {
+    "stock_id": "8390",
+    "stock_name": "金益鼎",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T16:05:43.420662"
+  },
+  {
+    "stock_id": "8401",
+    "stock_name": "白紗科",
+    "datasets": [
+      "完整收集成功"
+    ],
+    "completed_at": "2025-08-08T16:06:19.894908"
+  },
+  {
+    "stock_id": "8403",
+    "stock_name": "盛弘",
+    "datasets": [
+      "股價",
+      "月營收",
+      "現金流"
+    ],
+    "completed_at": "2025-08-08T16:06:34.899862"
   }
 ]

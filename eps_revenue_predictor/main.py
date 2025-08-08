@@ -722,7 +722,8 @@ def show_detailed_help():
 def _ascii_safe(text: str) -> str:
     repl = {
         '⚠️': '[ALERT]', '⚠': '[ALERT]', '✅': '[OK]', '❌': '[X]', '🎯': '', '📊': '', '📈': '', '💡': '', '🧭': '',
-        '🚀': '', '🤖': '', '🔍': '', '📄': '', '🔧': '', '🕒': '', '📅': '', '🎉': '', '⚙️': '', '👋': ''
+        '🚀': '', '🤖': '', '🔍': '', '📄': '', '🔧': '', '🕒': '', '📅': '', '🎉': '', '⚙️': '', '👋': '',
+        '→': '->'
     }
     out = []
     for ch in str(text):
@@ -770,9 +771,9 @@ def run_range_backtest_interactive(predictor: EPSRevenuePredictor):
         tee.write(msg + ('' if msg.endswith('\n') else '\n'))
         tee.flush()
 
-    print2('=== RANGE BACKTEST (EPS) ===')
-    print2('stock=', stock_id, 'range=', start_q, '->', end_q,
-           'retrain_per_step=', retrain, 'optimize_after=', optimize_after)
+    print2('=== 區間滾動回測（EPS） ===')
+    print2('股票=', stock_id, '區間=', start_q, '->', end_q,
+           '每步重訓=', retrain, '回測後優化=', optimize_after)
 
     engine = BacktestEngine(predictor.db_manager)
     res = engine.run_comprehensive_backtest_by_range(
@@ -792,8 +793,8 @@ def run_range_backtest_interactive(predictor: EPSRevenuePredictor):
     ov = stats.get('overall', {}) if isinstance(stats, dict) else {}
     ab = stats.get('abnormal_only', {}) if isinstance(stats, dict) else {}
 
-    print2('success=', ok)
-    print2('periods_tested=', len(data))
+    print2('成功=', ok)
+    print2('回測期數=', len(data))
 
     print2('\n--- 全部回測資料列 ---')
     for i, row in enumerate(data):
@@ -802,14 +803,23 @@ def run_range_backtest_interactive(predictor: EPSRevenuePredictor):
         tq = row.get('target_quarter')
         abn = row.get('abnormal', {})
         mark = '[ALERT]' if abn.get('is_abnormal') else ''
-        print2(f"{i+1:02d} {tq} pred={pred} actual={act} {mark}")
+        # 取兩位小數
+    try:
+        pred_fmt = f"{float(pred):.2f}" if pred is not None else ""
+    except Exception:
+        pred_fmt = str(pred)
+    try:
+        act_fmt = f"{float(act):.2f}" if act is not None else ""
+    except Exception:
+        act_fmt = str(act)
+    print2(f"{i+1:02d} 目標季度={tq} 預測EPS={pred_fmt} 實際EPS={act_fmt} 標記={mark}")
 
-    print2('\n--- EPS SPLIT STATS ---')
-    print2(f"operating_only: periods={op.get('total_periods',0)} avg_mape={op.get('avg_eps_mape',0):.1f}% dir_acc={op.get('direction_accuracy',0):.1%}")
-    print2(f"overall       : periods={ov.get('total_periods',0)} avg_mape={ov.get('avg_eps_mape',0):.1f}% dir_acc={ov.get('direction_accuracy',0):.1%}")
-    print2(f"abnormal_only : periods={ab.get('total_periods',0)} avg_mape={ab.get('avg_eps_mape',0):.1f}%")
+    print2('\n--- EPS分層統計 ---')
+    print2(f"營業（排除異常）: 期數={op.get('total_periods',0)} 平均MAPE={op.get('avg_eps_mape',0):.1f}% 方向準確度={op.get('direction_accuracy',0):.1%}")
+    print2(f"總體（含異常）  : 期數={ov.get('total_periods',0)} 平均MAPE={ov.get('avg_eps_mape',0):.1f}% 方向準確度={ov.get('direction_accuracy',0):.1%}")
+    print2(f"異常季度        : 期數={ab.get('total_periods',0)} 平均MAPE={ab.get('avg_eps_mape',0):.1f}%")
 
-    print2('\n--- ABNORMAL QUARTERS ---')
+    print2('\n--- 異常季度清單 ---')
     cnt_ab = 0
     for row in data:
         abn = row.get('abnormal', {})
@@ -819,17 +829,17 @@ def run_range_backtest_interactive(predictor: EPSRevenuePredictor):
             reason = abn.get('reason') or 'N/A'
             nm = abn.get('net_margin')
             pm = abn.get('prev_net_margin')
-            print2(f"- {tq}: {reason} | net_margin={nm} prev={pm}")
-    print2('abnormal_count=', cnt_ab)
+            print2(f"- {tq}: {reason} | 淨利率={nm} 前期={pm}")
+    print2('異常期數=', cnt_ab)
 
     # 簡單驗證
-    print2('\n--- VALIDATION ---')
+    print2('\n--- 結果檢查 ---')
     if not ok or len(data) == 0:
-        print2('[X] backtest failed or no rows')
+        print2('[X] 回測失敗或無資料')
     else:
-        print2('[OK] backtest produced rows')
+        print2('[OK] 回測產生資料')
 
-    print2('\nlog_path=', log_path)
+    print2('\n日誌檔案=', log_path)
     logf.close()
     print(_ascii_safe('已將輸出寫入: ' + log_path))
 
