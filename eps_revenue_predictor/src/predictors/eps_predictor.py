@@ -64,7 +64,8 @@ class EPSPredictor:
             ai_adjustment = self._apply_ai_adjustment(stock_id, base_prediction)
 
             # 步驟3: 整合預測結果
-            final_result = self._integrate_predictions(formula_result, ai_adjustment)
+            comprehensive_data = formula_result.get('comprehensive_data')
+            final_result = self._integrate_predictions(formula_result, ai_adjustment, target_quarter, comprehensive_data)
 
             # 添加額外資訊
             final_result.update({
@@ -86,6 +87,106 @@ class EPSPredictor:
             error_msg = f"EPS prediction failed: {str(e)}"
             logger.error(error_msg, stock_id=stock_id)
             return self._create_error_result(error_msg)
+
+    def predict_quarterly_growth_historical(self, stock_id: str, target_quarter: str,
+                                          max_date: datetime = None) -> Dict:
+        """
+        歷史時間點EPS預測 (用於回測)
+
+        Args:
+            stock_id: 股票代碼
+            target_quarter: 目標季度 (YYYY-Q)
+            max_date: 最大資料日期限制 (用於回測)
+        """
+        logger.info(f"[HISTORICAL_PREDICTION] Starting historical EPS prediction | "
+                   f"stock_id={stock_id} | target_quarter={target_quarter} | max_date={max_date}")
+
+        try:
+            # 🔧 獲取限制時間範圍的歷史資料
+            comprehensive_data = self.db_manager.get_comprehensive_data_historical(
+                stock_id, max_date=max_date
+            )
+
+            # 資料品質檢查
+            quality_check = self._validate_eps_data(comprehensive_data)
+            if not quality_check['is_valid']:
+                return self._create_error_result(
+                    quality_check['reason'],
+                    extra_info={
+                        'training_data_range': {
+                            'start_date': None,
+                            'end_date': max_date.strftime('%Y-%m-%d') if max_date else None,
+                            'data_points': 0
+                        },
+                        'model_retrained': False,
+                        'backtest_mode': True
+                    }
+                )
+
+            # 🤖 重新訓練專用AI模型 (基於歷史資料)
+            model_retrained = False
+            if hasattr(self, 'ai_adjustment') and self.ai_adjustment:
+                try:
+                    # 使用歷史資料重新訓練專用模型
+                    self.ai_adjustment.train_stock_specific_model(
+                        stock_id, max_date=max_date
+                    )
+                    model_retrained = True
+                    logger.info(f"[AI_RETRAIN] Stock-specific EPS model retrained for {stock_id} | max_date={max_date}")
+                except Exception as e:
+                    logger.warning(f"EPS AI model retraining failed: {e}")
+
+            # 步驟1: 財務公式預測 (基於歷史資料)
+            formula_result = self._predict_eps_with_formula_historical(
+                stock_id, target_quarter, comprehensive_data
+            )
+            if not formula_result.get('success', True):
+                return formula_result
+
+            # 步驟2: AI調整 (使用重新訓練的模型)
+            base_prediction = formula_result['growth_rate']
+            ai_adjustment = self._apply_ai_adjustment(stock_id, base_prediction)
+
+            # 步驟3: 整合預測結果
+            final_result = self._integrate_predictions(formula_result, ai_adjustment, target_quarter, comprehensive_data)
+
+            # 添加回測特有資訊
+            final_result.update({
+                'stock_id': stock_id,
+                'target_quarter': target_quarter,
+                'prediction_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'data_quality': quality_check,
+                'historical_data_points': formula_result.get('historical_data_points'),
+                'training_data_range': {
+                    'start_date': comprehensive_data.get('start_date'),
+                    'end_date': comprehensive_data.get('end_date'),
+                    'data_points': comprehensive_data.get('total_records', 0)
+                },
+                'model_retrained': model_retrained,
+                'backtest_mode': True
+            })
+
+            logger.info(f"[HISTORICAL_PREDICTION] Historical EPS prediction completed | "
+                       f"predicted_eps={final_result.get('predicted_eps', 0):.2f} | "
+                       f"growth_rate={final_result.get('growth_rate', 0)*100:.1f}%")
+
+            return final_result
+
+        except Exception as e:
+            error_msg = f"Historical EPS prediction failed: {str(e)}"
+            logger.error(error_msg, stock_id=stock_id)
+            return self._create_error_result(
+                error_msg,
+                extra_info={
+                    'training_data_range': {
+                        'start_date': None,
+                        'end_date': max_date.strftime('%Y-%m-%d') if max_date else None,
+                        'data_points': 0
+                    },
+                    'model_retrained': False,
+                    'backtest_mode': True
+                }
+            )
 
     def _predict_eps_with_formula(self, stock_id: str, target_quarter: str = None) -> Dict:
         """使用財務公式預測EPS"""
@@ -110,6 +211,7 @@ class EPSPredictor:
                 'target_quarter': target_quarter,
                 'data_quality': quality_check,
                 'historical_data_points': len(comprehensive_data['eps_data']),
+                'comprehensive_data': comprehensive_data,  # 🔧 添加comprehensive_data
                 'success': True
             })
 
@@ -117,6 +219,31 @@ class EPSPredictor:
 
         except Exception as e:
             return self._create_error_result(f"Formula prediction failed: {str(e)}")
+
+    def _predict_eps_with_formula_historical(self, stock_id: str, target_quarter: str,
+                                           comprehensive_data: Dict) -> Dict:
+        """使用財務公式預測EPS (歷史版本)"""
+        try:
+            # 資料品質檢查
+            quality_check = self._validate_eps_data(comprehensive_data)
+            if not quality_check['is_valid']:
+                return self._create_error_result(quality_check['reason'])
+
+            # 執行預測 (使用提供的歷史資料)
+            prediction_result = self._execute_eps_prediction(comprehensive_data, target_quarter)
+
+            # 添加基本資訊
+            prediction_result.update({
+                'target_quarter': target_quarter,
+                'data_quality': quality_check,
+                'historical_data_points': len(comprehensive_data.get('eps_data', pd.DataFrame())),
+                'success': True
+            })
+
+            return prediction_result
+
+        except Exception as e:
+            return self._create_error_result(f"Historical formula prediction failed: {str(e)}")
 
     def _apply_ai_adjustment(self, stock_id: str, base_prediction: float) -> Dict:
         """應用AI調整"""
@@ -149,7 +276,7 @@ class EPSPredictor:
                 'reason': f'ai_adjustment_error: {str(e)}'
             }
 
-    def _integrate_predictions(self, formula_result: Dict, ai_adjustment: Dict) -> Dict:
+    def _integrate_predictions(self, formula_result: Dict, ai_adjustment: Dict, target_quarter: str = None, comprehensive_data: Dict = None) -> Dict:
         """整合財務公式和AI調整的預測結果"""
         # 權重配置
         formula_weight = self.config['formula_weight']  # 80%
@@ -164,9 +291,24 @@ class EPSPredictor:
         else:
             final_prediction = base_prediction
 
-        # 計算最終EPS金額
+        # 🔧 修復: 計算最終EPS金額 (統一使用YoY基準)
         latest_eps = formula_result['latest_eps']
-        final_eps = latest_eps * (1 + final_prediction)
+        target_year, target_quarter_num = target_quarter.split('-Q')
+
+        # 獲取去年同期EPS作為基準 (YoY)
+        if comprehensive_data and target_quarter:
+            yoy_base_eps = self._get_yoy_base_eps(comprehensive_data, target_quarter)
+        else:
+            yoy_base_eps = None
+        if yoy_base_eps and yoy_base_eps > 0:
+            final_eps = yoy_base_eps * (1 + final_prediction)
+            logger.info(f"[YOY_CALCULATION] Using YoY base | base_eps={yoy_base_eps:.2f} | "
+                       f"growth_rate={final_prediction*100:.1f}% | predicted_eps={final_eps:.2f}")
+        else:
+            # 如果沒有去年同期資料，使用最新EPS
+            final_eps = latest_eps * (1 + final_prediction)
+            logger.warning(f"[YOY_FALLBACK] No YoY base available, using latest EPS | "
+                          f"latest_eps={latest_eps:.2f} | predicted_eps={final_eps:.2f}")
 
         # 整合信心水準
         formula_confidence = formula_result['confidence']
@@ -199,7 +341,67 @@ class EPSPredictor:
             'latest_eps': latest_eps,
             'success': True
         }
-    
+
+    def _get_yoy_base_eps(self, comprehensive_data: Dict, target_quarter: str) -> float:
+        """
+        獲取去年同期EPS作為計算基準
+
+        Args:
+            comprehensive_data: 綜合資料
+            target_quarter: 目標季度 (YYYY-Q)
+
+        Returns:
+            去年同期EPS值
+        """
+        try:
+            year, quarter_num = target_quarter.split('-Q')
+            prev_year = int(year) - 1
+            prev_year_quarter = f"{prev_year}-Q{quarter_num}"
+
+            eps_data = comprehensive_data.get('eps_data', pd.DataFrame())
+            if eps_data.empty:
+                return None
+
+            # 轉換目標季度為日期
+            target_date = self._quarter_to_date(prev_year_quarter)
+            if not target_date:
+                return None
+
+            # 查找去年同期的EPS
+            target_pd_date = pd.to_datetime(target_date)
+            eps_data['date_pd'] = pd.to_datetime(eps_data['date'])
+
+            # 找最接近的日期
+            eps_data['date_diff'] = abs(eps_data['date_pd'] - target_pd_date)
+            closest_idx = eps_data['date_diff'].idxmin()
+
+            if eps_data.loc[closest_idx, 'date_diff'].days <= 90:  # 90天內算有效
+                yoy_eps = eps_data.loc[closest_idx, 'eps']
+                logger.info(f"[YOY_BASE] Found YoY base EPS | target={prev_year_quarter} | "
+                           f"date={eps_data.loc[closest_idx, 'date']} | eps={yoy_eps:.2f}")
+                return yoy_eps
+            else:
+                logger.warning(f"[YOY_BASE] No valid YoY base found for {prev_year_quarter}")
+                return None
+
+        except Exception as e:
+            logger.error(f"Failed to get YoY base EPS: {e}")
+            return None
+
+    def _quarter_to_date(self, quarter: str) -> str:
+        """將季度轉換為日期"""
+        try:
+            year, q = quarter.split('-Q')
+            quarter_end_dates = {
+                '1': f"{year}-03-31",
+                '2': f"{year}-06-30",  # 6月只有30天
+                '3': f"{year}-09-30",  # 9月只有30天
+                '4': f"{year}-12-31"
+            }
+            return quarter_end_dates.get(q)
+        except:
+            return None
+
     def _execute_eps_prediction(self, comprehensive_data: Dict, target_quarter: str) -> Dict:
         """執行EPS預測計算"""
         
@@ -221,9 +423,22 @@ class EPSPredictor:
             eps_trend_result['growth'] * weights['efficiency_weight']
         )
         
-        # 計算預測EPS金額
+        # 🔧 修復: 計算預測EPS金額 (統一使用YoY基準)
         latest_eps = comprehensive_data['eps_data']['eps'].iloc[-1] if not comprehensive_data['eps_data'].empty else 0
-        predicted_eps = latest_eps * (1 + final_growth)
+
+        # 獲取去年同期EPS作為基準
+        yoy_base_eps = self._get_yoy_base_eps(comprehensive_data, target_quarter)
+        if yoy_base_eps and yoy_base_eps > 0:
+            predicted_eps = yoy_base_eps * (1 + final_growth)
+            base_eps_used = yoy_base_eps
+            calculation_method = "YoY"
+        else:
+            predicted_eps = latest_eps * (1 + final_growth)
+            base_eps_used = latest_eps
+            calculation_method = "Latest"
+
+        logger.info(f"[EPS_CALCULATION] Method={calculation_method} | base_eps={base_eps_used:.2f} | "
+                   f"growth={final_growth*100:.1f}% | predicted_eps={predicted_eps:.2f}")
         
         # 計算信心水準
         confidence = self._calculate_confidence([

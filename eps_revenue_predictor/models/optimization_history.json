@@ -1,0 +1,153 @@
+[
+  {
+    "stock_id": "2385",
+    "optimization_time": "2025-08-06 17:14:12",
+    "optimizations_applied": [
+      {
+        "strategy": "retrain_ai_model",
+        "success": true,
+        "general_model_result": {
+          "status": "success",
+          "training_samples": 15,
+          "validation_samples": 4,
+          "train_r2": -2.220446049250313e-16,
+          "validation_r2": -0.15232592913235798,
+          "mae": 0.055378261013443085,
+          "rmse": 0.05650976294668076,
+          "features_used": [
+            "revenue_volatility",
+            "margin_trend",
+            "opex_efficiency",
+            "industry_momentum",
+            "market_sentiment"
+          ]
+        },
+        "stock_specific_result": {
+          "status": "stock_specific_training_available"
+        },
+        "improvement_expected": "Better directional accuracy"
+      }
+    ],
+    "performance_before": {
+      "revenue_performance": {
+        "direction_accuracy": 0.5,
+        "mape": 5.318248739736004,
+        "rmse": 0.08270468306562738,
+        "periods_tested": 6
+      },
+      "eps_performance": {},
+      "overall_assessment": {},
+      "problem_areas": [
+        "revenue_direction_accuracy"
+      ]
+    },
+    "performance_after": {},
+    "recommendations": [
+      "營收方向預測準確度偏低 (50.0%)，建議重新訓練AI模型或增加更多歷史資料",
+      "EPS回測期數不足，建議增加更多季度財務資料"
+    ]
+  },
+  {
+    "stock_id": "2385",
+    "optimization_time": "2025-08-08 08:12:18",
+    "optimizations_applied": [
+      {
+        "strategy": "retrain_ai_model",
+        "success": true,
+        "general_model_result": {
+          "status": "success",
+          "training_samples": 15,
+          "validation_samples": 4,
+          "train_r2": -2.220446049250313e-16,
+          "validation_r2": -0.15232592913235798,
+          "mae": 0.055378261013443085,
+          "rmse": 0.05650976294668076,
+          "features_used": [
+            "revenue_volatility",
+            "margin_trend",
+            "opex_efficiency",
+            "industry_momentum",
+            "market_sentiment"
+          ]
+        },
+        "stock_specific_result": {
+          "status": "stock_specific_training_available"
+        },
+        "improvement_expected": "Better directional accuracy"
+      }
+    ],
+    "performance_before": {
+      "revenue_performance": {
+        "direction_accuracy": 0.625,
+        "mape": 4.552656362003516,
+        "rmse": 0.07563284204294836,
+        "periods_tested": 8
+      },
+      "eps_performance": {
+        "direction_accuracy": 0,
+        "mape": 0,
+        "rmse": 0,
+        "periods_tested": 0
+      },
+      "overall_assessment": {},
+      "problem_areas": [
+        "eps_direction_accuracy"
+      ]
+    },
+    "performance_after": {},
+    "recommendations": [
+      "EPS方向預測準確度偏低 (0.0%)，建議檢查EPS預測方法的權重配置",
+      "EPS回測期數不足，建議增加更多季度財務資料"
+    ]
+  },
+  {
+    "stock_id": "2385",
+    "optimization_time": "2025-08-08 08:25:58",
+    "optimizations_applied": [
+      {
+        "strategy": "retrain_ai_model",
+        "success": true,
+        "general_model_result": {
+          "status": "success",
+          "training_samples": 15,
+          "validation_samples": 4,
+          "train_r2": -2.220446049250313e-16,
+          "validation_r2": -0.15232592913235798,
+          "mae": 0.055378261013443085,
+          "rmse": 0.05650976294668076,
+          "features_used": [
+            "revenue_volatility",
+            "margin_trend",
+            "opex_efficiency",
+            "industry_momentum",
+            "market_sentiment"
+          ]
+        },
+        "stock_specific_result": {
+          "status": "stock_specific_training_available"
+        },
+        "improvement_expected": "Better directional accuracy"
+      },
+      {
+        "strategy": "hyperparameter_tuning",
+        "success": false,
+        "error": "Insufficient training data"
+      }
+    ],
+    "performance_before": {
+      "revenue_performance": {
+        "direction_accuracy": 0.625,
+        "mape": 4.552656362003516,
+        "rmse": 0.07563284204294836,
+        "periods_tested": 8
+      },
+      "eps_performance": {
+        "direction_accuracy": 0.5,
+        "mape": 17.04604463169841,
+        "rmse": 0.1292666678637139,
+        "periods_tested": 2
+      },
+      "overall_assessment": {
+        "combined_direction_accuracy": 0.5625,
+        "total_predictions": 10,
+        "needs_optimization": 

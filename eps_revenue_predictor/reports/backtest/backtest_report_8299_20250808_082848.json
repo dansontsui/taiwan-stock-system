@@ -1,0 +1,38 @@
+{
+  "report_info": {
+    "stock_id": "8299",
+    "generation_time": "2025-08-08 08:28:48",
+    "backtest_periods": 8,
+    "report_id": "8299_20250808_082848"
+  },
+  "executive_summary": {
+    "overall_grade": "F (不及格)",
+    "key_findings": [
+      "營收趨勢預測方向準確度良好"
+    ],
+    "performance_highlights": {
+      "revenue": {
+        "direction_accuracy": "75.0%",
+        "average_mape": "32.3%",
+        "periods_tested": 8
+      }
+    }
+  },
+  "detailed_analysis": {
+    "revenue_analysis": {
+      "total_predictions": 8,
+      "successful_predictions": 8,
+      "average_metrics": {
+        "growth_rate_mape": 79.60967713598566,
+        "revenue_mape": 32.292471568117186,
+        "direction_accuracy": 0.75
+      },
+      "best_prediction": {
+        "period": 8,
+        "date": "2025-07-01",
+        "metrics": {
+          "growth_rate_error": 0.044049014023646874,
+          "growth_rate_mape": 49.32288359380081,
+          "revenue_error": 280497251.7807245,
+          "revenue_mape": 4.525843493680853,
+          "direction_correct": 

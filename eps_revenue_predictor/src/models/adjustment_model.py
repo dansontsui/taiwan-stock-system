@@ -7,6 +7,7 @@ EPS Revenue Predictor - AI Adjustment Model
 import pandas as pd
 import numpy as np
 from typing import Dict, List, Optional, Tuple
+from datetime import datetime
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -127,9 +128,193 @@ class AIAdjustmentModel:
         logger.log_model_training('AI_Adjustment', len(X_train), training_result)
         
         return training_result
-    
+
+    def train_stock_specific_model(self, stock_id: str, max_date: datetime = None) -> Dict:
+        """
+        訓練股票專用AI模型 (用於回測)
+
+        Args:
+            stock_id: 股票代碼
+            max_date: 最大資料日期限制 (用於回測)
+
+        Returns:
+            訓練結果
+        """
+        logger.info(f"[STOCK_SPECIFIC_TRAINING] Training stock-specific model | "
+                   f"stock_id={stock_id} | max_date={max_date}")
+
+        try:
+            # 🔧 收集該股票的歷史訓練資料 (限制時間範圍)
+            training_data = self._collect_stock_specific_training_data(stock_id, max_date)
+
+            if training_data.empty or len(training_data) < 5:
+                logger.warning(f"Insufficient stock-specific training data: {len(training_data)} samples")
+                # 如果專用資料不足，使用通用模型
+                return {'status': 'fallback_to_general', 'samples': len(training_data)}
+
+            # 準備特徵和目標變數
+            X, y = self._prepare_training_data(training_data)
+
+            if len(X) < 3:
+                logger.warning(f"Insufficient training samples after preparation: {len(X)}")
+                return {'status': 'fallback_to_general', 'samples': len(X)}
+
+            # 🤖 創建並訓練專用模型
+            stock_specific_model = self._create_model()
+
+            # 如果樣本太少，使用簡單的線性回歸
+            if len(X) < 10:
+                from sklearn.linear_model import LinearRegression
+                stock_specific_model = LinearRegression()
+
+            # 標準化特徵 (使用專用的scaler)
+            stock_scaler = StandardScaler()
+            X_scaled = stock_scaler.fit_transform(X)
+
+            # 訓練專用模型
+            stock_specific_model.fit(X_scaled, y)
+
+            # 評估模型
+            train_score = stock_specific_model.score(X_scaled, y)
+            y_pred = stock_specific_model.predict(X_scaled)
+            mae = np.mean(np.abs(y - y_pred))
+            rmse = np.sqrt(np.mean((y - y_pred) ** 2))
+
+            # 🔧 替換當前模型為專用模型 (臨時)
+            self.model = stock_specific_model
+            self.scaler = stock_scaler
+            self.is_trained = True
+
+            training_result = {
+                'status': 'success',
+                'model_type': 'stock_specific',
+                'training_samples': len(X),
+                'train_r2': train_score,
+                'mae': mae,
+                'rmse': rmse,
+                'data_range': {
+                    'start_date': training_data['date'].min().strftime('%Y-%m-%d') if 'date' in training_data.columns else None,
+                    'end_date': training_data['date'].max().strftime('%Y-%m-%d') if 'date' in training_data.columns else None
+                }
+            }
+
+            logger.info(f"[STOCK_SPECIFIC_TRAINING] Stock-specific model trained successfully | "
+                       f"samples={len(X)} | r2={train_score:.3f} | mae={mae:.3f}")
+
+            return training_result
+
+        except Exception as e:
+            logger.error(f"Stock-specific model training failed: {e}")
+            return {'status': 'failed', 'error': str(e)}
+
+    def _calculate_features_for_stock(self, monthly_data: pd.DataFrame,
+                                    financial_data: pd.DataFrame,
+                                    current_date: datetime) -> Dict:
+        """為單一股票計算特徵"""
+        try:
+            features = {}
+
+            if len(monthly_data) >= 3:
+                # 營收相關特徵
+                recent_revenues = monthly_data['revenue'].tail(3).values
+                features['revenue_trend'] = (recent_revenues[-1] - recent_revenues[0]) / recent_revenues[0]
+                features['revenue_volatility'] = np.std(recent_revenues) / np.mean(recent_revenues)
+
+                # 成長率特徵
+                if len(monthly_data) >= 12:
+                    yoy_growth = monthly_data['revenue_growth_yoy'].tail(3).mean()
+                    features['avg_yoy_growth'] = yoy_growth if not pd.isna(yoy_growth) else 0
+                else:
+                    features['avg_yoy_growth'] = 0
+
+                # 季節性特徵
+                month = current_date.month
+                features['month'] = month
+                features['quarter'] = (month - 1) // 3 + 1
+            else:
+                # 預設值
+                features['revenue_trend'] = 0
+                features['revenue_volatility'] = 0
+                features['avg_yoy_growth'] = 0
+                features['month'] = current_date.month
+                features['quarter'] = (current_date.month - 1) // 3 + 1
+
+            # 財務比率特徵 (如果有的話)
+            if not financial_data.empty:
+                latest_financial = financial_data.iloc[-1]
+                features['roe'] = latest_financial.get('roe', 0) or 0
+                features['roa'] = latest_financial.get('roa', 0) or 0
+            else:
+                features['roe'] = 0
+                features['roa'] = 0
+
+            return features
+
+        except Exception as e:
+            logger.warning(f"Feature calculation failed: {e}")
+            return {
+                'revenue_trend': 0,
+                'revenue_volatility': 0,
+                'avg_yoy_growth': 0,
+                'month': current_date.month,
+                'quarter': (current_date.month - 1) // 3 + 1,
+                'roe': 0,
+                'roa': 0
+            }
+
+    def _collect_stock_specific_training_data(self, stock_id: str, max_date: datetime = None) -> pd.DataFrame:
+        """收集股票專用訓練資料"""
+        try:
+            # 獲取該股票的歷史資料 (限制時間範圍)
+            if max_date:
+                # 使用歷史資料查詢
+                comprehensive_data = self.db_manager.get_comprehensive_data_historical(
+                    stock_id, max_date=max_date
+                )
+            else:
+                comprehensive_data = self.db_manager.get_comprehensive_data(stock_id)
+
+            if not comprehensive_data or comprehensive_data.get('monthly_revenue', pd.DataFrame()).empty:
+                return pd.DataFrame()
+
+            # 構建訓練資料
+            monthly_data = comprehensive_data.get('monthly_revenue', pd.DataFrame())
+            financial_data = comprehensive_data.get('financial_data', pd.DataFrame())
+
+            # 合併資料並計算特徵
+            training_records = []
+
+            for i in range(1, len(monthly_data)):
+                current_month = monthly_data.iloc[i]
+                prev_month = monthly_data.iloc[i-1]
+
+                # 計算實際成長率 (目標變數)
+                actual_growth = (current_month['revenue'] - prev_month['revenue']) / prev_month['revenue']
+
+                # 計算特徵
+                features = self._calculate_features_for_stock(
+                    monthly_data.iloc[:i], financial_data, current_month['date']
+                )
+
+                if features:
+                    record = features.copy()
+                    record['actual_growth'] = actual_growth
+                    record['date'] = current_month['date']
+                    training_records.append(record)
+
+            if training_records:
+                training_df = pd.DataFrame(training_records)
+                logger.info(f"Collected {len(training_df)} stock-specific training records for {stock_id}")
+                return training_df
+
+            return pd.DataFrame()
+
+        except Exception as e:
+            logger.error(f"Failed to collect stock-specific training data: {e}")
+            return pd.DataFrame()
+
     @log_execution
-    def predict_adjustment_factor(self, stock_id: str, base_prediction: float, 
+    def predict_adjustment_factor(self, stock_id: str, base_prediction: float,
                                 prediction_type: str = 'revenue') -> Dict:
         """
         預測調整因子

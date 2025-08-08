@@ -86,7 +86,100 @@ class RevenuePredictor:
             error_msg = f"Revenue prediction failed: {str(e)}"
             logger.error(error_msg, stock_id=stock_id)
             return self._create_error_result(error_msg)
-    
+
+    def predict_monthly_growth_historical(self, stock_id: str, target_month: str,
+                                        max_date: datetime = None) -> Dict:
+        """
+        歷史時間點營收預測 (用於回測)
+
+        Args:
+            stock_id: 股票代碼
+            target_month: 目標月份 (YYYY-MM)
+            max_date: 最大資料日期限制 (用於回測)
+        """
+        logger.info(f"[HISTORICAL_PREDICTION] Starting historical revenue prediction | "
+                   f"stock_id={stock_id} | target_month={target_month} | max_date={max_date}")
+
+        try:
+            # 🔧 獲取限制時間範圍的歷史資料
+            monthly_data = self.db_manager.get_monthly_revenue_historical(
+                stock_id, max_date=max_date
+            )
+
+            if monthly_data.empty or len(monthly_data) < 6:
+                return self._create_error_result(
+                    f"Insufficient historical data for backtest (got {len(monthly_data)} records)",
+                    extra_info={
+                        'training_data_range': {
+                            'start_date': None,
+                            'end_date': max_date.strftime('%Y-%m-%d') if max_date else None,
+                            'data_points': len(monthly_data) if not monthly_data.empty else 0
+                        },
+                        'model_retrained': False,
+                        'backtest_mode': True
+                    }
+                )
+
+            # 🤖 重新訓練專用AI模型 (基於歷史資料)
+            model_retrained = False
+            if hasattr(self, 'ai_adjustment') and self.ai_adjustment:
+                try:
+                    # 使用歷史資料重新訓練專用模型
+                    self.ai_adjustment.train_stock_specific_model(
+                        stock_id, max_date=max_date
+                    )
+                    model_retrained = True
+                    logger.info(f"[AI_RETRAIN] Stock-specific model retrained for {stock_id} | max_date={max_date}")
+                except Exception as e:
+                    logger.warning(f"AI model retraining failed: {e}")
+
+            # 資料品質檢查
+            quality_check = self._validate_revenue_data(monthly_data)
+            if not quality_check['is_valid']:
+                return self._create_error_result(quality_check['reason'])
+
+            # 執行預測 (使用限制範圍的資料)
+            prediction_result = self._execute_revenue_prediction(monthly_data, target_month)
+
+            # 添加回測特有資訊
+            prediction_result.update({
+                'stock_id': stock_id,
+                'target_month': target_month,
+                'prediction_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'data_quality': quality_check,
+                'historical_data_points': len(monthly_data),
+                'training_data_range': {
+                    'start_date': monthly_data['date'].min().strftime('%Y-%m-%d'),
+                    'end_date': monthly_data['date'].max().strftime('%Y-%m-%d'),
+                    'data_points': len(monthly_data)
+                },
+                'model_retrained': model_retrained,
+                'backtest_mode': True
+            })
+
+            logger.info(f"[HISTORICAL_PREDICTION] Historical revenue prediction completed | "
+                       f"predicted_revenue={prediction_result.get('predicted_revenue', 0)/1e8:.1f}億 | "
+                       f"growth_rate={prediction_result.get('growth_rate', 0)*100:.1f}% | "
+                       f"data_range={monthly_data['date'].min().strftime('%Y-%m')}~{monthly_data['date'].max().strftime('%Y-%m')}")
+
+            return prediction_result
+
+        except Exception as e:
+            error_msg = f"Historical revenue prediction failed: {str(e)}"
+            logger.error(error_msg, stock_id=stock_id)
+            return self._create_error_result(
+                error_msg,
+                extra_info={
+                    'training_data_range': {
+                        'start_date': None,
+                        'end_date': max_date.strftime('%Y-%m-%d') if max_date else None,
+                        'data_points': 0
+                    },
+                    'model_retrained': False,
+                    'backtest_mode': True
+                }
+            )
+
     def _execute_revenue_prediction(self, monthly_data: pd.DataFrame, target_month: str) -> Dict:
         """執行營收預測計算"""
         
@@ -321,15 +414,21 @@ class RevenuePredictor:
             'latest_date': monthly_data['date'].max().strftime('%Y-%m-%d')
         }
     
-    def _create_error_result(self, error_message: str) -> Dict:
+    def _create_error_result(self, error_message: str, extra_info: Dict = None) -> Dict:
         """創建錯誤結果"""
-        return {
+        result = {
             'predicted_revenue': None,
             'growth_rate': None,
             'confidence': 'Low',
             'error': error_message,
             'success': False
         }
+
+        # 添加額外資訊
+        if extra_info:
+            result.update(extra_info)
+
+        return result
 
 if __name__ == "__main__":
     # 測試營收預測器

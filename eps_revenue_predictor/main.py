@@ -37,6 +37,9 @@ from src.data.database_manager import DatabaseManager
 from src.predictors.revenue_predictor import RevenuePredictor
 from src.predictors.eps_predictor import EPSPredictor
 from src.models.adjustment_model import AIAdjustmentModel
+from src.predictors.backtest_engine import BacktestEngine
+from src.utils.backtest_reporter import BacktestReporter
+from src.models.model_optimizer import ModelOptimizer
 from src.utils.logger import get_logger
 
 # 確保目錄存在
@@ -621,9 +624,10 @@ def show_main_menu():
     print("🔍 模型分析工具:")
     print("  7. 分析AI模型表現")
     print("  8. 訓練通用AI模型")
+    print("  9. 執行回測驗證")
     print()
     print("❓ 其他:")
-    print("  9. 查看詳細說明")
+    print("  10. 查看詳細說明")
     print("  0. 退出系統")
     print()
     print("="*60)
@@ -632,11 +636,11 @@ def get_user_choice():
     """獲取用戶選擇"""
     while True:
         try:
-            choice = input("請輸入選項編號 (0-9): ").strip()
-            if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
+            choice = input("請輸入選項編號 (0-10): ").strip()
+            if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']:
                 return choice
             else:
-                print("❌ 無效選項，請輸入 0-9 之間的數字")
+                print("❌ 無效選項，請輸入 0-10 之間的數字")
         except KeyboardInterrupt:
             print("\n👋 再見！")
             return '0'
@@ -728,7 +732,7 @@ def run_interactive_menu():
             print("👋 感謝使用！再見！")
             break
 
-        elif choice == '9':
+        elif choice == '10':
             show_detailed_help()
             continue
 
@@ -788,6 +792,12 @@ def run_interactive_menu():
                 print(f"\n🤖 正在訓練通用AI調整模型...")
                 result = predictor.ai_model.train_model(retrain=True)
                 print(f"訓練結果: {result['status']}")
+
+            elif choice == '9':  # 執行回測驗證
+                stock_id = get_stock_input()
+                print(f"\n🔍 正在執行股票 {stock_id} 的回測驗證...")
+                result = run_backtest_analysis(predictor, stock_id)
+                display_backtest_result(result)
 
         except Exception as e:
             print(f"❌ 操作失敗: {e}")
@@ -977,6 +987,106 @@ AI模型訓練:
                        help='啟動互動式選單介面')
 
     return parser
+
+def run_backtest_analysis(predictor: EPSRevenuePredictor, stock_id: str) -> Dict:
+    """執行回測分析"""
+    try:
+        # 初始化回測組件
+        backtest_engine = BacktestEngine(predictor.db_manager)
+        reporter = BacktestReporter()
+        optimizer = ModelOptimizer(predictor.db_manager)
+
+        # 檢查資料可用性
+        print(f"🔍 檢查股票 {stock_id} 的資料可用性...")
+        data_validation = predictor.db_manager.validate_backtest_data_availability(stock_id)
+
+        if not data_validation.get('backtest_feasible', False):
+            return {
+                'success': False,
+                'error': '資料不足，無法進行回測',
+                'data_validation': data_validation
+            }
+
+        print(f"✅ 資料檢查通過，開始回測...")
+        print(f"📊 營收資料: {data_validation.get('revenue_count', 0)} 個月")
+        print(f"📈 財務資料: {data_validation.get('financial_count', 0)} 季")
+
+        # 執行回測
+        print(f"🚀 執行回測分析 (這可能需要幾分鐘)...")
+        backtest_results = backtest_engine.run_comprehensive_backtest(
+            stock_id=stock_id,
+            backtest_periods=8,  # 回測8個月
+            prediction_types=['revenue', 'eps']  # 測試營收和EPS
+        )
+
+        # 生成報告
+        print(f"📄 生成回測報告...")
+        report_result = reporter.generate_comprehensive_report(backtest_results)
+
+        # 優化建議
+        print(f"🔧 分析優化建議...")
+        optimization_result = optimizer.optimize_based_on_backtest(stock_id, backtest_results)
+
+        return {
+            'success': True,
+            'backtest_results': backtest_results,
+            'report_result': report_result,
+            'optimization_result': optimization_result
+        }
+
+    except Exception as e:
+        logger.error(f"Backtest analysis failed for {stock_id}: {e}")
+        return {
+            'success': False,
+            'error': str(e)
+        }
+
+def display_backtest_result(result: Dict) -> None:
+    """顯示回測結果"""
+    try:
+        if not result.get('success', False):
+            print(f"❌ 回測失敗: {result.get('error', 'Unknown error')}")
+
+            # 如果有資料驗證資訊，顯示詳細信息
+            data_validation = result.get('data_validation', {})
+            if data_validation:
+                print(f"\n📊 資料狀況:")
+                print(f"   營收資料: {data_validation.get('revenue_count', 0)} 個月 "
+                      f"(需要: {data_validation.get('required_revenue_months', 0)})")
+                print(f"   財務資料: {data_validation.get('financial_count', 0)} 季 "
+                      f"(需要: {data_validation.get('required_financial_quarters', 0)})")
+            return
+
+        print(f"✅ 回測分析完成！")
+
+        # 顯示回測摘要
+        backtest_results = result.get('backtest_results', {})
+        if backtest_results:
+            reporter = BacktestReporter()
+            reporter.display_backtest_summary(backtest_results)
+
+            # 詢問是否顯示詳細結果
+            try:
+                show_details = input("\n是否顯示詳細回測結果? (y/n): ").strip().lower()
+                if show_details in ['y', 'yes', '是']:
+                    reporter.display_detailed_backtest_results(backtest_results)
+            except:
+                pass
+
+        # 顯示優化結果
+        optimization_result = result.get('optimization_result', {})
+        if optimization_result:
+            optimizer = ModelOptimizer()
+            optimizer.display_optimization_summary(optimization_result)
+
+        # 顯示報告文件位置
+        report_result = result.get('report_result', {})
+        if report_result.get('success'):
+            print(f"\n📄 詳細報告已保存: {report_result.get('report_file')}")
+
+    except Exception as e:
+        logger.error(f"Failed to display backtest result: {e}")
+        print(f"❌ 顯示回測結果失敗: {e}")
 
 def main():
     """主函數"""

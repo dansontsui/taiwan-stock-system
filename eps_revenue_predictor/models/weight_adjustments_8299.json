@@ -1,0 +1,23 @@
+{
+  "revenue_weights": {
+    "trend_extrapolation": {
+      "score": 0.8835388497348078,
+      "avg_error": 11.64611502651922,
+      "error_std": 8.756404212685885,
+      "suggested_weight_adjustment": 1.1
+    },
+    "moving_average": {
+      "score": 0.8835388497348078,
+      "avg_error": 11.64611502651922,
+      "error_std": 8.756404212685885,
+      "suggested_weight_adjustment": 1.1
+    },
+    "yoy_trend": {
+      "score": 0.8835388497348078,
+      "avg_error": 11.64611502651922,
+      "error_std": 8.756404212685885,
+      "suggested_weight_adjustment": 1.1
+    }
+  },
+  "eps_weights": {}
+}

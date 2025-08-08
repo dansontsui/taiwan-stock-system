@@ -24,11 +24,28 @@ try:
     # Check sample data
     cursor.execute("SELECT * FROM monthly_revenues WHERE stock_id = '2385' LIMIT 3")
     sample_data = cursor.fetchall()
-    
+
     print("\nSample data:")
     for row in sample_data:
         print(f"  {row}")
-    
+
+    # Check financial_statements table schema
+    print("\n" + "="*50)
+    cursor.execute("PRAGMA table_info(financial_statements)")
+    columns = cursor.fetchall()
+
+    print("financial_statements table columns:")
+    for col in columns:
+        print(f"  {col[1]} ({col[2]})")
+
+    # Check sample financial data
+    cursor.execute("SELECT * FROM financial_statements WHERE stock_id = '2385' LIMIT 3")
+    sample_data = cursor.fetchall()
+
+    print("\nSample financial data:")
+    for row in sample_data:
+        print(f"  {row}")
+
     conn.close()
     
 except Exception as e:
