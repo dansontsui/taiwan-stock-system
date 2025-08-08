@@ -18,19 +18,19 @@ logger = get_logger('backtest_reporter')
 
 class BacktestReporter:
     """回測結果報告生成器"""
-    
+
     def __init__(self):
         self.reports_dir = PROJECT_ROOT / 'reports' / 'backtest'
         self.reports_dir.mkdir(parents=True, exist_ok=True)
-        
+
         logger.info("BacktestReporter initialized")
-    
+
     def generate_comprehensive_report(self, backtest_results: Dict) -> Dict:
         """生成全面的回測報告"""
         try:
             stock_id = backtest_results.get('stock_id', 'Unknown')
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            
+
             report = {
                 'report_info': {
                     'stock_id': stock_id,
@@ -43,79 +43,79 @@ class BacktestReporter:
                 'performance_metrics': self._create_performance_metrics(backtest_results),
                 'improvement_recommendations': backtest_results.get('improvement_suggestions', [])
             }
-            
+
             # 保存報告
             report_file = self.reports_dir / f"backtest_report_{stock_id}_{timestamp}.json"
             with open(report_file, 'w', encoding='utf-8') as f:
                 json.dump(report, f, ensure_ascii=False, indent=2)
-            
+
             logger.info(f"Comprehensive report generated: {report_file}")
-            
+
             return {
                 'success': True,
                 'report': report,
                 'report_file': str(report_file)
             }
-            
+
         except Exception as e:
             logger.error(f"Failed to generate comprehensive report: {e}")
             return {
                 'success': False,
                 'error': str(e)
             }
-    
+
     def _create_executive_summary(self, backtest_results: Dict) -> Dict:
         """創建執行摘要"""
         try:
             revenue_stats = backtest_results.get('results', {}).get('revenue', {}).get('statistics', {})
             eps_stats = backtest_results.get('results', {}).get('eps', {}).get('statistics', {})
             overall_stats = backtest_results.get('overall_statistics', {})
-            
+
             # 計算整體評級
             overall_grade = self._calculate_overall_grade(revenue_stats, eps_stats)
-            
+
             summary = {
                 'overall_grade': overall_grade,
                 'key_findings': [],
                 'performance_highlights': {}
             }
-            
+
             # 營收表現摘要
             if revenue_stats:
                 revenue_direction_acc = revenue_stats.get('direction_accuracy', 0)
                 revenue_mape = revenue_stats.get('avg_revenue_mape', 0)
-                
+
                 summary['performance_highlights']['revenue'] = {
                     'direction_accuracy': f"{revenue_direction_acc:.1%}",
                     'average_mape': f"{revenue_mape:.1f}%",
                     'periods_tested': revenue_stats.get('total_periods', 0)
                 }
-                
+
                 if revenue_direction_acc >= 0.7:
                     summary['key_findings'].append("營收趨勢預測方向準確度良好")
                 elif revenue_direction_acc >= 0.5:
                     summary['key_findings'].append("營收趨勢預測方向準確度中等")
                 else:
                     summary['key_findings'].append("營收趨勢預測方向準確度需要改善")
-            
+
             # EPS表現摘要
             if eps_stats:
                 eps_direction_acc = eps_stats.get('direction_accuracy', 0)
                 eps_mape = eps_stats.get('avg_eps_mape', 0)
-                
+
                 summary['performance_highlights']['eps'] = {
                     'direction_accuracy': f"{eps_direction_acc:.1%}",
                     'average_mape': f"{eps_mape:.1f}%",
                     'periods_tested': eps_stats.get('total_periods', 0)
                 }
-                
+
                 if eps_direction_acc >= 0.7:
                     summary['key_findings'].append("EPS趨勢預測方向準確度良好")
                 elif eps_direction_acc >= 0.5:
                     summary['key_findings'].append("EPS趨勢預測方向準確度中等")
                 else:
                     summary['key_findings'].append("EPS趨勢預測方向準確度需要改善")
-            
+
             # 綜合表現
             combined_perf = overall_stats.get('combined_performance', {})
             if combined_perf:
@@ -126,13 +126,13 @@ class BacktestReporter:
                     summary['key_findings'].append("整體預測模型表現良好")
                 else:
                     summary['key_findings'].append("整體預測模型需要優化")
-            
+
             return summary
-            
+
         except Exception as e:
             logger.warning(f"Failed to create executive summary: {e}")
             return {}
-    
+
     def _create_detailed_analysis(self, backtest_results: Dict) -> Dict:
         """創建詳細分析"""
         try:
@@ -142,29 +142,29 @@ class BacktestReporter:
                 'confidence_analysis': {},
                 'temporal_analysis': {}
             }
-            
+
             # 營收詳細分析
             revenue_results = backtest_results.get('results', {}).get('revenue', {})
             if revenue_results.get('success'):
                 analysis['revenue_analysis'] = self._analyze_revenue_performance(revenue_results)
-            
+
             # EPS詳細分析
             eps_results = backtest_results.get('results', {}).get('eps', {})
             if eps_results.get('success'):
                 analysis['eps_analysis'] = self._analyze_eps_performance(eps_results)
-            
+
             # 信心水準分析
             analysis['confidence_analysis'] = self._analyze_confidence_levels(backtest_results)
-            
+
             # 時間序列分析
             analysis['temporal_analysis'] = self._analyze_temporal_patterns(backtest_results)
-            
+
             return analysis
-            
+
         except Exception as e:
             logger.warning(f"Failed to create detailed analysis: {e}")
             return {}
-    
+
     def _create_performance_metrics(self, backtest_results: Dict) -> Dict:
         """創建性能指標"""
         try:
@@ -173,21 +173,21 @@ class BacktestReporter:
                 'error_metrics': {},
                 'consistency_metrics': {}
             }
-            
+
             revenue_stats = backtest_results.get('results', {}).get('revenue', {}).get('statistics', {})
             eps_stats = backtest_results.get('results', {}).get('eps', {}).get('statistics', {})
-            
+
             # 準確度指標
             if revenue_stats or eps_stats:
                 metrics['accuracy_metrics'] = {
                     'revenue_direction_accuracy': revenue_stats.get('direction_accuracy', 0),
                     'eps_direction_accuracy': eps_stats.get('direction_accuracy', 0),
                     'combined_direction_accuracy': (
-                        revenue_stats.get('direction_accuracy', 0) + 
+                        revenue_stats.get('direction_accuracy', 0) +
                         eps_stats.get('direction_accuracy', 0)
                     ) / 2 if revenue_stats and eps_stats else 0
                 }
-            
+
             # 誤差指標
             if revenue_stats or eps_stats:
                 metrics['error_metrics'] = {
@@ -196,44 +196,44 @@ class BacktestReporter:
                     'revenue_rmse': revenue_stats.get('rmse_growth', 0),
                     'eps_rmse': eps_stats.get('rmse_growth', 0)
                 }
-            
+
             # 一致性指標
             metrics['consistency_metrics'] = self._calculate_consistency_metrics(backtest_results)
-            
+
             return metrics
-            
+
         except Exception as e:
             logger.warning(f"Failed to create performance metrics: {e}")
             return {}
-    
+
     def _calculate_overall_grade(self, revenue_stats: Dict, eps_stats: Dict) -> str:
         """計算整體評級"""
         try:
             scores = []
-            
+
             # 營收評分
             if revenue_stats:
                 revenue_direction = revenue_stats.get('direction_accuracy', 0)
                 revenue_mape = revenue_stats.get('avg_revenue_mape', 100)
-                
-                revenue_score = (revenue_direction * 0.6 + 
+
+                revenue_score = (revenue_direction * 0.6 +
                                max(0, (20 - revenue_mape) / 20) * 0.4)
                 scores.append(revenue_score)
-            
+
             # EPS評分
             if eps_stats:
                 eps_direction = eps_stats.get('direction_accuracy', 0)
                 eps_mape = eps_stats.get('avg_eps_mape', 100)
-                
-                eps_score = (eps_direction * 0.6 + 
+
+                eps_score = (eps_direction * 0.6 +
                            max(0, (25 - eps_mape) / 25) * 0.4)
                 scores.append(eps_score)
-            
+
             if not scores:
                 return 'N/A'
-            
+
             avg_score = np.mean(scores)
-            
+
             if avg_score >= 0.8:
                 return 'A (優秀)'
             elif avg_score >= 0.7:
@@ -244,17 +244,17 @@ class BacktestReporter:
                 return 'D (需改善)'
             else:
                 return 'F (不及格)'
-                
+
         except Exception as e:
             logger.warning(f"Failed to calculate overall grade: {e}")
             return 'N/A'
-    
+
     def _analyze_revenue_performance(self, revenue_results: Dict) -> Dict:
         """分析營收表現"""
         try:
             backtest_data = revenue_results.get('backtest_results', [])
             statistics = revenue_results.get('statistics', {})
-            
+
             analysis = {
                 'total_predictions': len(backtest_data),
                 'successful_predictions': len([r for r in backtest_data if r.get('accuracy')]),
@@ -266,7 +266,7 @@ class BacktestReporter:
                 'best_prediction': None,
                 'worst_prediction': None
             }
-            
+
             # 找出最佳和最差預測
             if backtest_data:
                 valid_predictions = [r for r in backtest_data if r.get('accuracy')]
@@ -280,31 +280,31 @@ class BacktestReporter:
                         ),
                         reverse=True
                     )
-                    
+
                     analysis['best_prediction'] = {
                         'period': sorted_by_performance[0]['period'],
                         'date': sorted_by_performance[0].get('target_date'),
                         'metrics': sorted_by_performance[0]['accuracy']
                     }
-                    
+
                     analysis['worst_prediction'] = {
                         'period': sorted_by_performance[-1]['period'],
                         'date': sorted_by_performance[-1].get('target_date'),
                         'metrics': sorted_by_performance[-1]['accuracy']
                     }
-            
+
             return analysis
-            
+
         except Exception as e:
             logger.warning(f"Failed to analyze revenue performance: {e}")
             return {}
-    
+
     def _analyze_eps_performance(self, eps_results: Dict) -> Dict:
         """分析EPS表現"""
         try:
             backtest_data = eps_results.get('backtest_results', [])
             statistics = eps_results.get('statistics', {})
-            
+
             analysis = {
                 'total_predictions': len(backtest_data),
                 'successful_predictions': len([r for r in backtest_data if r.get('accuracy')]),
@@ -316,7 +316,7 @@ class BacktestReporter:
                 'best_prediction': None,
                 'worst_prediction': None
             }
-            
+
             # 找出最佳和最差預測
             if backtest_data:
                 valid_predictions = [r for r in backtest_data if r.get('accuracy')]
@@ -329,21 +329,21 @@ class BacktestReporter:
                         ),
                         reverse=True
                     )
-                    
+
                     analysis['best_prediction'] = {
                         'period': sorted_by_performance[0]['period'],
                         'quarter': sorted_by_performance[0].get('target_quarter'),
                         'metrics': sorted_by_performance[0]['accuracy']
                     }
-                    
+
                     analysis['worst_prediction'] = {
                         'period': sorted_by_performance[-1]['period'],
                         'quarter': sorted_by_performance[-1].get('target_quarter'),
                         'metrics': sorted_by_performance[-1]['accuracy']
                     }
-            
+
             return analysis
-            
+
         except Exception as e:
             logger.warning(f"Failed to analyze EPS performance: {e}")
             return {}
@@ -534,8 +534,12 @@ class BacktestReporter:
             logger.error(f"Failed to display backtest summary: {e}")
             print(f"❌ 無法顯示回測摘要: {e}")
 
-    def display_detailed_backtest_results(self, backtest_results: Dict) -> None:
-        """顯示詳細的回測結果 (每期預測vs實際)"""
+    def display_detailed_backtest_results(self, backtest_results: Dict, op_only: bool = False) -> None:
+        """顯示詳細的回測結果 (每期預測vs實際)
+        Args:
+            backtest_results: 回測結果
+            op_only: 是否以營業統計視角顯示（僅統計摘要採用營業分層，不過濾明細列）
+        """
         try:
             stock_id = backtest_results.get('stock_id', 'Unknown')
 
@@ -614,7 +618,7 @@ class BacktestReporter:
                 backtest_data = eps_results.get('backtest_results', [])
                 if backtest_data:
                     # 表頭 - 調整欄位寬度確保對齊
-                    header = f"{'期數':<4} {'目標季度':<12} {'預測EPS':<10} {'實際EPS':<10} {'預測成長率':<12} {'實際成長率':<12} {'方向正確':<8} {'MAPE':<8}"
+                    header = f"{'期數':<4} {'目標季度':<12} {'預測EPS':<10} {'實際EPS':<10} {'預測成長率':<12} {'實際成長率':<12} {'方向正確':<8} {'MAPE':<8} {'異常':<6}"
                     print(header)
                     print(f"{'-'*100}")
 
@@ -645,13 +649,42 @@ class BacktestReporter:
                         actual_growth_str = f"{actual_growth:>8.1f}%"
                         mape_str = f"{mape:>6.1f}%"
 
+                        abnormal = result.get('abnormal', {})
+                        abnormal_mark = '⚠️' if abnormal.get('is_abnormal') else ''
                         print(f"{period:<4} {target_quarter:<12} {pred_eps:>8.2f}  {actual_eps:>8.2f}  "
-                              f"{pred_growth_str:<12} {actual_growth_str:<12} {direction_correct:<8} {mape_str:<8}")
+                              f"{pred_growth_str:<12} {actual_growth_str:<12} {direction_correct:<8} {mape_str:<8} {abnormal_mark:<6}")
 
                 # 統計摘要
                 stats = eps_results.get('statistics', {})
                 print(f"\n📊 EPS統計摘要:")
                 print(f"   平均MAPE: {stats.get('avg_eps_mape', 0):.1f}%")
+                # 分離報告：營業預測準確度 vs 總體準確度
+                try:
+                    if stats and isinstance(stats, dict) and 'operating_only' in stats:
+                        op = stats.get('operating_only', {})
+                        ov = stats.get('overall', {})
+                        ab = stats.get('abnormal_only', {})
+                        print(f"\n📊 EPS分層統計:")
+                        print(f"   營業（排除異常）: 測試期數={op.get('total_periods',0)} | 平均MAPE={op.get('avg_eps_mape',0):.1f}% | 方向準確度={op.get('direction_accuracy',0):.1%}")
+                        print(f"   總體（含異常）  : 測試期數={ov.get('total_periods',0)} | 平均MAPE={ov.get('avg_eps_mape',0):.1f}% | 方向準確度={ov.get('direction_accuracy',0):.1%}")
+                        print(f"   異常季度        : 測試期數={ab.get('total_periods',0)} | 平均MAPE={ab.get('avg_eps_mape',0):.1f}%")
+
+                        # 投資參考提醒
+                        print(f"\n💡 投資參考提醒:")
+                        print(f"   若出現⚠️ 標記的季度，代表可能含有非營業收益/損失，建議以營業分層統計為主評估模型表現。")
+                except Exception as _:
+                    pass
+                # 額外輸出：異常原因列表
+                if backtest_data:
+                    print(f"\n🧭 異常季度原因列表:")
+                    for result in backtest_data:
+                        abn = result.get('abnormal', {})
+                        if abn.get('is_abnormal'):
+                            tq = result.get('target_quarter', 'N/A')
+                            reason = abn.get('reason') or '未提供原因'
+                            nm = abn.get('net_margin')
+                            pm = abn.get('prev_net_margin')
+                            print(f"   - {tq}: {reason} | 淨利率={nm}% (前期={pm}%)")
                 print(f"   方向準確度: {stats.get('direction_accuracy', 0):.1%}")
                 print(f"   RMSE: {stats.get('rmse_growth', 0):.4f}")
 

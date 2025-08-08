@@ -22,70 +22,70 @@ logger = get_logger('backtest_engine')
 
 class BacktestEngine:
     """回測引擎
-    
+
     用於驗證預測模型的歷史準確度並調整AI模型參數
     """
-    
+
     def __init__(self, db_manager: DatabaseManager = None):
         self.db_manager = db_manager or DatabaseManager()
         self.revenue_predictor = RevenuePredictor(self.db_manager)
         self.eps_predictor = EPSPredictor(self.db_manager)
         self.ai_model = AIAdjustmentModel(self.db_manager)
-        
+
         logger.info("BacktestEngine initialized")
-    
+
     @log_execution
-    def run_comprehensive_backtest(self, stock_id: str, 
+    def run_comprehensive_backtest(self, stock_id: str,
                                  backtest_periods: int = 12,
                                  prediction_types: List[str] = None) -> Dict:
         """
         執行全面回測
-        
+
         Args:
             stock_id: 股票代碼
             backtest_periods: 回測期數 (月數)
             prediction_types: 預測類型 ['revenue', 'eps']
-            
+
         Returns:
             回測結果字典
         """
         if prediction_types is None:
             prediction_types = ['revenue', 'eps']
-        
+
         logger.info(f"Starting comprehensive backtest for {stock_id}")
-        
+
         results = {
             'stock_id': stock_id,
             'backtest_periods': backtest_periods,
             'start_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'results': {}
         }
-        
+
         # 營收回測
         if 'revenue' in prediction_types:
             logger.info(f"Running revenue backtest for {stock_id}")
             revenue_results = self._run_revenue_backtest(stock_id, backtest_periods)
             results['results']['revenue'] = revenue_results
-        
+
         # EPS回測
         if 'eps' in prediction_types:
             logger.info(f"Running EPS backtest for {stock_id}")
             eps_results = self._run_eps_backtest(stock_id, backtest_periods)
             results['results']['eps'] = eps_results
-        
+
         # 計算整體統計
         overall_stats = self._calculate_overall_statistics(results['results'])
         results['overall_statistics'] = overall_stats
-        
+
         # 生成改進建議
         improvement_suggestions = self._generate_improvement_suggestions(results)
         results['improvement_suggestions'] = improvement_suggestions
-        
+
         results['end_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        
+
         logger.info(f"Comprehensive backtest completed for {stock_id}")
         return results
-    
+
     def _run_revenue_backtest(self, stock_id: str, periods: int) -> Dict:
         """執行營收回測"""
         logger.info(f"Running revenue backtest for {periods} periods")
@@ -95,16 +95,16 @@ class BacktestEngine:
 
         # 獲取歷史資料
         historical_data = self.db_manager.get_monthly_revenue_data(stock_id)
-        
+
         if historical_data.empty or len(historical_data) < periods + 6:
             return {
                 'success': False,
                 'error': 'Insufficient historical data',
                 'data_points': len(historical_data) if not historical_data.empty else 0
             }
-        
+
         backtest_results = []
-        
+
         # 🔧 修復: 實現真正的滾動窗口回測
         latest_date = historical_data['date'].max()
 
@@ -132,7 +132,7 @@ class BacktestEngine:
             if len(train_data) < 6:  # 至少需要6個月資料
                 logger.warning(f"Insufficient training data for period {i+1}: {len(train_data)} samples")
                 continue
-            
+
             # 執行預測 (模擬當時的預測)
             prediction_result = self._simulate_revenue_prediction(
                 stock_id, train_data, backtest_date
@@ -142,13 +142,13 @@ class BacktestEngine:
             actual_result = self._get_actual_revenue_result(
                 historical_data, target_date
             )
-            
+
             if prediction_result and actual_result:
                 # 計算準確度指標
                 accuracy_metrics = self._calculate_revenue_accuracy(
                     prediction_result, actual_result
                 )
-                
+
                 backtest_results.append({
                     'period': i + 1,
                     'backtest_date': backtest_date.strftime('%Y-%m-%d'),
@@ -158,36 +158,36 @@ class BacktestEngine:
                     'actual': actual_result,
                     'accuracy': accuracy_metrics
                 })
-        
+
         # 計算統計指標
         statistics = self._calculate_revenue_statistics(backtest_results)
-        
+
         return {
             'success': True,
             'periods_tested': len(backtest_results),
             'backtest_results': backtest_results,
             'statistics': statistics
         }
-    
+
     def _run_eps_backtest(self, stock_id: str, periods: int) -> Dict:
         """執行EPS回測"""
         logger.info(f"Running EPS backtest for {periods//3} quarters")
-        
+
         # EPS是季度資料，調整期數
         quarterly_periods = max(1, periods // 3)
-        
+
         # 獲取歷史資料
         historical_data = self.db_manager.get_quarterly_financial_data(stock_id)
-        
+
         if historical_data.empty or len(historical_data) < quarterly_periods + 4:
             return {
                 'success': False,
                 'error': 'Insufficient historical EPS data',
                 'data_points': len(historical_data) if not historical_data.empty else 0
             }
-        
+
         backtest_results = []
-        
+
         # 逐季回測
         for i in range(quarterly_periods):
             # 計算回測時間點 (使用date欄位)
@@ -219,25 +219,35 @@ class BacktestEngine:
             actual_result = self._get_actual_eps_result(
                 historical_data, target_quarter
             )
-            
+
             if prediction_result and actual_result:
                 # 計算準確度指標
                 accuracy_metrics = self._calculate_eps_accuracy(
                     prediction_result, actual_result
                 )
-                
+
+                # 標記異常季度（可能含非營業因素）
+                abnormal_info = self._detect_eps_abnormal_quarter(
+                    stock_id=stock_id,
+                    target_quarter=target_quarter,
+                    historical_data=historical_data,
+                    prediction=prediction_result,
+                    actual=actual_result
+                )
+
                 backtest_results.append({
                     'period': i + 1,
                     'backtest_quarter': backtest_quarter,
                     'target_quarter': target_quarter,
                     'prediction': prediction_result,
                     'actual': actual_result,
-                    'accuracy': accuracy_metrics
+                    'accuracy': accuracy_metrics,
+                    'abnormal': abnormal_info
                 })
-        
+
         # 計算統計指標
         statistics = self._calculate_eps_statistics(backtest_results)
-        
+
         return {
             'success': True,
             'periods_tested': len(backtest_results),
@@ -634,36 +644,59 @@ class BacktestEngine:
             return {}
 
     def _calculate_eps_statistics(self, backtest_results: List[Dict]) -> Dict:
-        """計算EPS回測統計指標"""
+        """計算EPS回測統計指標（新增：營業/總體分離與異常過濾）"""
         if not backtest_results:
             return {}
 
         try:
-            # 提取準確度指標
-            growth_errors = [r['accuracy']['growth_rate_error'] for r in backtest_results
-                           if 'accuracy' in r and 'growth_rate_error' in r['accuracy']]
-            growth_mapes = [r['accuracy']['growth_rate_mape'] for r in backtest_results
-                          if 'accuracy' in r and 'growth_rate_mape' in r['accuracy']]
-            eps_mapes = [r['accuracy']['eps_mape'] for r in backtest_results
-                        if 'accuracy' in r and 'eps_mape' in r['accuracy']]
-            direction_correct = [r['accuracy']['direction_correct'] for r in backtest_results
-                               if 'accuracy' in r and 'direction_correct' in r['accuracy']]
+            # 分離正常季度與異常季度
+            normal_results = [r for r in backtest_results if not r.get('abnormal', {}).get('is_abnormal', False)]
+            abnormal_results = [r for r in backtest_results if r.get('abnormal', {}).get('is_abnormal', False)]
 
-            # 計算統計指標
-            stats = {
-                'total_periods': len(backtest_results),
-                'avg_growth_error': np.mean(growth_errors) if growth_errors else 0,
-                'avg_growth_mape': np.mean(growth_mapes) if growth_mapes else 0,
-                'avg_eps_mape': np.mean(eps_mapes) if eps_mapes else 0,
-                'direction_accuracy': np.mean(direction_correct) if direction_correct else 0,
-                'rmse_growth': np.sqrt(np.mean([e**2 for e in growth_errors])) if growth_errors else 0
-            }
+            def _stats(results: List[Dict]) -> Dict:
+                if not results:
+                    return {
+                        'total_periods': 0,
+                        'avg_growth_error': 0,
+                        'avg_growth_mape': 0,
+                        'avg_eps_mape': 0,
+                        'direction_accuracy': 0,
+                        'rmse_growth': 0
+                    }
+                growth_errors = [r['accuracy']['growth_rate_error'] for r in results
+                                 if 'accuracy' in r and 'growth_rate_error' in r['accuracy']]
+                growth_mapes = [r['accuracy']['growth_rate_mape'] for r in results
+                                if 'accuracy' in r and 'growth_rate_mape' in r['accuracy']]
+                eps_mapes = [r['accuracy']['eps_mape'] for r in results
+                             if 'accuracy' in r and 'eps_mape' in r['accuracy']]
+                direction_correct = [r['accuracy']['direction_correct'] for r in results
+                                     if 'accuracy' in r and 'direction_correct' in r['accuracy']]
+                return {
+                    'total_periods': len(results),
+                    'avg_growth_error': np.mean(growth_errors) if growth_errors else 0,
+                    'avg_growth_mape': np.mean(growth_mapes) if growth_mapes else 0,
+                    'avg_eps_mape': np.mean(eps_mapes) if eps_mapes else 0,
+                    'direction_accuracy': np.mean(direction_correct) if direction_correct else 0,
+                    'rmse_growth': np.sqrt(np.mean([e**2 for e in growth_errors])) if growth_errors else 0
+                }
 
-            # 信心水準分析
+            # 原統計（總體）
+            overall_stats = _stats(backtest_results)
+            # 營業統計（排除異常季度）
+            operating_stats = _stats(normal_results)
+            # 異常統計（僅異常季度）
+            abnormal_stats = _stats(abnormal_results)
+
+            # 信心水準分析（用總體）
             confidence_analysis = self._analyze_confidence_performance(backtest_results)
-            stats['confidence_analysis'] = confidence_analysis
 
-            return stats
+            return {
+                'overall': overall_stats,
+                'operating_only': operating_stats,
+                'abnormal_only': abnormal_stats,
+                'confidence_analysis': confidence_analysis,
+                'abnormal_quarters': [r.get('abnormal') for r in abnormal_results]
+            }
 
         except Exception as e:
             logger.warning(f"Failed to calculate EPS statistics: {e}")
@@ -698,7 +731,7 @@ class BacktestEngine:
             return {}
 
     def _calculate_overall_statistics(self, results: Dict) -> Dict:
-        """計算整體統計指標"""
+        """計算整體統計指標（新增：EPS營業/總體分離）"""
         try:
             overall_stats = {
                 'revenue': results.get('revenue', {}).get('statistics', {}),
@@ -711,14 +744,22 @@ class BacktestEngine:
             eps_stats = overall_stats['eps']
 
             if revenue_stats and eps_stats:
+                # 兼容舊/新統計格式
+                eps_direction = 0
+                eps_total = 0
+                if 'direction_accuracy' in eps_stats:
+                    eps_direction = eps_stats.get('direction_accuracy', 0)
+                    eps_total = eps_stats.get('total_periods', 0)
+                elif 'operating_only' in eps_stats:
+                    eps_direction = eps_stats['operating_only'].get('direction_accuracy', 0)
+                    eps_total = eps_stats['operating_only'].get('total_periods', 0)
+
                 combined = {
                     'avg_direction_accuracy': (
-                        revenue_stats.get('direction_accuracy', 0) +
-                        eps_stats.get('direction_accuracy', 0)
+                        revenue_stats.get('direction_accuracy', 0) + eps_direction
                     ) / 2,
                     'total_predictions': (
-                        revenue_stats.get('total_periods', 0) +
-                        eps_stats.get('total_periods', 0)
+                        revenue_stats.get('total_periods', 0) + eps_total
                     )
                 }
                 overall_stats['combined_performance'] = combined
@@ -824,6 +865,93 @@ class BacktestEngine:
         except Exception as e:
             logger.warning(f"Failed to calculate next quarter: {e}")
             return quarter
+
+    def _detect_eps_abnormal_quarter(self, stock_id: str, target_quarter: str,
+                                     historical_data: pd.DataFrame, prediction: Dict, actual: Dict) -> Dict:
+        """檢測EPS異常季度（非營業因素）
+        規則：
+        - 淨利率QoQ變化 > 5 個百分點
+        - EPS QoQ變化 > 100% 且 營收季度變化 < 20%
+        返回：{'is_abnormal': bool, 'reason': str, 'net_margin': float, 'prev_net_margin': float}
+        """
+        try:
+            # 取得財務比率（含淨利率）
+            ratios = self.db_manager.get_financial_ratios(stock_id)
+            net_margin = None
+            prev_net_margin = None
+            reason_parts = []
+            is_abnormal = False
+
+            # 解析季度
+            year, q = target_quarter.split('-Q')
+            year = int(year)
+            q = int(q)
+
+            def quarter_to_date(y: int, qq: int) -> str:
+                month = {1: '03', 2: '06', 3: '09', 4: '12'}[qq]
+                day = '30' if month in ['06', '09'] else '31'
+                return f"{y}-{month}-{day}"
+
+            target_date = quarter_to_date(year, q)
+            prev_q = 4 if q == 1 else q - 1
+            prev_y = year - 1 if q == 1 else year
+            prev_date = quarter_to_date(prev_y, prev_q)
+
+            if not ratios.empty:
+                r_t = ratios[ratios['date'] == target_date]
+                r_p = ratios[ratios['date'] == prev_date]
+                if not r_t.empty and not r_p.empty:
+                    net_margin = float(r_t.iloc[0].get('net_margin') or 0)
+                    prev_net_margin = float(r_p.iloc[0].get('net_margin') or 0)
+                    if prev_net_margin is not None and abs(net_margin - prev_net_margin) > 5:
+                        is_abnormal = True
+                        reason_parts.append(f"淨利率QoQ變化{net_margin - prev_net_margin:+.1f}pp")
+
+            # EPS QoQ vs 營收季變化
+            eps_qoq = None
+            rev_q_change = None
+            try:
+                # EPS QoQ
+                prev_eps_row = historical_data[historical_data['date'] == prev_date]
+                if not prev_eps_row.empty:
+                    prev_eps = float(prev_eps_row['eps'].iloc[0])
+                    if prev_eps != 0:
+                        eps_qoq = (actual['actual_eps'] - prev_eps) / abs(prev_eps) * 100
+                        if eps_qoq > 100:
+                            # 計算營收季度變化
+                            monthly = self.db_manager.get_monthly_revenue(stock_id)
+                            if not monthly.empty:
+                                def quarter_months(y, qq):
+                                    if qq == 1:
+                                        return [f"{y}-01", f"{y}-02", f"{y}-03"]
+                                    if qq == 2:
+                                        return [f"{y}-04", f"{y}-05", f"{y}-06"]
+                                    if qq == 3:
+                                        return [f"{y}-07", f"{y}-08", f"{y}-09"]
+                                    return [f"{y}-10", f"{y}-11", f"{y}-12"]
+                                curr_months = quarter_months(year, q)
+                                prev_months = quarter_months(prev_y, prev_q)
+                                rev_curr = monthly[monthly['date'].isin(curr_months)]['revenue'].sum()
+                                rev_prev = monthly[monthly['date'].isin(prev_months)]['revenue'].sum()
+                                if rev_prev > 0:
+                                    rev_q_change = (rev_curr - rev_prev) / rev_prev * 100
+                                    if eps_qoq > 100 and abs(rev_q_change) < 20:
+                                        is_abnormal = True
+                                        reason_parts.append(f"EPS QoQ {eps_qoq:.1f}% vs 營收{rev_q_change:+.1f}%")
+            except Exception:
+                pass
+
+            return {
+                'is_abnormal': is_abnormal,
+                'reason': '; '.join(reason_parts) if reason_parts else None,
+                'net_margin': net_margin,
+                'prev_net_margin': prev_net_margin,
+                'eps_qoq_pct': eps_qoq,
+                'revenue_quarter_change_pct': rev_q_change
+            }
+        except Exception as e:
+            logger.warning(f"Failed to detect abnormal quarter: {e}")
+            return {'is_abnormal': False}
 
     @log_execution
     def optimize_ai_model(self, stock_id: str, backtest_results: Dict) -> Dict:
