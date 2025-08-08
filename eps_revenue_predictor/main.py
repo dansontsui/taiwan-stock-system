@@ -50,7 +50,7 @@ logger = get_logger('main')
 
 class EPSRevenuePredictor:
     """EPS營收預測系統主類別"""
-    
+
     def __init__(self):
         self.db_manager = DatabaseManager()
         self.revenue_predictor = RevenuePredictor(self.db_manager)
@@ -59,20 +59,20 @@ class EPSRevenuePredictor:
         self.config = PREDICTION_CONFIG
 
         logger.info("EPS與營收預測系統已初始化")
-    
+
     def predict_stock(self, stock_id: str, prediction_type: str = 'revenue') -> dict:
         """
         預測單一股票
-        
+
         Args:
             stock_id: 股票代碼
             prediction_type: 預測類型 ('revenue' 或 'eps')
-            
+
         Returns:
             預測結果字典
         """
         logger.info(f"Starting prediction for stock {stock_id}, type: {prediction_type}")
-        
+
         try:
             if prediction_type == 'revenue':
                 return self._predict_revenue_with_ai(stock_id)
@@ -80,7 +80,7 @@ class EPSRevenuePredictor:
                 return self._predict_eps_with_ai(stock_id)
             else:
                 raise ValueError(f"Unsupported prediction type: {prediction_type}")
-                
+
         except Exception as e:
             logger.error(f"Prediction failed for {stock_id}: {e}")
             return {
@@ -89,19 +89,19 @@ class EPSRevenuePredictor:
                 'stock_id': stock_id,
                 'prediction_type': prediction_type
             }
-    
+
     def _predict_revenue_with_ai(self, stock_id: str) -> dict:
         """營收預測 (財務公式 + AI調整)"""
-        
+
         # 步驟1: 財務公式預測
         formula_result = self.revenue_predictor.predict_monthly_growth(stock_id)
-        
+
         if not formula_result.get('success', True):
             return formula_result
-        
+
         # 步驟2: AI調整
         base_prediction = formula_result['growth_rate']
-        
+
         # 確保AI模型可用
         if not self.ai_model.is_trained:
             train_result = self.ai_model.train_model(retrain=False)
@@ -121,21 +121,21 @@ class EPSRevenuePredictor:
             ai_adjustment = self.ai_model.predict_adjustment_factor(
                 stock_id, base_prediction, 'revenue'
             )
-        
+
         # 步驟3: 整合預測
         formula_weight = self.config['formula_weight']
         ai_weight = self.config['ai_adjustment_weight']
-        
+
         if ai_adjustment['adjustment_factor'] != 0.0:
-            final_prediction = (base_prediction * formula_weight + 
+            final_prediction = (base_prediction * formula_weight +
                               ai_adjustment['adjusted_prediction'] * ai_weight)
         else:
             final_prediction = base_prediction
-        
+
         # 計算最終營收金額
         latest_revenue = formula_result['latest_revenue']
         final_revenue = latest_revenue * (1 + final_prediction)
-        
+
         # 整合結果
         result = {
             'success': True,
@@ -164,11 +164,11 @@ class EPSRevenuePredictor:
             'target_month': formula_result.get('target_month'),
             'risk_factors': formula_result.get('risk_factors', [])
         }
-        
+
         logger.info(f"營收預測完成 {stock_id}: {final_prediction:.2%}")
-        
+
         return result
-    
+
     def _predict_eps_with_ai(self, stock_id: str) -> dict:
         """EPS預測 (財務公式 + AI調整)"""
         try:
@@ -209,40 +209,40 @@ class EPSRevenuePredictor:
                 'stock_id': stock_id,
                 'prediction_type': 'eps'
             }
-    
+
     def _calculate_overall_confidence(self, formula_confidence: str, ai_confidence: str) -> str:
         """計算整體信心水準"""
         confidence_scores = {'High': 3, 'Medium': 2, 'Low': 1, 'N/A': 1}
-        
+
         formula_score = confidence_scores.get(formula_confidence, 1)
         ai_score = confidence_scores.get(ai_confidence, 1)
-        
+
         # 加權平均
-        overall_score = (formula_score * self.config['formula_weight'] + 
+        overall_score = (formula_score * self.config['formula_weight'] +
                         ai_score * self.config['ai_adjustment_weight'])
-        
+
         if overall_score >= 2.5:
             return 'High'
         elif overall_score >= 1.8:
             return 'Medium'
         else:
             return 'Low'
-    
+
     def batch_predict(self, stock_list: list, prediction_type: str = 'revenue') -> dict:
         """批量預測"""
         logger.info(f"Starting batch prediction for {len(stock_list)} stocks")
-        
+
         results = []
         successful_predictions = 0
-        
+
         for stock_id in stock_list:
             try:
                 result = self.predict_stock(stock_id, prediction_type)
                 results.append(result)
-                
+
                 if result.get('success', False):
                     successful_predictions += 1
-                    
+
             except Exception as e:
                 logger.error(f"Batch prediction failed for {stock_id}: {e}")
                 results.append({
@@ -251,7 +251,7 @@ class EPSRevenuePredictor:
                     'stock_id': stock_id,
                     'prediction_type': prediction_type
                 })
-        
+
         batch_result = {
             'total_stocks': len(stock_list),
             'successful_predictions': successful_predictions,
@@ -259,9 +259,9 @@ class EPSRevenuePredictor:
             'results': results,
             'batch_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
-        
+
         logger.info(f"Batch prediction completed: {successful_predictions}/{len(stock_list)} successful")
-        
+
         return batch_result
 
 def train_stock_specific_model(predictor: EPSRevenuePredictor, stock_id: str) -> Dict:
@@ -625,6 +625,7 @@ def show_main_menu():
     print("  7. 分析AI模型表現")
     print("  8. 訓練通用AI模型")
     print("  9. 執行回測驗證")
+    print("  11. 區間滾動回測 (EPS)")
     print()
     print("❓ 其他:")
     print("  10. 查看詳細說明")
@@ -636,11 +637,11 @@ def get_user_choice():
     """獲取用戶選擇"""
     while True:
         try:
-            choice = input("請輸入選項編號 (0-10): ").strip()
-            if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']:
+            choice = input("請輸入選項編號 (0-11): ").strip()
+            if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']:
                 return choice
             else:
-                print("❌ 無效選項，請輸入 0-10 之間的數字")
+                print("❌ 無效選項，請輸入 0-11 之間的數字")
         except KeyboardInterrupt:
             print("\n👋 再見！")
             return '0'
@@ -718,6 +719,120 @@ def show_detailed_help():
     print("• 2881: 富邦金 (金融業)")
 
     print("\n" + "="*80)
+def _ascii_safe(text: str) -> str:
+    repl = {
+        '⚠️': '[ALERT]', '⚠': '[ALERT]', '✅': '[OK]', '❌': '[X]', '🎯': '', '📊': '', '📈': '', '💡': '', '🧭': '',
+        '🚀': '', '🤖': '', '🔍': '', '📄': '', '🔧': '', '🕒': '', '📅': '', '🎉': '', '⚙️': '', '👋': ''
+    }
+    out = []
+    for ch in str(text):
+        out.append(repl.get(ch, ch))
+    return ''.join(out)
+
+class _TeeWriter:
+    def __init__(self, *streams):
+        self.streams = streams
+    def write(self, data):
+        for s in self.streams:
+            try:
+                s.write(data)
+            except Exception:
+                pass
+        return len(data)
+    def flush(self):
+        for s in self.streams:
+            try:
+                s.flush()
+            except Exception:
+                pass
+
+def run_range_backtest_interactive(predictor: EPSRevenuePredictor):
+    """互動式：區間滾動回測（EPS），ASCII輸出並寫入log"""
+    from src.predictors.backtest_engine import BacktestEngine
+
+    stock_id = input("請輸入股票代碼 (例如: 2330, 2385): ").strip() or '2330'
+    start_q = input("請輸入起始季度 (YYYY-Qn, 預設: 2022-Q1): ").strip() or '2022-Q1'
+    end_q = input("請輸入結束季度 (YYYY-Qn, 預設: 2025-Q2): ").strip() or '2025-Q2'
+    retrain = (input("每步重訓AI模型? (y/N): ").strip().lower() == 'y')
+    optimize_after = (input("回測後優化AI模型? (y/N): ").strip().lower() == 'y')
+
+    ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+    logs_dir = os.path.join(os.path.dirname(__file__), 'logs')
+    os.makedirs(logs_dir, exist_ok=True)
+    log_path = os.path.join(logs_dir, f'backtest_range_{stock_id}_{ts}.log')
+
+    # 準備 Tee 輸出
+    logf = open(log_path, 'w', encoding='utf-8')
+    tee = _TeeWriter(sys.stdout, logf)
+    def print2(*a):
+        msg = ' '.join(str(x) for x in a)
+        msg = _ascii_safe(msg)
+        tee.write(msg + ('' if msg.endswith('\n') else '\n'))
+        tee.flush()
+
+    print2('=== RANGE BACKTEST (EPS) ===')
+    print2('stock=', stock_id, 'range=', start_q, '->', end_q,
+           'retrain_per_step=', retrain, 'optimize_after=', optimize_after)
+
+    engine = BacktestEngine(predictor.db_manager)
+    res = engine.run_comprehensive_backtest_by_range(
+        stock_id=stock_id,
+        start_quarter=start_q,
+        end_quarter=end_q,
+        prediction_types=['eps'],
+        retrain_ai_per_step=retrain,
+        optimize_after=optimize_after
+    )
+
+    eps = res.get('results', {}).get('eps', {})
+    ok = eps.get('success', False)
+    data = eps.get('backtest_results', [])
+    stats = eps.get('statistics', {}) if isinstance(eps, dict) else {}
+    op = stats.get('operating_only', {}) if isinstance(stats, dict) else {}
+    ov = stats.get('overall', {}) if isinstance(stats, dict) else {}
+    ab = stats.get('abnormal_only', {}) if isinstance(stats, dict) else {}
+
+    print2('success=', ok)
+    print2('periods_tested=', len(data))
+
+    print2('\n--- 全部回測資料列 ---')
+    for i, row in enumerate(data):
+        pred = row.get('prediction', {}).get('predicted_eps')
+        act = row.get('actual', {}).get('actual_eps')
+        tq = row.get('target_quarter')
+        abn = row.get('abnormal', {})
+        mark = '[ALERT]' if abn.get('is_abnormal') else ''
+        print2(f"{i+1:02d} {tq} pred={pred} actual={act} {mark}")
+
+    print2('\n--- EPS SPLIT STATS ---')
+    print2(f"operating_only: periods={op.get('total_periods',0)} avg_mape={op.get('avg_eps_mape',0):.1f}% dir_acc={op.get('direction_accuracy',0):.1%}")
+    print2(f"overall       : periods={ov.get('total_periods',0)} avg_mape={ov.get('avg_eps_mape',0):.1f}% dir_acc={ov.get('direction_accuracy',0):.1%}")
+    print2(f"abnormal_only : periods={ab.get('total_periods',0)} avg_mape={ab.get('avg_eps_mape',0):.1f}%")
+
+    print2('\n--- ABNORMAL QUARTERS ---')
+    cnt_ab = 0
+    for row in data:
+        abn = row.get('abnormal', {})
+        if abn.get('is_abnormal'):
+            cnt_ab += 1
+            tq = row.get('target_quarter')
+            reason = abn.get('reason') or 'N/A'
+            nm = abn.get('net_margin')
+            pm = abn.get('prev_net_margin')
+            print2(f"- {tq}: {reason} | net_margin={nm} prev={pm}")
+    print2('abnormal_count=', cnt_ab)
+
+    # 簡單驗證
+    print2('\n--- VALIDATION ---')
+    if not ok or len(data) == 0:
+        print2('[X] backtest failed or no rows')
+    else:
+        print2('[OK] backtest produced rows')
+
+    print2('\nlog_path=', log_path)
+    logf.close()
+    print(_ascii_safe('已將輸出寫入: ' + log_path))
+
     input("按 Enter 鍵返回主選單...")
 
 def run_interactive_menu():
@@ -798,6 +913,9 @@ def run_interactive_menu():
                 print(f"\n🔍 正在執行股票 {stock_id} 的回測驗證...")
                 result = run_backtest_analysis(predictor, stock_id)
                 display_backtest_result(result)
+
+            elif choice == '11':  # 區間滾動回測 (EPS)
+                run_range_backtest_interactive(predictor)
 
         except Exception as e:
             print(f"❌ 操作失敗: {e}")
@@ -1184,7 +1302,7 @@ def main():
                 print("🎉 所有測試通過！系統運作正常。")
             else:
                 print("⚠️  部分測試失敗，請檢查系統狀態。")
-                
+
         elif args.stock:
             model_type_name = "專用模型" if args.model_type == 'specific' else "通用模型"
             print(f"\n📊 正在使用{model_type_name}預測股票 {args.stock}...")
@@ -1242,7 +1360,7 @@ def main():
                     print(f"🕒 預測時間: {prediction_date}")
             else:
                 print(f"❌ 預測失敗: {result['error']}")
-                
+
         elif args.batch:
             print(f"\n📦 從檔案批量預測: {args.batch}")
             # TODO: 實作批量預測檔案讀取
@@ -1256,11 +1374,11 @@ def main():
             print("  test - 執行2385測試")
             print("  train - 訓練AI模型")
             print("  quit - 離開")
-            
+
             while True:
                 try:
                     command = input("\n> ").strip().lower()
-                    
+
                     if command == 'quit':
                         print("👋 再見！")
                         break
@@ -1287,7 +1405,7 @@ def main():
                             print(f"❌ 失敗: {result['error']}")
                     else:
                         print("❓ 未知指令。輸入 'quit' 離開。")
-                        
+
                 except KeyboardInterrupt:
                     print("\n👋 再見！")
                     break

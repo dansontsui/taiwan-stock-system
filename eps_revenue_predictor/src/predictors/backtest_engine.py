@@ -84,6 +84,157 @@ class BacktestEngine:
         results['end_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         logger.info(f"Comprehensive backtest completed for {stock_id}")
+    @log_execution
+    def run_comprehensive_backtest_by_range(self, stock_id: str,
+                                            start_month: Optional[str] = None,
+                                            end_month: Optional[str] = None,
+                                            start_quarter: Optional[str] = None,
+                                            end_quarter: Optional[str] = None,
+                                            prediction_types: List[str] = None,
+                                            retrain_ai_per_step: bool = False,
+                                            optimize_after: bool = False) -> Dict:
+        """以日期/季度區間執行滾動回測
+        Args:
+            stock_id: 股票代碼
+            start_month: 起始月份 YYYY-MM (用於營收)
+            end_month: 結束月份 YYYY-MM (用於營收)
+            start_quarter: 起始季度 YYYY-Qn (用於EPS)
+            end_quarter: 結束季度 YYYY-Qn (用於EPS)
+            prediction_types: ['revenue','eps']
+            retrain_ai_per_step: 是否在每一步回測前重訓AI調整模型
+            optimize_after: 回測完是否基於結果呼叫一次整體優化
+        """
+        if prediction_types is None:
+            prediction_types = ['revenue', 'eps']
+
+        logger.info(f"Starting range backtest for {stock_id}")
+        results = {
+            'stock_id': stock_id,
+            'mode': 'range',
+            'range': {
+                'start_month': start_month,
+                'end_month': end_month,
+                'start_quarter': start_quarter,
+                'end_quarter': end_quarter
+            },
+            'results': {}
+        }
+
+        # revenue by month range
+        if 'revenue' in prediction_types and start_month and end_month:
+            monthly_data = self.db_manager.get_monthly_revenue_data(stock_id)
+            if not monthly_data.empty:
+                self.current_stock_id = stock_id
+                backtest_results = []
+
+                # iterate months from start to end-1 as backtest points, predict next month
+                sm_y, sm_m = [int(x) for x in start_month.split('-')]
+                em_y, em_m = [int(x) for x in end_month.split('-')]
+
+                def month_iter(y0, m0, y1, m1):
+                    y, m = y0, m0
+                    while (y < y1) or (y == y1 and m < m1):
+                        yield y, m
+                        m += 1
+                        if m > 12:
+                            m = 1
+                            y += 1
+
+                for y, m in month_iter(sm_y, sm_m, em_y, em_m):
+                    backtest_date = datetime(y, m, 1)
+                    target_date = backtest_date + timedelta(days=30)
+                    train_data = monthly_data[monthly_data['date'] <= backtest_date]
+                    if len(train_data) < 6:
+                        continue
+                    if retrain_ai_per_step:
+                        try:
+                            self.ai_model.train_model(retrain=True)
+                        except Exception:
+                            pass
+                    pred = self._simulate_revenue_prediction(stock_id, train_data, backtest_date)
+                    actual = self._get_actual_revenue_result(monthly_data, target_date)
+                    if pred and actual:
+                        acc = self._calculate_revenue_accuracy(pred, actual)
+                        backtest_results.append({
+                            'backtest_date': backtest_date.strftime('%Y-%m-%d'),
+                            'target_date': target_date.strftime('%Y-%m-%d'),
+                            'target_month': target_date.strftime('%Y-%m'),
+                            'prediction': pred,
+                            'actual': actual,
+                            'accuracy': acc
+                        })
+                results['results']['revenue'] = {
+                    'success': True,
+                    'periods_tested': len(backtest_results),
+                    'backtest_results': backtest_results,
+                    'statistics': self._calculate_revenue_statistics(backtest_results)
+                }
+            else:
+                results['results']['revenue'] = {'success': False, 'error': 'no revenue data'}
+
+        # eps by quarter range
+        if 'eps' in prediction_types and start_quarter and end_quarter:
+            q_data = self.db_manager.get_quarterly_financial_data(stock_id)
+            if not q_data.empty:
+                backtest_results = []
+
+                def q_to_tuple(qs: str) -> Tuple[int, int]:
+                    y, qn = qs.split('-Q')
+                    return int(y), int(qn)
+
+                def q_iter(y0, q0, y1, q1):
+                    y, qn = y0, q0
+                    while (y < y1) or (y == y1 and qn < q1):
+                        yield y, qn
+                        qn += 1
+                        if qn > 4:
+                            qn = 1
+                            y += 1
+
+                sy, sq = q_to_tuple(start_quarter)
+                ey, eq = q_to_tuple(end_quarter)
+
+                for y, qn in q_iter(sy, sq, ey, eq):
+                    back_q = f"{y}-Q{qn}"
+                    back_date = self.db_manager._quarter_to_date(back_q)
+                    if back_date is None:
+                        continue
+                    train = q_data[q_data['date'] <= back_date]
+                    if len(train) < 4:
+                        continue
+                    if retrain_ai_per_step:
+                        try:
+                            self.ai_model.train_model(retrain=True)
+                        except Exception:
+                            pass
+                    pred = self._simulate_eps_prediction(stock_id, train, back_q)
+                    tgt_q = self._get_next_quarter(back_q)
+                    actual = self._get_actual_eps_result(q_data, tgt_q)
+                    if pred and actual:
+                        acc = self._calculate_eps_accuracy(pred, actual)
+                        abnormal_info = self._detect_eps_abnormal_quarter(stock_id, tgt_q, q_data, pred, actual)
+                        backtest_results.append({
+                            'backtest_quarter': back_q,
+                            'target_quarter': tgt_q,
+                            'prediction': pred,
+                            'actual': actual,
+                            'accuracy': acc,
+                            'abnormal': abnormal_info
+                        })
+                results['results']['eps'] = {
+                    'success': True,
+                    'periods_tested': len(backtest_results),
+                    'backtest_results': backtest_results,
+                    'statistics': self._calculate_eps_statistics(backtest_results)
+                }
+            else:
+                results['results']['eps'] = {'success': False, 'error': 'no eps data'}
+
+        # 整體統計與建議
+        results['overall_statistics'] = self._calculate_overall_statistics(results['results'])
+        if optimize_after:
+            results['optimization'] = self.optimize_ai_model(stock_id, results)
+        logger.info(f"Range backtest completed for {stock_id}")
         return results
 
     def _run_revenue_backtest(self, stock_id: str, periods: int) -> Dict:
