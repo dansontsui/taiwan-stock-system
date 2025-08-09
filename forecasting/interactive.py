@@ -198,6 +198,10 @@ def generate_html_template(stock_id: str, models_data: Dict) -> str:
                 <div class="stat-card">
                     <div class="stat-value">{data['mape']:.2f}%</div>
                     <div class="stat-label">{model_name} MAPE</div>
+                </div>
+                <div class=\"stat-card\">
+                    <div class=\"stat-value\">{(data.get('trend_accuracy', 0) or 0) * 100:.1f}%</div>
+                    <div class=\"stat-label\">{model_name} 趨勢準確率</div>
                 </div>"""
 
     html += """
@@ -362,7 +366,7 @@ def generate_model_tab(model_name: str, data: Dict, stock_id: str) -> str:
                     <div class="stat-label">MAPE</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">{data.get('trend_accuracy', 0):.1f}%</div>
+                    <div class="stat-value">{(data.get('trend_accuracy', 0) or 0) * 100:.1f}%</div>
                     <div class="stat-label">趨勢準確率</div>
                 </div>
             </div>
