@@ -69,7 +69,18 @@ def tune_prophet_params(df: pd.DataFrame, param_grid: Dict = None) -> Dict:
             
             # 訓練模型
             model = Prophet(**params)
-            model.fit(train_data)
+            # 處理 macOS 權限問題
+            try:
+                model.fit(train_data)
+            except Exception as fit_e:
+                if "Operation not permitted" in str(fit_e):
+                    # 使用更保守的設定重試
+                    import logging
+                    logging.getLogger('cmdstanpy').setLevel(logging.WARNING)
+                    model = Prophet(uncertainty_samples=0, **params)
+                    model.fit(train_data)
+                else:
+                    raise fit_e
             
             # 預測
             future = model.make_future_dataframe(periods=len(test_data), freq='MS')

@@ -47,7 +47,18 @@ def train_prophet(df: pd.DataFrame, stock_id: Optional[str] = None) -> Tuple[obj
             'changepoint_prior_scale','seasonality_prior_scale','holidays_prior_scale','seasonality_mode','yearly_seasonality','weekly_seasonality','daily_seasonality'
         }})
     model = Prophet(**kwargs)
-    model.fit(data)
+    # 設定更穩定的優化器，避免 macOS 權限問題
+    try:
+        model.fit(data)
+    except Exception as e:
+        # 如果遇到權限問題，使用更保守的設定重試
+        if "Operation not permitted" in str(e):
+            import logging
+            logging.getLogger('cmdstanpy').setLevel(logging.WARNING)
+            model = Prophet(uncertainty_samples=0, **kwargs)  # 關閉不確定性採樣
+            model.fit(data)
+        else:
+            raise e
     future = model.make_future_dataframe(periods=1, freq="MS")
     forecast = model.predict(future)
     pred = forecast[["ds", "yhat", "yhat_lower", "yhat_upper"]].tail(1)

@@ -18,12 +18,12 @@ if __name__ == "__main__":
     sys.path.insert(0, project_root)
     # 切換到專案根目錄以確保資料庫路徑正確
     os.chdir(project_root)
-    from forecasting.config import cfg, ensure_dirs
+    from forecasting.config import cfg, ensure_dirs, setup_prophet_logging
     from forecasting.db import latest_month_in_db, fetch_schema_overview
     from forecasting.cli import run_forecast, run_roll_check
 else:
     # 當作為模組導入時，使用相對導入
-    from .config import cfg, ensure_dirs
+    from .config import cfg, ensure_dirs, setup_prophet_logging
     from .db import latest_month_in_db, fetch_schema_overview
     from .cli import run_forecast, run_roll_check
 
@@ -418,7 +418,9 @@ def handle_system_status():
 def main():
     """主程式入口"""
     _safe_setup_stdout()
-    
+    ensure_dirs()
+    setup_prophet_logging()  # 設定 Prophet 穩定模式
+
     while True:
         show_main_menu()
         choice = input("🎯 請選擇功能 (1-10, q): ").strip().lower()

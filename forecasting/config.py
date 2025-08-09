@@ -28,6 +28,8 @@ class Config:
     enable_prophet: bool = _env_bool("TS_ENABLE_PROPHET", True)
     enable_lstm: bool = _env_bool("TS_ENABLE_LSTM", False)
     enable_xgboost: bool = _env_bool("TS_ENABLE_XGBOOST", True)
+    # Prophet 穩定性設定
+    prophet_stable_mode: bool = _env_bool("TS_PROPHET_STABLE", True)
 
 
 cfg = Config()
@@ -35,4 +37,12 @@ cfg = Config()
 
 def ensure_dirs():
     os.makedirs(cfg.output_dir, exist_ok=True)
+
+
+def setup_prophet_logging():
+    """設定 Prophet 日誌等級，減少 cmdstanpy 錯誤訊息"""
+    if cfg.prophet_stable_mode:
+        import logging
+        logging.getLogger('cmdstanpy').setLevel(logging.WARNING)
+        logging.getLogger('prophet').setLevel(logging.WARNING)
 
