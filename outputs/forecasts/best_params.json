@@ -1,0 +1,39 @@
+﻿{
+  "9999": {
+    "XGBoost": {
+      "n_estimators": 50,
+      "max_depth": 3
+    }
+  },
+  "2330": {
+    "XGBoost": {
+      "n_estimators": 100,
+      "max_depth": 3,
+      "learning_rate": 0.1,
+      "subsample": 1.0,
+      "colsample_bytree": 1.0,
+      "random_state": 42,
+      "objective": "reg:squarederror"
+    }
+  },
+  "2385": {
+    "Prophet": {
+      "changepoint_prior_scale": 0.5,
+      "seasonality_prior_scale": 10.0,
+      "holidays_prior_scale": 0.01,
+      "seasonality_mode": "multiplicative",
+      "yearly_seasonality": true,
+      "weekly_seasonality": false,
+      "daily_seasonality": false
+    },
+    "XGBoost": {
+      "n_estimators": 100,
+      "max_depth": 4,
+      "learning_rate": 0.05,
+      "subsample": 0.8,
+      "colsample_bytree": 0.9,
+      "random_state": 42,
+      "objective": "reg:squarederror"
+    }
+  }
+}

@@ -1,0 +1,326 @@
+﻿<!DOCTYPE html>
+<html lang='zh-Hant'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>2385 互動式回測分析</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .tabs {
+            display: flex;
+            background: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #e9ecef;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .tab:hover {
+            background: #dee2e6;
+        }
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+            color: #667eea;
+        }
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .chart-container {
+            margin-bottom: 30px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .model-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #dee2e6;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        tr:hover {
+            background: #f1f7ff;
+        }
+        .num {
+            font-variant-numeric: tabular-nums;
+        }
+        .error-positive {
+            color: #dc3545;
+        }
+        .error-negative {
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>2385 互動式回測分析</h1>
+            <p>所有模型的預測表現與詳細歷史</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('overview')">📊 總覽</button>
+            <button class="tab" onclick="showTab('prophet')">📐 Prophet</button>
+        </div>
+
+        <!-- 總覽頁面 -->
+        <div id="overview" class="tab-content active">
+            <h2>📈 所有模型預測對比</h2>
+            <div class="chart-container">
+                <div id="comparison-chart" style="height: 600px;"></div>
+            </div>
+
+            <div class="model-stats">
+                <div class="stat-card">
+                    <div class="stat-value">0.00%</div>
+                    <div class="stat-label">Prophet MAPE</div>
+                </div>
+            </div>
+        </div>
+        <div id="prophet" class="tab-content">
+            <h2>📐 Prophet 詳細分析</h2>
+            <div class="model-stats">
+                <div class="stat-card">
+                    <div class="stat-value">0.00%</div>
+                    <div class="stat-label">MAPE</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">0.0%</div>
+                    <div class="stat-label">趨勢準確率</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div id="prophet-chart" style="height: 500px;"></div>
+            </div>
+            <h3>詳細回測歷史</h3>
+            <div style="max-height: 400px; overflow: auto; border: 1px solid #eee;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>期數</th>
+                            <th>回測年月</th>
+                            <th>預測數據</th>
+                            <th>實際數據</th>
+                            <th>誤差(%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prophet-tbody"></tbody>
+                </table>
+            </div>
+            <script>
+                (function() {
+                    const rows = [{"period": 1, "test_date": "2012-12", "predicted": 1863645222.3338785, "actual": 3586626000.0, "error_pct": 48.03904219916216}, {"period": 2, "test_date": "2013-01", "predicted": 2545490089.494426, "actual": 5873901000.0, "error_pct": 56.66440259217127}, {"period": 3, "test_date": "2013-02", "predicted": 3768591235.96524, "actual": 4721884000.0, "error_pct": 20.18882217425841}, {"period": 4, "test_date": "2013-03", "predicted": 5417997770.634748, "actual": 6597561000.0, "error_pct": 17.87877716273107}, {"period": 5, "test_date": "2013-04", "predicted": 6929246703.604863, "actual": 5754994000.0, "error_pct": 20.404064775825365}, {"period": 6, "test_date": "2013-05", "predicted": 5436148859.062051, "actual": 5941991000.0, "error_pct": 8.513007524547735}, {"period": 7, "test_date": "2013-06", "predicted": 4994458803.614349, "actual": 6131932000.0, "error_pct": 18.549996907755183}, {"period": 8, "test_date": "2013-07", "predicted": 6382155012.222345, "actual": 5700106000.0, "error_pct": 11.965549627012994}, {"period": 9, "test_date": "2013-08", "predicted": 5810787413.771442, "actual": 6083585000.0, "error_pct": 4.484158374191494}, {"period": 10, "test_date": "2013-09", "predicted": 6848396320.838441, "actual": 6682871000.0, "error_pct": 2.4768594341928925}, {"period": 11, "test_date": "2013-10", "predicted": 6698082494.835608, "actual": 6512235000.0, "error_pct": 2.8538204600357253}, {"period": 12, "test_date": "2013-11", "predicted": 7180161091.275101, "actual": 7414867000.0, "error_pct": 3.1653421258250387}, {"period": 13, "test_date": "2013-12", "predicted": 8799892559.76737, "actual": 7112682000.0, "error_pct": 23.72115834459308}, {"period": 14, "test_date": "2014-01", "predicted": 7902388144.753376, "actual": 5648668000.0, "error_pct": 39.89825822217514}, {"period": 15, "test_date": "2014-02", "predicted": 4982236860.92507, "actual": 4932419000.0, "error_pct": 1.0100086980661984}, {"period": 16, "test_date": "2014-03", "predicted": 6735763025.562826, "actual": 6374006000.0, "error_pct": 5.675504942462027}, {"period": 17, "test_date": "2014-04", "predicted": 5265426472.318866, "actual": 6219679000.0, "error_pct": 15.34247229931214}, {"period": 18, "test_date": "2014-05", "predicted": 5948468127.262774, "actual": 6343006000.0, "error_pct": 6.220045712351928}, {"period": 19, "test_date": "2014-06", "predicted": 5856076520.933838, "actual": 6415313000.0, "error_pct": 8.717212691978741}, {"period": 20, "test_date": "2014-07", "predicted": 5582337554.344362, "actual": 6050206000.0, "error_pct": 7.733099429269644}, {"period": 21, "test_date": "2014-08", "predicted": 5965327331.356978, "actual": 6078635000.0, "error_pct": 1.8640314584281108}, {"period": 22, "test_date": "2014-09", "predicted": 7432225566.235432, "actual": 7866553000.0, "error_pct": 5.521191222693959}, {"period": 23, "test_date": "2014-10", "predicted": 6909579670.597358, "actual": 7680950000.0, "error_pct": 10.042642243506888}, {"period": 24, "test_date": "2014-11", "predicted": 8669385393.437162, "actual": 8123197000.0, "error_pct": 6.72381075378527}, {"period": 25, "test_date": "2014-12", "predicted": 8290497700.283257, "actual": 8376832000.0, "error_pct": 1.0306318631762397}, {"period": 26, "test_date": "2015-01", "predicted": 5353885809.639743, "actual": 6668599000.0, "error_pct": 19.71498346744582}, {"period": 27, "test_date": "2015-02", "predicted": 5861137873.093569, "actual": 4898817000.0, "error_pct": 19.643944101067028}, {"period": 28, "test_date": "2015-03", "predicted": 7852091528.767696, "actual": 6438739000.0, "error_pct": 21.95076596159118}, {"period": 29, "test_date": "2015-04", "predicted": 7513733215.146615, "actual": 6253401000.0, "error_pct": 20.15434825220092}, {"period": 30, "test_date": "2015-05", "predicted": 7260918191.312119, "actual": 6806863000.0, "error_pct": 6.670549874620944}, {"period": 31, "test_date": "2015-06", "predicted": 6702724784.037333, "actual": 7198514000.0, "error_pct": 6.887382812100768}, {"period": 32, "test_date": "2015-07", "predicted": 6268681205.699273, "actual": 6723583000.0, "error_pct": 6.765764538055481}, {"period": 33, "test_date": "2015-08", "predicted": 5797267218.652814, "actual": 6793255000.0, "error_pct": 14.661421974402348}, {"period": 34, "test_date": "2015-09", "predicted": 8375776553.367681, "actual": 7517760000.0, "error_pct": 11.413194267543531}, {"period": 35, "test_date": "2015-10", "predicted": 7973062860.854235, "actual": 7036601000.0, "error_pct": 13.30844055040544}, {"period": 36, "test_date": "2015-11", "predicted": 9276924872.219238, "actual": 7360885000.0, "error_pct": 26.030020469267463}, {"period": 37, "test_date": "2015-12", "predicted": 9451471295.922812, "actual": 6976597000.0, "error_pct": 35.473946623587565}, {"period": 38, "test_date": "2016-01", "predicted": 5839818435.490202, "actual": 5600811000.0, "error_pct": 4.267371912571267}, {"period": 39, "test_date": "2016-02", "predicted": 4845393233.9312725, "actual": 4592953000.0, "error_pct": 5.496251190275025}, {"period": 40, "test_date": "2016-03", "predicted": 6325289407.950112, "actual": 6431429000.0, "error_pct": 1.6503267322066009}, {"period": 41, "test_date": "2016-04", "predicted": 5719968158.935413, "actual": 5287804000.0, "error_pct": 8.172847536244031}, {"period": 42, "test_date": "2016-05", "predicted": 5757365827.320882, "actual": 6051631000.0, "error_pct": 4.862576265458323}, {"period": 43, "test_date": "2016-06", "predicted": 5988311005.740101, "actual": 6921863000.0, "error_pct": 13.487004788449283}, {"period": 44, "test_date": "2016-07", "predicted": 5965180876.621131, "actual": 6219894000.0, "error_pct": 4.09513608075747}, {"period": 45, "test_date": "2016-08", "predicted": 6317859891.937413, "actual": 7055487000.0, "error_pct": 10.45465902017234}, {"period": 46, "test_date": "2016-09", "predicted": 7158158943.359891, "actual": 7699548000.0, "error_pct": 7.031439464240097}, {"period": 47, "test_date": "2016-10", "predicted": 6607835506.480489, "actual": 6754613000.0, "error_pct": 2.172996343676702}, {"period": 48, "test_date": "2016-11", "predicted": 6712444766.884827, "actual": 7216573000.0, "error_pct": 6.985701289451009}, {"period": 49, "test_date": "2016-12", "predicted": 6501196202.113191, "actual": 7180789000.0, "error_pct": 9.464040760518229}, {"period": 50, "test_date": "2017-01", "predicted": 6897992953.722849, "actual": 5143902000.0, "error_pct": 34.100396036371784}, {"period": 51, "test_date": "2017-02", "predicted": 5271517099.511561, "actual": 5203731000.0, "error_pct": 1.3026441895547904}, {"period": 52, "test_date": "2017-03", "predicted": 6286695661.072108, "actual": 6594380000.0, "error_pct": 4.665856971055531}, {"period": 53, "test_date": "2017-04", "predicted": 5582215126.153584, "actual": 5405917000.0, "error_pct": 3.2612066769353567}, {"period": 54, "test_date": "2017-05", "predicted": 6013342986.765969, "actual": 6024573000.0, "error_pct": 0.1864034718150269}, {"period": 55, "test_date": "2017-06", "predicted": 6438560001.985395, "actual": 7239136000.0, "error_pct": 11.058999278568663}, {"period": 56, "test_date": "2017-07", "predicted": 6055112012.578808, "actual": 6159685000.0, "error_pct": 1.697700246379355}, {"period": 57, "test_date": "2017-08", "predicted": 6542013518.810254, "actual": 7144632000.0, "error_pct": 8.434562916462959}, {"period": 58, "test_date": "2017-09", "predicted": 7506566775.985219, "actual": 8204632000.0, "error_pct": 8.508184450134765}, {"period": 59, "test_date": "2017-10", "predicted": 7072712145.874272, "actual": 7258777000.0, "error_pct": 2.563308586635568}, {"period": 60, "test_date": "2017-11", "predicted": 7532242576.06053, "actual": 7168342000.0, "error_pct": 5.076495737236445}, {"period": 61, "test_date": "2017-12", "predicted": 7359019138.320467, "actual": 6608609000.0, "error_pct": 11.35503913638206}, {"period": 62, "test_date": "2018-01", "predicted": 6096424069.573335, "actual": 6296190000.0, "error_pct": 3.17280657709925}, {"period": 63, "test_date": "2018-02", "predicted": 5181464494.462571, "actual": 4645242000.0, "error_pct": 11.543478132303358}, {"period": 64, "test_date": "2018-03", "predicted": 6603060177.146901, "actual": 6632412000.0, "error_pct": 0.4425512596789655}, {"period": 65, "test_date": "2018-04", "predicted": 6055240768.050044, "actual": 6429137000.0, "error_pct": 5.815651959974658}, {"period": 66, "test_date": "2018-05", "predicted": 6474080034.063798, "actual": 7380200000.0, "error_pct": 12.277715589498955}, {"period": 67, "test_date": "2018-06", "predicted": 6974932519.521691, "actual": 7452135000.0, "error_pct": 6.40356730625933}, {"period": 68, "test_date": "2018-07", "predicted": 6542747444.600796, "actual": 7721252000.0, "error_pct": 15.26312773367848}, {"period": 69, "test_date": "2018-08", "predicted": 7008950275.84328, "actual": 8669740000.0, "error_pct": 19.15616528473426}, {"period": 70, "test_date": "2018-09", "predicted": 8436674404.214247, "actual": 8584290000.0, "error_pct": 1.7196016885001937}, {"period": 71, "test_date": "2018-10", "predicted": 8025940002.462766, "actual": 8239915000.0, "error_pct": 2.596810738184002}, {"period": 72, "test_date": "2018-11", "predicted": 8553776469.774823, "actual": 8165418000.0, "error_pct": 4.756137037624077}, {"period": 73, "test_date": "2018-12", "predicted": 8413436099.58482, "actual": 7044474000.0, "error_pct": 19.43313439136577}, {"period": 74, "test_date": "2019-01", "predicted": 6852845464.38188, "actual": 7128216000.0, "error_pct": 3.8631059386825566}, {"period": 75, "test_date": "2019-02", "predicted": 5519983803.302609, "actual": 4954893000.0, "error_pct": 11.404702448723098}, {"period": 76, "test_date": "2019-03", "predicted": 7581218794.822353, "actual": 7094332000.0, "error_pct": 6.863039322410529}, {"period": 77, "test_date": "2019-04", "predicted": 7326778896.442803, "actual": 6751644000.0, "error_pct": 8.518442270398193}, {"period": 78, "test_date": "2019-05", "predicted": 7790546466.194867, "actual": 7990153000.0, "error_pct": 2.49815659105818}, {"period": 79, "test_date": "2019-06", "predicted": 7743643298.745694, "actual": 7809262000.0, "error_pct": 0.8402676367409089}, {"period": 80, "test_date": "2019-07", "predicted": 7555185579.970597, "actual": 8009584000.0, "error_pct": 5.673183776203642}, {"period": 81, "test_date": "2019-08", "predicted": 7785619272.097273, "actual": 9042891000.0, "error_pct": 13.903426768084753}, {"period": 82, "test_date": "2019-09", "predicted": 8904674364.717257, "actual": 9133066000.0, "error_pct": 2.500711538521056}, {"period": 83, "test_date": "2019-10", "predicted": 8818822367.016314, "actual": 9280205000.0, "error_pct": 4.97168578693775}, {"period": 84, "test_date": "2019-11", "predicted": 9344162352.91483, "actual": 8260309000.0, "error_pct": 13.121220439996002}, {"period": 85, "test_date": "2019-12", "predicted": 8825675447.685041, "actual": 7097768000.0, "error_pct": 24.34437766471152}, {"period": 86, "test_date": "2020-01", "predicted": 7526941725.26217, "actual": 6228700000.0, "error_pct": 20.84290020810393}, {"period": 87, "test_date": "2020-02", "predicted": 5638474317.805259, "actual": 4280190000.0, "error_pct": 31.73420614050448}, {"period": 88, "test_date": "2020-03", "predicted": 7732182364.515371, "actual": 7601329000.0, "error_pct": 1.7214537683524989}, {"period": 89, "test_date": "2020-04", "predicted": 6699927490.390903, "actual": 8891424000.0, "error_pct": 24.64730632133949}, {"period": 90, "test_date": "2020-05", "predicted": 7512763098.482313, "actual": 8190663000.0, "error_pct": 8.276496072634009}, {"period": 91, "test_date": "2020-06", "predicted": 8945990912.309795, "actual": 8014033000.0, "error_pct": 11.629075052595809}, {"period": 92, "test_date": "2020-07", "predicted": 8079986514.371812, "actual": 8194616000.0, "error_pct": 1.3988390136668776}, {"period": 93, "test_date": "2020-08", "predicted": 9078418913.538012, "actual": 8569027000.0, "error_pct": 5.94457122772529}, {"period": 94, "test_date": "2020-09", "predicted": 9975600973.143097, "actual": 9657558000.0, "error_pct": 3.2932028277033907}, {"period": 95, "test_date": "2020-10", "predicted": 8596944376.37489, "actual": 8723786000.0, "error_pct": 1.453974497140469}, {"period": 96, "test_date": "2020-11", "predicted": 8935341380.138462, "actual": 8383006000.0, "error_pct": 6.588750862619711}, {"period": 97, "test_date": "2020-12", "predicted": 8576041989.906932, "actual": 8347896000.0, "error_pct": 2.732975948753217}, {"period": 98, "test_date": "2021-01", "predicted": 7570558676.153115, "actual": 9211314000.0, "error_pct": 17.812391628891216}, {"period": 99, "test_date": "2021-02", "predicted": 6346469017.0488615, "actual": 6832174000.0, "error_pct": 7.109083916058615}, {"period": 100, "test_date": "2021-03", "predicted": 8298652453.658918, "actual": 9093560000.0, "error_pct": 8.741434007595284}, {"period": 101, "test_date": "2021-04", "predicted": 8150218571.185486, "actual": 8004716000.0, "error_pct": 1.8177105994202147}, {"period": 102, "test_date": "2021-05", "predicted": 8582739588.705363, "actual": 8421571000.0, "error_pct": 1.913759187037232}, {"period": 103, "test_date": "2021-06", "predicted": 9077122613.35929, "actual": 8866488000.0, "error_pct": 2.37562621591874}, {"period": 104, "test_date": "2021-07", "predicted": 8709899136.784487, "actual": 8895088000.0, "error_pct": 2.081922778228987}, {"period": 105, "test_date": "2021-08", "predicted": 9431742904.393978, "actual": 8599800000.0, "error_pct": 9.673979678527154}, {"period": 106, "test_date": "2021-09", "predicted": 10305904697.24287, "actual": 9854024000.0, "error_pct": 4.585747885765961}, {"period": 107, "test_date": "2021-10", "predicted": 9461137403.936392, "actual": 9473418000.0, "error_pct": 0.1296321566683553}, {"period": 108, "test_date": "2021-11", "predicted": 9485917740.622862, "actual": 10317316000.0, "error_pct": 8.058280461479885}, {"period": 109, "test_date": "2021-12", "predicted": 9145095625.857258, "actual": 9994978000.0, "error_pct": 8.503093995231827}, {"period": 110, "test_date": "2022-01", "predicted": 8563813310.213044, "actual": 9928201000.0, "error_pct": 13.742547011154947}, {"period": 111, "test_date": "2022-02", "predicted": 6714494934.162128, "actual": 8313488000.0, "error_pct": 19.23372074197825}, {"period": 112, "test_date": "2022-03", "predicted": 9545178553.872622, "actual": 10603963000.0, "error_pct": 9.98479951436438}, {"period": 113, "test_date": "2022-04", "predicted": 8944643037.437702, "actual": 8060503000.0, "error_pct": 10.968794843667972}, {"period": 114, "test_date": "2022-05", "predicted": 9622687097.22045, "actual": 9863250000.0, "error_pct": 2.4389821081241028}, {"period": 115, "test_date": "2022-06", "predicted": 9843569934.478596, "actual": 10728048000.0, "error_pct": 8.244538666506752}, {"period": 116, "test_date": "2022-07", "predicted": 9597596355.799702, "actual": 10302508000.0, "error_pct": 6.842136343891199}, {"period": 117, "test_date": "2022-08", "predicted": 10345600514.578882, "actual": 10261684000.0, "error_pct": 0.8177655302860838}, {"period": 118, "test_date": "2022-09", "predicted": 11365813513.554518, "actual": 10096600000.0, "error_pct": 12.570702152749616}, {"period": 119, "test_date": "2022-10", "predicted": 10927609406.164907, "actual": 9392634000.0, "error_pct": 16.34233172680749}, {"period": 120, "test_date": "2022-11", "predicted": 10965933275.90607, "actual": 9643687000.0, "error_pct": 13.711003643171647}, {"period": 121, "test_date": "2022-12", "predicted": 10258587139.879547, "actual": 8565939000.0, "error_pct": 19.760217062946012}, {"period": 122, "test_date": "2023-01", "predicted": 9128116676.996012, "actual": 7088704000.0, "error_pct": 28.769894708482845}, {"period": 123, "test_date": "2023-02", "predicted": 7010734445.151617, "actual": 6863311000.0, "error_pct": 2.147993077271554}, {"period": 124, "test_date": "2023-03", "predicted": 10614985418.492596, "actual": 8769945000.0, "error_pct": 21.038221089101423}, {"period": 125, "test_date": "2023-04", "predicted": 8929460675.173128, "actual": 7873565000.0, "error_pct": 13.41064276694392}, {"period": 126, "test_date": "2023-05", "predicted": 10060453560.925426, "actual": 8453826000.0, "error_pct": 19.004738930342626}, {"period": 127, "test_date": "2023-06", "predicted": 9891807999.702026, "actual": 9035308000.0, "error_pct": 9.47947761937973}, {"period": 128, "test_date": "2023-07", "predicted": 9438623222.193148, "actual": 8022391000.0, "error_pct": 17.65349285759255}, {"period": 129, "test_date": "2023-08", "predicted": 9797920309.607704, "actual": 8645868000.0, "error_pct": 13.324888948197035}, {"period": 130, "test_date": "2023-09", "predicted": 10210679838.57368, "actual": 9140680000.0, "error_pct": 11.705910704386117}, {"period": 131, "test_date": "2023-10", "predicted": 10169025133.155628, "actual": 8238719000.0, "error_pct": 23.42968771183516}, {"period": 132, "test_date": "2023-11", "predicted": 10114599840.114096, "actual": 8219515000.0, "error_pct": 23.05592045411555}, {"period": 133, "test_date": "2023-12", "predicted": 9096035309.238651, "actual": 7970712000.0, "error_pct": 14.118228198919386}, {"period": 134, "test_date": "2024-01", "predicted": 7538697086.984827, "actual": 7695297000.0, "error_pct": 2.035008044720989}, {"period": 135, "test_date": "2024-02", "predicted": 5913128964.682325, "actual": 6640240000.0, "error_pct": 10.950071613641594}, {"period": 136, "test_date": "2024-03", "predicted": 8142075371.376471, "actual": 8510366000.0, "error_pct": 4.327553346395789}, {"period": 137, "test_date": "2024-04", "predicted": 7892478577.399889, "actual": 7762708000.0, "error_pct": 1.67171787731664}, {"period": 138, "test_date": "2024-05", "predicted": 8124911092.228272, "actual": 8549876000.0, "error_pct": 4.970421884150455}, {"period": 139, "test_date": "2024-06", "predicted": 8712425541.363897, "actual": 8361276000.0, "error_pct": 4.199712356868704}, {"period": 140, "test_date": "2024-07", "predicted": 8324065427.874222, "actual": 8380859000.0, "error_pct": 0.6776581269984163}, {"period": 141, "test_date": "2024-08", "predicted": 8606577703.699345, "actual": 9687161000.0, "error_pct": 11.154798565861096}, {"period": 142, "test_date": "2024-09", "predicted": 9481204587.888678, "actual": 9653109000.0, "error_pct": 1.7808191341392954}, {"period": 143, "test_date": "2024-10", "predicted": 8355254975.063017, "actual": 9287911000.0, "error_pct": 10.04161242433291}, {"period": 144, "test_date": "2024-11", "predicted": 8437233767.566122, "actual": 8632762000.0, "error_pct": 2.264955670431757}, {"period": 145, "test_date": "2024-12", "predicted": 8066935777.603913, "actual": 8316694000.0, "error_pct": 3.0030950086186494}, {"period": 146, "test_date": "2025-01", "predicted": 7876671410.226227, "actual": 7517508000.0, "error_pct": 4.7776924244873005}, {"period": 147, "test_date": "2025-02", "predicted": 6253918128.0554905, "actual": 7290720000.0, "error_pct": 14.220843372732864}, {"period": 148, "test_date": "2025-03", "predicted": 8021796558.42206, "actual": 8473057000.0, "error_pct": 5.325827993107328}, {"period": 149, "test_date": "2025-04", "predicted": 7386495496.288804, "actual": 8024350000.0, "error_pct": 7.948986568522011}, {"period": 150, "test_date": "2025-05", "predicted": 7962482833.161701, "actual": 8123837000.0, "error_pct": 1.9861817370080024}, {"period": 151, "test_date": "2025-06", "predicted": 8282937329.544584, "actual": 8346496000.0, "error_pct": 0.7615012390279193}, {"period": 152, "test_date": "2025-07", "predicted": 7963739792.757421, "actual": 8041213000.0, "error_pct": 0.9634517484187834}];
+                    const tbody = document.getElementById('prophet-tbody');
+                    rows.forEach(r => {
+                        const tr = document.createElement('tr');
+                        function td(v) { const d = document.createElement('td'); d.textContent = (typeof v==='number')? v.toLocaleString(): v; d.title = v; d.className='num'; return d; }
+                        tr.appendChild(td(r.period));
+                        tr.appendChild(td(r.test_date));
+                        tr.appendChild(td(r.predicted));
+                        tr.appendChild(td(r.actual));
+                        const e = td(r.error_pct);
+                        e.className += (r.error_pct>=0 ? ' error-positive' : ' error-negative');
+                        tr.appendChild(e);
+                        tbody.appendChild(tr);
+                    });
+                })()
+            </script>
+        </div>
+    
+    </div>
+
+    <script>
+        // 圖表數據
+        const chartData = {"periods": ["2012-12", "2013-01", "2013-02", "2013-03", "2013-04", "2013-05", "2013-06", "2013-07", "2013-08", "2013-09", "2013-10", "2013-11", "2013-12", "2014-01", "2014-02", "2014-03", "2014-04", "2014-05", "2014-06", "2014-07", "2014-08", "2014-09", "2014-10", "2014-11", "2014-12", "2015-01", "2015-02", "2015-03", "2015-04", "2015-05", "2015-06", "2015-07", "2015-08", "2015-09", "2015-10", "2015-11", "2015-12", "2016-01", "2016-02", "2016-03", "2016-04", "2016-05", "2016-06", "2016-07", "2016-08", "2016-09", "2016-10", "2016-11", "2016-12", "2017-01", "2017-02", "2017-03", "2017-04", "2017-05", "2017-06", "2017-07", "2017-08", "2017-09", "2017-10", "2017-11", "2017-12", "2018-01", "2018-02", "2018-03", "2018-04", "2018-05", "2018-06", "2018-07", "2018-08", "2018-09", "2018-10", "2018-11", "2018-12", "2019-01", "2019-02", "2019-03", "2019-04", "2019-05", "2019-06", "2019-07", "2019-08", "2019-09", "2019-10", "2019-11", "2019-12", "2020-01", "2020-02", "2020-03", "2020-04", "2020-05", "2020-06", "2020-07", "2020-08", "2020-09", "2020-10", "2020-11", "2020-12", "2021-01", "2021-02", "2021-03", "2021-04", "2021-05", "2021-06", "2021-07", "2021-08", "2021-09", "2021-10", "2021-11", "2021-12", "2022-01", "2022-02", "2022-03", "2022-04", "2022-05", "2022-06", "2022-07", "2022-08", "2022-09", "2022-10", "2022-11", "2022-12", "2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06", "2023-07", "2023-08", "2023-09", "2023-10", "2023-11", "2023-12", "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07"], "actual": [3586626000.0, 5873901000.0, 4721884000.0, 6597561000.0, 5754994000.0, 5941991000.0, 6131932000.0, 5700106000.0, 6083585000.0, 6682871000.0, 6512235000.0, 7414867000.0, 7112682000.0, 5648668000.0, 4932419000.0, 6374006000.0, 6219679000.0, 6343006000.0, 6415313000.0, 6050206000.0, 6078635000.0, 7866553000.0, 7680950000.0, 8123197000.0, 8376832000.0, 6668599000.0, 4898817000.0, 6438739000.0, 6253401000.0, 6806863000.0, 7198514000.0, 6723583000.0, 6793255000.0, 7517760000.0, 7036601000.0, 7360885000.0, 6976597000.0, 5600811000.0, 4592953000.0, 6431429000.0, 5287804000.0, 6051631000.0, 6921863000.0, 6219894000.0, 7055487000.0, 7699548000.0, 6754613000.0, 7216573000.0, 7180789000.0, 5143902000.0, 5203731000.0, 6594380000.0, 5405917000.0, 6024573000.0, 7239136000.0, 6159685000.0, 7144632000.0, 8204632000.0, 7258777000.0, 7168342000.0, 6608609000.0, 6296190000.0, 4645242000.0, 6632412000.0, 6429137000.0, 7380200000.0, 7452135000.0, 7721252000.0, 8669740000.0, 8584290000.0, 8239915000.0, 8165418000.0, 7044474000.0, 7128216000.0, 4954893000.0, 7094332000.0, 6751644000.0, 7990153000.0, 7809262000.0, 8009584000.0, 9042891000.0, 9133066000.0, 9280205000.0, 8260309000.0, 7097768000.0, 6228700000.0, 4280190000.0, 7601329000.0, 8891424000.0, 8190663000.0, 8014033000.0, 8194616000.0, 8569027000.0, 9657558000.0, 8723786000.0, 8383006000.0, 8347896000.0, 9211314000.0, 6832174000.0, 9093560000.0, 8004716000.0, 8421571000.0, 8866488000.0, 8895088000.0, 8599800000.0, 9854024000.0, 9473418000.0, 10317316000.0, 9994978000.0, 9928201000.0, 8313488000.0, 10603963000.0, 8060503000.0, 9863250000.0, 10728048000.0, 10302508000.0, 10261684000.0, 10096600000.0, 9392634000.0, 9643687000.0, 8565939000.0, 7088704000.0, 6863311000.0, 8769945000.0, 7873565000.0, 8453826000.0, 9035308000.0, 8022391000.0, 8645868000.0, 9140680000.0, 8238719000.0, 8219515000.0, 7970712000.0, 7695297000.0, 6640240000.0, 8510366000.0, 7762708000.0, 8549876000.0, 8361276000.0, 8380859000.0, 9687161000.0, 9653109000.0, 9287911000.0, 8632762000.0, 8316694000.0, 7517508000.0, 7290720000.0, 8473057000.0, 8024350000.0, 8123837000.0, 8346496000.0, 8041213000.0], "models": {"Prophet": {"predictions": [1863645222.3338785, 2545490089.494426, 3768591235.96524, 5417997770.634748, 6929246703.604863, 5436148859.062051, 4994458803.614349, 6382155012.222345, 5810787413.771442, 6848396320.838441, 6698082494.835608, 7180161091.275101, 8799892559.76737, 7902388144.753376, 4982236860.92507, 6735763025.562826, 5265426472.318866, 5948468127.262774, 5856076520.933838, 5582337554.344362, 5965327331.356978, 7432225566.235432, 6909579670.597358, 8669385393.437162, 8290497700.283257, 5353885809.639743, 5861137873.093569, 7852091528.767696, 7513733215.146615, 7260918191.312119, 6702724784.037333, 6268681205.699273, 5797267218.652814, 8375776553.367681, 7973062860.854235, 9276924872.219238, 9451471295.922812, 5839818435.490202, 4845393233.9312725, 6325289407.950112, 5719968158.935413, 5757365827.320882, 5988311005.740101, 5965180876.621131, 6317859891.937413, 7158158943.359891, 6607835506.480489, 6712444766.884827, 6501196202.113191, 6897992953.722849, 5271517099.511561, 6286695661.072108, 5582215126.153584, 6013342986.765969, 6438560001.985395, 6055112012.578808, 6542013518.810254, 7506566775.985219, 7072712145.874272, 7532242576.06053, 7359019138.320467, 6096424069.573335, 5181464494.462571, 6603060177.146901, 6055240768.050044, 6474080034.063798, 6974932519.521691, 6542747444.600796, 7008950275.84328, 8436674404.214247, 8025940002.462766, 8553776469.774823, 8413436099.58482, 6852845464.38188, 5519983803.302609, 7581218794.822353, 7326778896.442803, 7790546466.194867, 7743643298.745694, 7555185579.970597, 7785619272.097273, 8904674364.717257, 8818822367.016314, 9344162352.91483, 8825675447.685041, 7526941725.26217, 5638474317.805259, 7732182364.515371, 6699927490.390903, 7512763098.482313, 8945990912.309795, 8079986514.371812, 9078418913.538012, 9975600973.143097, 8596944376.37489, 8935341380.138462, 8576041989.906932, 7570558676.153115, 6346469017.0488615, 8298652453.658918, 8150218571.185486, 8582739588.705363, 9077122613.35929, 8709899136.784487, 9431742904.393978, 10305904697.24287, 9461137403.936392, 9485917740.622862, 9145095625.857258, 8563813310.213044, 6714494934.162128, 9545178553.872622, 8944643037.437702, 9622687097.22045, 9843569934.478596, 9597596355.799702, 10345600514.578882, 11365813513.554518, 10927609406.164907, 10965933275.90607, 10258587139.879547, 9128116676.996012, 7010734445.151617, 10614985418.492596, 8929460675.173128, 10060453560.925426, 9891807999.702026, 9438623222.193148, 9797920309.607704, 10210679838.57368, 10169025133.155628, 10114599840.114096, 9096035309.238651, 7538697086.984827, 5913128964.682325, 8142075371.376471, 7892478577.399889, 8124911092.228272, 8712425541.363897, 8324065427.874222, 8606577703.699345, 9481204587.888678, 8355254975.063017, 8437233767.566122, 8066935777.603913, 7876671410.226227, 6253918128.0554905, 8021796558.42206, 7386495496.288804, 7962482833.161701, 8282937329.544584, 7963739792.757421]}}};
+
+        // 初始化圖表
+        initializeCharts();
+
+        function showTab(tabName) {
+            // 隱藏所有內容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 顯示選中的內容
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // 重新渲染圖表（Plotly需要）
+            setTimeout(() => {
+                Plotly.Plots.resize();
+            }, 100);
+        }
+
+        function initializeCharts() {
+            // 總覽對比圖
+            createComparisonChart();
+
+            // 各模型詳細圖
+            createModelChart('Prophet');
+        }
+
+        function createComparisonChart() {
+            const traces = [];
+
+            // 實際值（只需要一條線）
+            if (chartData.actual && chartData.actual.length > 0) {
+                traces.push({
+                    x: chartData.periods,
+                    y: chartData.actual,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: '實際值',
+                    line: { color: '#2E86AB', width: 3 },
+                    marker: { size: 6 }
+                });
+            }
+
+            // 各模型預測值
+            const colors = ['#A23B72', '#F18F01', '#C73E1D', '#7209B7'];
+            let colorIndex = 0;
+
+            Object.keys(chartData.models).forEach(modelName => {
+                const modelData = chartData.models[modelName];
+                traces.push({
+                    x: chartData.periods,
+                    y: modelData.predictions,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: `${modelName} 預測`,
+                    line: { color: colors[colorIndex % colors.length], width: 2, dash: 'dot' },
+                    marker: { size: 4 }
+                });
+                colorIndex++;
+            });
+
+            const layout = {
+                title: '所有模型預測對比',
+                xaxis: { title: '回測期數' },
+                yaxis: {
+                    title: '營收 (億元)',
+                    tickformat: '.1f'
+                },
+                hovermode: 'x unified',
+                showlegend: true,
+                legend: { x: 0, y: 1 }
+            };
+
+            Plotly.newPlot('comparison-chart', traces, layout, {responsive: true});
+        }
+
+        
+        function createModelChart(modelName) {
+            const divId = modelName.toLowerCase() + '-chart';
+            const preds = chartData.models[modelName]?.predictions || [];
+            const traces = [];
+
+            if (chartData.actual && chartData.actual.length > 0) {
+                traces.push({
+                    x: chartData.periods,
+                    y: chartData.actual.map(v => v/1e8),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: '實際值',
+                    line: { color: '#2E86AB', width: 3 },
+                    marker: { size: 6 }
+                });
+            }
+
+            traces.push({
+                x: chartData.periods,
+                y: preds.map(v => v/1e8),
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: modelName + ' 預測',
+                line: { color: '#A23B72', width: 2, dash: 'dot' },
+                marker: { size: 4 }
+            });
+
+            const layout = {
+                title: modelName + ' 模型：預測 vs 實際',
+                xaxis: { title: '回測年月' },
+                yaxis: { title: '營收 (億元)' },
+                hovermode: 'x unified',
+                showlegend: true,
+                legend: { x: 0, y: 1 }
+            };
+            Plotly.newPlot(divId, traces, layout, {responsive: true});
+        }
+    
+    </script>
+</body>
+</html>
