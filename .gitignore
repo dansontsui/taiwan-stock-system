@@ -177,6 +177,9 @@ test*.json
 test*.txt
 test*.csv
 test*.log
+*.html
+*.csv
+*.png
 
 # 備份文件
 *.bak
@@ -186,3 +189,4 @@ test*.log
 # 進度管理備份文件
 data/progress/backups/
 data/test_progress/
+outputs/forecasts/2330_interactive_backtest.html

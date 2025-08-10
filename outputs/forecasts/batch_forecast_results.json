@@ -1,0 +1,86 @@
+﻿{
+  "2385": {
+    "最佳模型": "Prophet",
+    "CSV路徑": "outputs/forecasts/2385_forecast.csv",
+    "JSON路徑": "outputs/forecasts/2385_forecast.json",
+    "歷史對比圖": "outputs/forecasts/history_vs_forecast.png",
+    "誤差圖": "outputs/forecasts/errors.png",
+    "情境圖": "outputs/forecasts/scenarios.png",
+    "警告": [],
+    "預測摘要": [
+      {
+        "日期": "2025-08",
+        "情境": "conservative",
+        "預測值": "8,110,412,676",
+        "下界": "6,677,836,483",
+        "上界": "9,542,988,868",
+        "異常": 0
+      },
+      {
+        "日期": "2025-08",
+        "情境": "baseline",
+        "預測值": "8,475,865,786",
+        "下界": "7,043,289,594",
+        "上界": "9,908,441,978",
+        "異常": 0
+      },
+      {
+        "日期": "2025-08",
+        "情境": "optimistic",
+        "預測值": "8,841,318,896",
+        "下界": "7,408,742,704",
+        "上界": "10,273,895,088",
+        "異常": 0
+      }
+    ],
+    "best_model": "Prophet",
+    "csv": "outputs/forecasts/2385_forecast.csv",
+    "json": "outputs/forecasts/2385_forecast.json",
+    "history_plot": "outputs/forecasts/history_vs_forecast.png",
+    "error_plot": "outputs/forecasts/errors.png",
+    "scenarios_plot": "outputs/forecasts/scenarios.png",
+    "warnings": []
+  },
+  "8299": {
+    "最佳模型": "XGBoost",
+    "CSV路徑": "outputs/forecasts/8299_forecast.csv",
+    "JSON路徑": "outputs/forecasts/8299_forecast.json",
+    "歷史對比圖": "outputs/forecasts/history_vs_forecast.png",
+    "誤差圖": "outputs/forecasts/errors.png",
+    "情境圖": "outputs/forecasts/scenarios.png",
+    "警告": [],
+    "預測摘要": [
+      {
+        "日期": "2025-08",
+        "情境": "conservative",
+        "預測值": "5,288,521,739",
+        "下界": "3,624,264,144",
+        "上界": "6,952,779,334",
+        "異常": 0
+      },
+      {
+        "日期": "2025-08",
+        "情境": "baseline",
+        "預測值": "5,713,077,248",
+        "下界": "4,048,819,653",
+        "上界": "7,377,334,843",
+        "異常": 0
+      },
+      {
+        "日期": "2025-08",
+        "情境": "optimistic",
+        "預測值": "6,137,632,757",
+        "下界": "4,473,375,162",
+        "上界": "7,801,890,352",
+        "異常": 0
+      }
+    ],
+    "best_model": "XGBoost",
+    "csv": "outputs/forecasts/8299_forecast.csv",
+    "json": "outputs/forecasts/8299_forecast.json",
+    "history_plot": "outputs/forecasts/history_vs_forecast.png",
+    "error_plot": "outputs/forecasts/errors.png",
+    "scenarios_plot": "outputs/forecasts/scenarios.png",
+    "warnings": []
+  }
+}
