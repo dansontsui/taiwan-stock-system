@@ -23,7 +23,8 @@
       "yearly_seasonality": true,
       "weekly_seasonality": false,
       "daily_seasonality": false
-    }
+    },
+    "_preferred_model": "Prophet"
   },
   "2385": {
     "Prophet": {
