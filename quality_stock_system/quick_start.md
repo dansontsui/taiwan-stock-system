@@ -60,6 +60,9 @@ foreach ($y in $years) {
 - 一鍵回測（選單 10）：
   - 自動讀取 backtest_param_sweep.csv，依目標挑選最佳 sl/tp/tsl 後回測
   - 目標選項：annualized（年化最大）/ mdd（回撤最小）/ annualized_minus_half_mdd（年化 − 0.5×|MDD| 最大）
+- 報表說明：
+  - backtest_portfolio_report.csv 的「期末資金」是含息的（包含股票股利+現金股利的資產價值）
+  - 股票股利換算：1.2元 = 12%（假設面額10元），會調整持股數量
 - 單一標的診斷工具（處理股票股利/現金股利對停損的影響）：
   - 用於驗證除權價跳水是否會誤觸停損（資產價值法）
   - 基本用法（DB 在專案根 data/）：

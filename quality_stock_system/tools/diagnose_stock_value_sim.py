@@ -51,7 +51,7 @@ def diagnose(db_path: str, stock_id: str, year: int, sl_pct: float = 0.15, price
     cols = pd.read_sql_query("PRAGMA table_info(dividend_policies)", conn)
     available = set(cols['name'].tolist()) if not cols.empty else set()
     dcol2 = None
-    for c in ['ex_date','pay_date','announcement_date','record_date','date']:
+    for c in ['ex_date','pay_date','stock_ex_dividend_trading_date','cash_ex_dividend_trading_date','cash_dividend_payment_date','announcement_date','record_date','date']:
         if c in available:
             dcol2 = c
             break
@@ -76,6 +76,10 @@ def diagnose(db_path: str, stock_id: str, year: int, sl_pct: float = 0.15, price
                 ev['y'] = ev['dt'].dt.year
                 ev = ev[ev['y']==year]
                 ev = ev.dropna(subset=['dt'])
+                # 股票股利單位換算：元/股 → 比例（1.2元 = 12%）
+                if 'stock_ratio' in ev.columns:
+                    ev['stock_ratio'] = pd.to_numeric(ev['stock_ratio'], errors='coerce').fillna(0.0)
+                    ev['stock_ratio'] = ev['stock_ratio'] / 10.0  # 假設面額10元
                 ev = ev.sort_values('dt')
                 events = ev[['dt','cash_amt','stock_ratio']].values.tolist()
         elif 'year' in available:
@@ -87,6 +91,8 @@ def diagnose(db_path: str, stock_id: str, year: int, sl_pct: float = 0.15, price
             if not ev.empty:
                 cash_amt = float(ev['cash_amt'].sum()) if 'cash_amt' in ev.columns else 0.0
                 stock_ratio = float(ev['stock_ratio'].sum()) if 'stock_ratio' in ev.columns else 0.0
+                # 股票股利單位換算：元/股 → 比例
+                stock_ratio = stock_ratio / 10.0  # 假設面額10元
                 events = [[None, cash_amt, stock_ratio]]
 
     # 模擬

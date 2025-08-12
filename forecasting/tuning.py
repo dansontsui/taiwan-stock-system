@@ -23,32 +23,39 @@ def tune_prophet_params(df: pd.DataFrame, param_grid: Dict = None) -> Dict:
     """
     if not cfg.enable_prophet:
         return {"error": "Prophet 已停用"}
-    
+
     prophet = _safe_import("prophet")
     if prophet is None:
         return {"error": "Prophet 未安裝"}
+
+    try:
+        from prophet import Prophet
+        print("✅ Prophet 導入成功")
+    except Exception as e:
+        return {"error": f"Prophet 導入失敗: {e}"}
     
-    from prophet import Prophet
-    
-    # 預設參數網格
+    # 預設參數網格（減少組合數量以加快測試）
     if param_grid is None:
         param_grid = {
-            'changepoint_prior_scale': [0.001, 0.01, 0.1, 0.5],
-            'seasonality_prior_scale': [0.01, 0.1, 1.0, 10.0],
-            'holidays_prior_scale': [0.01, 0.1, 1.0, 10.0],
+            'changepoint_prior_scale': [0.01, 0.1, 0.5],
+            'seasonality_prior_scale': [0.1, 1.0, 10.0],
+            'holidays_prior_scale': [0.1, 1.0],
             'seasonality_mode': ['additive', 'multiplicative'],
             'yearly_seasonality': [True, False],
             'weekly_seasonality': [False],
-            'daily_seasonality': [False]
+            'daily_seasonality': [False],
+            'uncertainty_samples': [0]  # 避免 CmdStan 問題
         }
     
     # 準備資料
+    print(f"📊 原始資料: {len(df)} 筆")
     data = df[["date", "y"]].rename(columns={"date": "ds", "y": "y"}).copy()
     train_df, test_df = train_test_split_time(df)
-    
+
     if test_df.empty:
         return {"error": "測試資料不足"}
-    
+
+    print(f"📊 訓練資料: {len(train_df)} 筆, 測試資料: {len(test_df)} 筆")
     train_data = train_df[["date", "y"]].rename(columns={"date": "ds", "y": "y"})
     test_data = test_df[["date", "y"]].rename(columns={"date": "ds", "y": "y"})
     
@@ -68,16 +75,22 @@ def tune_prophet_params(df: pd.DataFrame, param_grid: Dict = None) -> Dict:
             params = dict(zip(param_names, param_combo))
             
             # 訓練模型
+            # 設定日誌等級避免過多輸出
+            import logging
+            logging.getLogger('cmdstanpy').setLevel(logging.WARNING)
+            logging.getLogger('prophet').setLevel(logging.WARNING)
+
             model = Prophet(**params)
-            # 處理 macOS 權限問題
+            # 處理 CmdStan 相關問題
             try:
                 model.fit(train_data)
             except Exception as fit_e:
-                if "Operation not permitted" in str(fit_e):
+                error_msg = str(fit_e).lower()
+                if any(keyword in error_msg for keyword in ["cmdstan", "operation not permitted", "permission"]):
                     # 使用更保守的設定重試
-                    import logging
-                    logging.getLogger('cmdstanpy').setLevel(logging.WARNING)
-                    model = Prophet(uncertainty_samples=0, **params)
+                    params_safe = params.copy()
+                    params_safe['uncertainty_samples'] = 0
+                    model = Prophet(**params_safe)
                     model.fit(train_data)
                 else:
                     raise fit_e
@@ -105,11 +118,11 @@ def tune_prophet_params(df: pd.DataFrame, param_grid: Dict = None) -> Dict:
                 best_mape = mape_score
                 best_params = params
             
-            if (i + 1) % 10 == 0:
-                print(f"   完成 {i + 1}/{len(param_combinations)} 組合")
-                
+            if (i + 1) % 5 == 0:  # 更頻繁的進度報告
+                print(f"   完成 {i + 1}/{len(param_combinations)} 組合, 目前最佳 MAPE: {best_mape:.2f}%")
+
         except Exception as e:
-            print(f"   參數組合 {i} 失敗: {e}")
+            print(f"   參數組合 {i+1} 失敗: {str(e)[:100]}...")  # 限制錯誤訊息長度
             continue
     
     return {

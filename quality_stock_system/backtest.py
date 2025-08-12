@@ -52,7 +52,7 @@ def _load_dividends(conn, stock_ids: List[str], year: int) -> pd.DataFrame:
         if not available:
             return pd.DataFrame({'stock_id': stock_ids, 'cash_div_ps': [0.0]*len(stock_ids)})
         date_col = None
-        for c in ['ex_date', 'pay_date', 'announcement_date', 'record_date', 'date']:
+        for c in ['ex_date', 'pay_date', 'stock_ex_dividend_trading_date', 'cash_ex_dividend_trading_date', 'cash_dividend_payment_date', 'announcement_date', 'record_date', 'date']:
             if c in available:
                 date_col = c
                 break
@@ -70,19 +70,54 @@ def _load_dividends(conn, stock_ids: List[str], year: int) -> pd.DataFrame:
             return pd.DataFrame({'stock_id': stock_ids, 'cash_div_ps': [0.0]*len(stock_ids), 'stock_ratio_total':[0.0]*len(stock_ids)})
         q_marks = ','.join(['?']*len(stock_ids))
         if date_col:
-            select_cols = [f"{'+'.join(cash_cols)} AS cash_amt"]
-            if stock_col:
-                select_cols.append(f"{stock_col} AS stock_ratio")
+            # 優先分拆「股票股利事件」與「現金股利事件」，使用各自的 ex 日期；若缺則退回單一日期欄位
+            cols_info = pd.read_sql_query("PRAGMA table_info(dividend_policies)", conn)
+            have_stock_dt = 'stock_ex_dividend_trading_date' in set(cols_info['name'].tolist())
+            have_cash_dt = 'cash_ex_dividend_trading_date' in set(cols_info['name'].tolist()) or 'cash_dividend_payment_date' in set(cols_info['name'].tolist())
+            frames = []
+            if have_stock_dt and stock_col:
+                dtc = 'stock_ex_dividend_trading_date'
+                df_s = pd.read_sql_query(
+                    f"SELECT stock_id, {dtc} AS dt, 0.0 AS cash_amt, {stock_col} AS stock_ratio FROM dividend_policies WHERE stock_id IN ({q_marks})",
+                    conn, params=stock_ids
+                )
+                if not df_s.empty:
+                    df_s['dt'] = pd.to_datetime(df_s['dt'], errors='coerce')
+                    df_s = df_s.dropna(subset=['dt'])
+                    # 股票股利單位換算：元/股 → 比例（1.2元 = 1200股 → 1.2/10 = 0.12 = 12%）
+                    df_s['stock_ratio'] = pd.to_numeric(df_s['stock_ratio'], errors='coerce').fillna(0.0)
+                    df_s['stock_ratio'] = df_s['stock_ratio'] / 10.0  # 假設面額10元
+                    frames.append(df_s[['stock_id','dt','cash_amt','stock_ratio']])
+            if have_cash_dt and cash_cols:
+                dtc = 'cash_ex_dividend_trading_date' if 'cash_ex_dividend_trading_date' in set(cols_info['name'].tolist()) else 'cash_dividend_payment_date'
+                df_c = pd.read_sql_query(
+                    f"SELECT stock_id, {dtc} AS dt, { '+'.join(cash_cols) } AS cash_amt, 0.0 AS stock_ratio FROM dividend_policies WHERE stock_id IN ({q_marks})",
+                    conn, params=stock_ids
+                )
+                if not df_c.empty:
+                    df_c['dt'] = pd.to_datetime(df_c['dt'], errors='coerce')
+                    df_c = df_c.dropna(subset=['dt'])
+                    frames.append(df_c[['stock_id','dt','cash_amt','stock_ratio']])
+            if frames:
+                df = pd.concat(frames, ignore_index=True)
             else:
-                select_cols.append("0.0 AS stock_ratio")
-            sel = ', '.join(select_cols)
-            df = pd.read_sql_query(
-                f"SELECT stock_id, {date_col} AS dt, {sel} FROM dividend_policies WHERE stock_id IN ({q_marks})",
-                conn, params=stock_ids
-            )
-            if df.empty:
-                return pd.DataFrame({'stock_id': stock_ids, 'cash_div_ps': [0.0]*len(stock_ids), 'stock_ratio_total':[0.0]*len(stock_ids)})
-            df['dt'] = pd.to_datetime(df['dt'], errors='coerce')
+                select_cols = [f"{'+'.join(cash_cols)} AS cash_amt"]
+                if stock_col:
+                    select_cols.append(f"{stock_col} AS stock_ratio")
+                else:
+                    select_cols.append("0.0 AS stock_ratio")
+                sel = ', '.join(select_cols)
+                df = pd.read_sql_query(
+                    f"SELECT stock_id, {date_col} AS dt, {sel} FROM dividend_policies WHERE stock_id IN ({q_marks})",
+                    conn, params=stock_ids
+                )
+                if df.empty:
+                    return pd.DataFrame({'stock_id': stock_ids, 'cash_div_ps': [0.0]*len(stock_ids), 'stock_ratio_total':[0.0]*len(stock_ids)})
+                df['dt'] = pd.to_datetime(df['dt'], errors='coerce')
+                # 股票股利單位換算：元/股 → 比例
+                if 'stock_ratio' in df.columns:
+                    df['stock_ratio'] = pd.to_numeric(df['stock_ratio'], errors='coerce').fillna(0.0)
+                    df['stock_ratio'] = df['stock_ratio'] / 10.0  # 假設面額10元
             df['year'] = df['dt'].dt.year
             df = df[df['year'] == int(year)][['stock_id','dt','cash_amt','stock_ratio']]
             return df
