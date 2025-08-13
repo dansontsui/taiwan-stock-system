@@ -185,10 +185,10 @@ def run_menu():
             mode = input("🔄 回測模式（static=靜態名單 / dynamic=年度再構成，預設 dynamic）: ").strip().lower() or 'dynamic'
             dynamic = (mode != 'static')
             db = input(f"🔌 資料庫路徑（預設 {DEFAULT_DB}）: ").strip() or DEFAULT_DB
-            # 範例預設網格（可按需擴大）：
+            # 擴大網格範圍（包含不停利/不移動停損）：
             sl_list = [0.10, 0.15, 0.20]
-            tp_list = [0.20, 0.30, 0.50]
-            tsl_list = [0.10, 0.15]
+            tp_list = [None, 0.20, 0.30, 0.50]  # None = 不停利
+            tsl_list = [None, 0.10, 0.15]       # None = 不移動停損
             log("🔎 開始參數網格掃描（含息）...")
             try:
                 out_csv = sweep_params(db, prof, dynamic, sl_list, tp_list, tsl_list)
@@ -206,7 +206,10 @@ def run_menu():
             obj = input("🎯 目標（annualized/mdd/annualized_minus_half_mdd，預設 annualized_minus_half_mdd）: ").strip() or 'annualized_minus_half_mdd'
             try:
                 sl, tp, tsl = pick_best_params(objective=obj)
-                log(f"🏆 最佳參數：停損={sl:.0%}、停利={tp:.0%}、移動停損={tsl:.0%}")
+                sl_str = f"{sl:.0%}" if sl is not None else "無"
+                tp_str = f"{tp:.0%}" if tp is not None else "無"
+                tsl_str = f"{tsl:.0%}" if tsl is not None else "無"
+                log(f"🏆 最佳參數：停損={sl_str}、停利={tp_str}、移動停損={tsl_str}")
                 res = run_equal_weight_backtest(db, profile=prof, dynamic=dynamic, include_dividends=True, sl_pct=sl, tp_pct=tp, tsl_pct=tsl)
                 log(f"📄 報告（投組匯總）: {res['report_csv']}")
                 log(f"📄 明細（成分股年度報酬）: {os.path.join(OUTPUT_DIR, 'backtest_portfolio_details.csv')}")

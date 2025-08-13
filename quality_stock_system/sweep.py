@@ -21,7 +21,11 @@ def sweep_params(db_path: str, profile: str, dynamic: bool, sl_list: List[float]
         res = run_equal_weight_backtest(db_path, profile=profile, dynamic=dynamic, include_dividends=True,
                                         sl_pct=c['sl'], tp_pct=c['tp'], tsl_pct=c['tsl'])
         s = res['summary']
-        rows.append([c['sl'], c['tp'], c['tsl'], s['annualized_return'], s['max_drawdown'], s['win_rate']])
+        # 處理 None 值的顯示
+        sl_display = c['sl'] if c['sl'] is not None else 'None'
+        tp_display = c['tp'] if c['tp'] is not None else 'None'
+        tsl_display = c['tsl'] if c['tsl'] is not None else 'None'
+        rows.append([sl_display, tp_display, tsl_display, s['annualized_return'], s['max_drawdown'], s['win_rate']])
     df = pd.DataFrame(rows, columns=['sl_pct','tp_pct','tsl_pct','年化報酬','最大回撤','勝率'])
     out_csv = os.path.join(OUTPUT_DIR, 'backtest_param_sweep.csv')
     df.to_csv(out_csv, index=False, encoding='utf-8-sig')

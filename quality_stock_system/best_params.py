@@ -20,5 +20,9 @@ def pick_best_params(csv_path: str|None=None, objective: str='annualized_minus_h
         df['score'] = df['年化報酬'] - 0.5 * (df['最大回撤'].abs())
         df = df.sort_values('score', ascending=False)
     row = df.iloc[0]
-    return float(row['sl_pct']), float(row['tp_pct']), float(row['tsl_pct'])
+    # 處理 None 值
+    sl = None if row['sl_pct'] == 'None' else float(row['sl_pct'])
+    tp = None if row['tp_pct'] == 'None' else float(row['tp_pct'])
+    tsl = None if row['tsl_pct'] == 'None' else float(row['tsl_pct'])
+    return sl, tp, tsl
 

@@ -55,7 +55,8 @@ foreach ($y in $years) {
 - 回測（選單 6）：
   - 預設含息、停損 15%，可另輸入停利%與移動停損%
 - 參數網格掃描（選單 9）：
-  - 預設掃描：sl=[10%,15%,20%]、tp=[20%,30%,50%]、tsl=[10%,15%]
+  - 擴大網格：sl=[10%,15%,20%]、tp=[無,20%,30%,50%]、tsl=[無,10%,15%]
+  - 總共 3×4×3 = 36 組參數組合（包含不停利/不移動停損）
   - 結果 CSV：quality_stock_system/data/backtest_param_sweep.csv
 - 一鍵回測（選單 10）：
   - 自動讀取 backtest_param_sweep.csv，依目標挑選最佳 sl/tp/tsl 後回測
