@@ -65,12 +65,15 @@ def run_menu():
             db = input(f"🔌 請輸入資料庫路徑（預設 {DEFAULT_DB}）: ").strip() or DEFAULT_DB
             log("📤 開始輸出清單 ...")
             try:
+                # 需求：選單 2 重新建立歷史檔案，避免累加
+                from .history import clear_history
+                clear_history()
                 res = export_quality_list(profile=prof, top_n=top_n, db_path=db, year=year_i, as_of_date=as_of_date or None)
                 if res:
                     log(f"📄 CSV: {res['csv']}")
                     log(f"🗂  JSON: {res['json']}")
                     log(f"📊 筆數: {res['count']}")
-                log("🎉 完成（已寫入清單歷史）")
+                log("🎉 完成（歷史檔案已重建並寫入）")
             except Exception as e:
                 log(f"❌ 匯出失敗: {e}")
         elif choice == '3':
@@ -121,11 +124,14 @@ def run_menu():
                 if sy > ey:
                     sy, ey = ey, sy
                 from .export import export_quality_list
+                # 需求：選單 8 開始前清空歷史檔，避免累加
+                from .history import clear_history
+                clear_history()
                 for y in range(sy, ey+1):
                     as_of = f"{y}-12-31"
                     log(f"➡️  匯出年度 {y}（as_of_date={as_of}）...")
                     export_quality_list(profile=prof, top_n=top_n, db_path=db, year=y, as_of_date=as_of)
-                log("🎉 批量匯出完成（已寫入歷史）")
+                log("🎉 批量匯出完成（歷史檔案已重建並寫入）")
             except Exception as e:
                 log(f"❌ 批量匯出失敗: {e}")
         elif choice == '6':
