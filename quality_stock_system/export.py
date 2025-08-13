@@ -213,7 +213,9 @@ def export_quality_list(profile: str = 'conservative', top_n: int = 100, db_path
             df_hist['rank'] = df_hist.index + 1
             # 年度鎖定（若未指定，嘗試以 df 的 year 欄位最大值當年度）
             hist_year = int(year if year is not None else (df_hist['year'].dropna().max() if 'year' in df_hist.columns else 0))
-            append_history(profile, hist_year, as_of_date or '', df_hist)
+            # 批量匯出時不清除（CLI已處理），單次匯出時清除重建
+            clear_first = (target_year is None)  # 單次匯出時清除，批量匯出時保留累積
+            append_history(profile, hist_year, as_of_date or '', df_hist, clear_first=clear_first)
     except Exception as e:
         log(f'⚠️ 寫入清單歷史失敗: {e}')
 

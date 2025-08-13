@@ -14,13 +14,32 @@ def ensure_history_dir():
     os.makedirs(HIST_DIR, exist_ok=True)
 
 
-def append_history(profile: str, year: int, as_of_date: str, df: pd.DataFrame) -> str:
+def clear_history():
+    """清除歷史檔案，重新開始記錄。"""
+    ensure_history_dir()
+    if os.path.exists(HIST_FILE):
+        try:
+            os.remove(HIST_FILE)
+            log(f'🗑️ 已清除歷史檔案: {HIST_FILE}')
+        except Exception as e:
+            log(f'⚠️ 清除歷史檔案失敗: {e}')
+
+
+def append_history(profile: str, year: int, as_of_date: str, df: pd.DataFrame, clear_first: bool = False) -> str:
     """將本次清單寫入歷史檔（CSV 追加）。
     若檔案被鎖定（Windows 常見），會改寫入 timestamp 後備檔，避免中斷流程。
     必要欄位：stock_id, score（若有）, rank（若有）。
     也會寫入指標欄位以利分析。
+
+    Args:
+        clear_first: 是否先清除歷史檔案（選單2/8使用）
     """
     ensure_history_dir()
+
+    # 若需要清除歷史檔案
+    if clear_first:
+        clear_history()
+
     # 準備 rows
     rows = []
     for i, r in df.reset_index(drop=True).iterrows():

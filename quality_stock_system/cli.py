@@ -44,6 +44,9 @@ def main():
         log('🎉 完成')
     elif args.cmd == 'bulk-export':
         log('📦 開始批量匯出年度清單 ...')
+        # 清除歷史檔案，重新開始記錄
+        from .history import clear_history
+        clear_history()
         prof = args.profile
         start_y, end_y = int(args.start_year), int(args.end_year)
         if start_y > end_y:
@@ -52,7 +55,7 @@ def main():
             as_of = f"{y}-12-31"
             log(f"➡️  匯出年度 {y}（as_of_date={as_of}）...")
             export_quality_list(profile=prof, top_n=args.top, db_path=args.db_path, year=y, as_of_date=as_of)
-        log('🎉 批量匯出完成')
+        log('🎉 批量匯出完成（歷史檔案已重建）')
     else:
         parser.print_help()
 

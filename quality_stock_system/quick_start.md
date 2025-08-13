@@ -36,8 +36,8 @@ python -c "from quality_stock_system.menu import run_menu; run_menu()"
 ```
 - 選單操作順序（建議）：
   1. 選 1 → 建立 marts（輸入資料庫路徑或使用預設）
-  2. 選 2 → 匯出清單（選擇 profile 與 Top N、輸入資料庫路徑）
-  3. 選 8 → 批量匯出年度清單（輸入起訖年，系統自動寫入歷史；reasons 會以追加模式累積多年度）
+  2. 選 2 → 匯出清單（選擇 profile 與 Top N、輸入資料庫路徑；會清除重建 quality_list_history.csv）
+  3. 選 8 → 批量匯出年度清單（輸入起訖年，系統自動寫入歷史；會清除重建 quality_list_history.csv）
   4. 選 6 → 年度等權重再平衡回測（預設含息、停損 15%；可輸入停利% 與 移動停損%）
   5. 選 9 → 參數網格掃描（輸出 backtest_param_sweep.csv，用來挑選最佳 sl/tp/tsl）
   6. 選 10 → 用掃描結果最佳參數一鍵回測（目標 annualized/mdd/annualized_minus_half_mdd）
