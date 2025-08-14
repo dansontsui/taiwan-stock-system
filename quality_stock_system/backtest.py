@@ -187,10 +187,19 @@ def _apply_stoploss_and_dividends(prices: pd.DataFrame,
             div_df['stock_id'] = div_df['stock_id'].astype(str)
     for sid, g in prices.groupby('stock_id'):
         g = g.sort_values('date').reset_index(drop=True)
-        entry_date = g['date'].iloc[0]
-        entry_p = float(g['close_price'].iloc[0])
-        exit_date = g['date'].iloc[-1]
-        exit_p = float(g['close_price'].iloc[-1])
+        # 修正價為0或缺值：先轉為數值，<=0 視為缺值，使用前值補齊，若序列開頭仍缺值則用後值補齊
+        g['close_price'] = pd.to_numeric(g['close_price'], errors='coerce')
+        g.loc[g['close_price'] <= 0, 'close_price'] = np.nan
+        g['close_price'] = g['close_price'].ffill().bfill()
+        if g['close_price'].isna().all():
+            # 全年無有效價格，跳過
+            continue
+        entry_pos = int(g['close_price'].first_valid_index())
+        exit_pos = int(g['close_price'].last_valid_index())
+        entry_date = g['date'].iloc[entry_pos]
+        entry_p = float(g['close_price'].iloc[entry_pos])
+        exit_date = g['date'].iloc[exit_pos]
+        exit_p = float(g['close_price'].iloc[exit_pos])
         exit_reason = '期末'
 
         # 若有日期型股利資料：以「資產價值」（price*shares+cash）做停損/停利/移動停損判斷
@@ -329,13 +338,12 @@ def run_equal_weight_backtest(db_path: str,
     """
     # 產業/公司資料（兩種模式都會用到）
     with get_conn(db_path) as conn:
-        # 嘗試讀取 stocks 基本欄位，若缺欄位則以空字串補上
+        # 直接讀取 stock_name 和 industry（你的 DB 有這些欄位）
         try:
             stocks_meta = pd.read_sql_query("SELECT stock_id, stock_name, industry FROM stocks", conn)
-        except Exception:
-            stocks_meta = pd.read_sql_query("SELECT stock_id FROM stocks", conn)
-            stocks_meta['stock_name'] = ''
-            stocks_meta['industry'] = ''
+        except Exception as e:
+            log(f"⚠️ 讀取 stocks 失敗: {e}")
+            stocks_meta = pd.DataFrame({'stock_id': [], 'stock_name': [], 'industry': []})
     # 統一股票代碼型別為字串，避免 int/str 合併錯誤
     if not stocks_meta.empty:
         stocks_meta['stock_id'] = stocks_meta['stock_id'].astype(str)
@@ -390,6 +398,10 @@ def run_equal_weight_backtest(db_path: str,
                         cap_end += cap_alloc * (1.0 + total_ret)
                 port_ret = (cap_end/cap_begin - 1.0) if cap_begin>0 and n>0 else np.nan
                 records.append([trading_year, port_ret, n, cap_begin, cap_end])
+                # 確保字串型別一致
+                perf_y['stock_id'] = perf_y['stock_id'].astype(str)
+                g['stock_id'] = g['stock_id'].astype(str)
+                stocks_meta['stock_id'] = stocks_meta['stock_id'].astype(str)
                 rep_y = perf_y.merge(g, on='stock_id', how='left').merge(stocks_meta, on='stock_id', how='left')
                 rep_y['selected'] = rep_y['rank'].notna()
                 rep_y['year'] = trading_year
@@ -420,7 +432,9 @@ def run_equal_weight_backtest(db_path: str,
         # 確保字串型別一致
         rep['stock_id'] = rep['stock_id'].astype(str)
         top_df['stock_id'] = top_df['stock_id'].astype(str)
+        stocks_meta['stock_id'] = stocks_meta['stock_id'].astype(str)
         rep = rep.merge(top_df, on='stock_id', how='left')
+        rep = rep.merge(stocks_meta, on='stock_id', how='left')
         rep['selected'] = rep['rank'].notna()
         # 投組資金模擬：每年以 initial_capital 等資金分配到該年所有清單股
         years_sorted = sorted(pd.to_datetime(prices['date']).dt.year.unique())
@@ -439,7 +453,11 @@ def run_equal_weight_backtest(db_path: str,
             records.append([int(y), port_ret, n, cap_begin, cap_end])
         port = pd.DataFrame(records, columns=['year','年度報酬率','成分股數','期初資金','期末資金']).sort_values('year')
 
-    # 中文明細輸出
+    # 中文明細輸出：確保所有模式都合併 stocks_meta
+    # 確保字串型別一致
+    rep['stock_id'] = rep['stock_id'].astype(str)
+    stocks_meta['stock_id'] = stocks_meta['stock_id'].astype(str)
+    # 無論動態或靜態模式，都重新合併一次確保有公司名稱
     rep = rep.merge(stocks_meta, on='stock_id', how='left')
     details = rep.rename(columns={
         'stock_id':'股票代碼', 'stock_name':'公司名稱', 'industry':'產業別',
@@ -450,7 +468,25 @@ def run_equal_weight_backtest(db_path: str,
         'rank':'清單排名', 'selected':'是否入選', 'exit_reason':'出場理由'
     })
     details['是否入選'] = details['是否入選'].map(lambda x: '是' if bool(x) else '否')
-    # 防止缺欄位報錯，若缺公司名稱/產業別則以空字串補上
+    # 以股票代碼對 stocks 表做一次明確映射，確保公司名稱/產業別正確
+    try:
+        ids = sorted(details['股票代碼'].astype(str).unique().tolist())
+        if ids:
+            q_marks = ','.join(['?'] * len(ids))
+            with get_conn(db_path) as conn:
+                meta = pd.read_sql_query(
+                    f"SELECT stock_id, stock_name, industry FROM stocks WHERE stock_id IN ({q_marks})",
+                    conn, params=ids
+                )
+            if not meta.empty:
+                meta['stock_id'] = meta['stock_id'].astype(str)
+                name_map = dict(zip(meta['stock_id'], meta['stock_name']))
+                ind_map = dict(zip(meta['stock_id'], meta['industry'].fillna('')))
+                details['公司名稱'] = details['股票代碼'].astype(str).map(name_map).fillna(details.get('公司名稱',''))
+                details['產業別'] = details['股票代碼'].astype(str).map(ind_map).fillna(details.get('產業別',''))
+    except Exception:
+        pass
+    # 防止缺欄位報錯
     for col in ['公司名稱','產業別']:
         if col not in details.columns:
             details[col] = ''
@@ -458,17 +494,18 @@ def run_equal_weight_backtest(db_path: str,
     details = details.sort_values(['年度','清單排名'])
     out_details = os.path.join(OUTPUT_DIR, 'backtest_portfolio_details.csv')
     safe_write_csv(out_details,
-                   [[int(r['年度']), str(r['股票代碼']), (int(r['清單排名']) if pd.notna(r['清單排名']) else 0),
-                     str(r['公司名稱']) if pd.notna(r['公司名稱']) else '',
-                     str(r['產業別']) if pd.notna(r['產業別']) else '',
-                     str(r['進場日']) if pd.notna(r['進場日']) else '',
-                     str(r['出場日']) if pd.notna(r['出場日']) else '',
-                     float(r['進場價']) if pd.notna(r['進場價']) else '',
-                     float(r['出場價']) if pd.notna(r['出場價']) else '',
-                     str(r['出場理由']) if pd.notna(r['出場理由']) else '',
-                     float(r['年度報酬率(不含息)']) if pd.notna(r['年度報酬率(不含息)']) else '',
-                     float(r['現金股利合計']) if pd.notna(r['現金股利合計']) else '',
-                     float(r['年度報酬率(含息)']) if pd.notna(r['年度報酬率(含息)']) else '',
+                   [[int(r['年度']), str(r['股票代碼']),
+                     (str(r['公司名稱']) if pd.notna(r['公司名稱']) else ''),
+                     (str(r['產業別']) if pd.notna(r['產業別']) else ''),
+                     (int(r['清單排名']) if pd.notna(r['清單排名']) else 0),
+                     (str(r['進場日']) if pd.notna(r['進場日']) else ''),
+                     (str(r['出場日']) if pd.notna(r['出場日']) else ''),
+                     (float(r['進場價']) if pd.notna(r['進場價']) else ''),
+                     (float(r['出場價']) if pd.notna(r['出場價']) else ''),
+                     (str(r['出場理由']) if pd.notna(r['出場理由']) else ''),
+                     (float(r['年度報酬率(不含息)']) if pd.notna(r['年度報酬率(不含息)']) else ''),
+                     (float(r['現金股利合計']) if pd.notna(r['現金股利合計']) else ''),
+                     (float(r['年度報酬率(含息)']) if pd.notna(r['年度報酬率(含息)']) else ''),
                      str(r['是否入選'])]
                     for _, r in details.iterrows()],
                    ['年度','股票代碼','公司名稱','產業別','清單排名','進場日','出場日','進場價','出場價','出場理由','年度報酬率(不含息)','現金股利合計','年度報酬率(含息)','是否入選'])

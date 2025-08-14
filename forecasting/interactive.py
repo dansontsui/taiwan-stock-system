@@ -176,9 +176,10 @@ def generate_html_template(stock_id: str, models_data: Dict) -> str:
             <button class="tab active" onclick="showTab('overview')">📊 總覽</button>"""
 
     # 為每個模型添加分頁
-    for model_name in models_data.keys():
+    for model_name, data in models_data.items():
+        mape = data.get('mape', 0)
         html += f"""
-            <button class="tab" onclick="showTab('{model_name.lower()}')">{get_model_emoji(model_name)} {model_name}</button>"""
+            <button class="tab" onclick="showTab('{model_name.lower()}')">{get_model_emoji(model_name)} {model_name} (誤差率: {mape:.1f}%)</button>"""
 
     html += """
         </div>
@@ -196,8 +197,8 @@ def generate_html_template(stock_id: str, models_data: Dict) -> str:
     for model_name, data in models_data.items():
         html += f"""
                 <div class="stat-card">
-                    <div class="stat-value">{data['mape']:.2f}%</div>
-                    <div class="stat-label">{model_name} MAPE</div>
+                    <div class="stat-value">{data['mape']:.1f}%</div>
+                    <div class="stat-label">{model_name} 誤差率(MAPE)</div>
                 </div>
                 <div class=\"stat-card\">
                     <div class=\"stat-value\">{(data.get('trend_accuracy', 0) or 0) * 100:.1f}%</div>
@@ -362,12 +363,16 @@ def generate_model_tab(model_name: str, data: Dict, stock_id: str) -> str:
             <h2>{get_model_emoji(model_name)} {model_name} 詳細分析</h2>
             <div class="model-stats">
                 <div class="stat-card">
-                    <div class="stat-value">{data.get('mape', 0):.2f}%</div>
-                    <div class="stat-label">MAPE</div>
+                    <div class="stat-value">{data.get('mape', 0):.1f}%</div>
+                    <div class="stat-label">誤差率(MAPE)</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value">{(data.get('trend_accuracy', 0) or 0) * 100:.1f}%</div>
                     <div class="stat-label">趨勢準確率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{len(data.get('history', []))}</div>
+                    <div class="stat-label">回測次數</div>
                 </div>
             </div>
             <div class="chart-container">

@@ -43,9 +43,19 @@ def train_prophet(df: pd.DataFrame, stock_id: Optional[str] = None) -> Tuple[obj
     best = get_best_params(stock_id, "Prophet") if stock_id else None
     kwargs = dict(weekly_seasonality=False, daily_seasonality=False, yearly_seasonality=True)
     if isinstance(best, dict):
-        kwargs.update({k: v for k, v in best.items() if k in {
-            'changepoint_prior_scale','seasonality_prior_scale','holidays_prior_scale','seasonality_mode','yearly_seasonality','weekly_seasonality','daily_seasonality'
-        }})
+        # 支援所有 Prophet 的主要參數
+        valid_prophet_params = {
+            'changepoint_prior_scale', 'seasonality_prior_scale', 'holidays_prior_scale',
+            'seasonality_mode', 'yearly_seasonality', 'weekly_seasonality', 'daily_seasonality',
+            'uncertainty_samples', 'mcmc_samples', 'interval_width', 'changepoint_range',
+            'n_changepoints', 'holidays', 'growth'
+        }
+        updated_params = {k: v for k, v in best.items() if k in valid_prophet_params}
+        kwargs.update(updated_params)
+        if cfg.debug and updated_params:
+            print(f"🔧 Prophet 使用調校參數: {updated_params}")
+    elif cfg.debug:
+        print(f"⚠️  Prophet 未找到調校參數，使用預設值")
     model = Prophet(**kwargs)
     # 設定更穩定的優化器，避免 macOS 權限問題
     try:
@@ -61,8 +71,23 @@ def train_prophet(df: pd.DataFrame, stock_id: Optional[str] = None) -> Tuple[obj
             raise e
     future = model.make_future_dataframe(periods=1, freq="MS")
     forecast = model.predict(future)
-    pred = forecast[["ds", "yhat", "yhat_lower", "yhat_upper"]].tail(1)
-    pred = pred.rename(columns={"ds": "date", "yhat": "forecast_value", "yhat_lower": "lower_bound", "yhat_upper": "upper_bound"})
+
+    # 處理 uncertainty_samples=0 的情況
+    pred_cols = ["ds", "yhat"]
+    rename_dict = {"ds": "date", "yhat": "forecast_value"}
+
+    if "yhat_lower" in forecast.columns and "yhat_upper" in forecast.columns:
+        pred_cols.extend(["yhat_lower", "yhat_upper"])
+        rename_dict.update({"yhat_lower": "lower_bound", "yhat_upper": "upper_bound"})
+    else:
+        # 如果沒有不確定性區間，使用預測值作為上下界
+        forecast["yhat_lower"] = forecast["yhat"]
+        forecast["yhat_upper"] = forecast["yhat"]
+        pred_cols.extend(["yhat_lower", "yhat_upper"])
+        rename_dict.update({"yhat_lower": "lower_bound", "yhat_upper": "upper_bound"})
+
+    pred = forecast[pred_cols].tail(1)
+    pred = pred.rename(columns=rename_dict)
     metrics = {"MAPE": np.nan, "RMSE": np.nan}
     return model, pred, metrics
 
@@ -143,7 +168,19 @@ def train_xgboost(df: pd.DataFrame, stock_id: Optional[str] = None) -> Tuple[obj
         objective="reg:squarederror",
     )
     if isinstance(best, dict):
-        params.update({k: v for k, v in best.items() if k in params})
+        # 更新所有調校後的參數，不限制於預設參數
+        valid_xgb_params = {
+            'n_estimators', 'max_depth', 'learning_rate', 'subsample',
+            'colsample_bytree', 'random_state', 'objective', 'reg_alpha',
+            'reg_lambda', 'gamma', 'min_child_weight', 'max_delta_step',
+            'scale_pos_weight', 'base_score', 'missing'
+        }
+        updated_params = {k: v for k, v in best.items() if k in valid_xgb_params}
+        params.update(updated_params)
+        if cfg.debug and updated_params:
+            print(f"🔧 XGBoost 使用調校參數: {updated_params}")
+    elif cfg.debug:
+        print(f"⚠️  XGBoost 未找到調校參數，使用預設值")
     model = XGBRegressor(**params)
     model.fit(X_train, y_train)
     # 若訓練集為空（例如回測視窗太短），使用全部資料訓練

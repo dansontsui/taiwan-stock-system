@@ -20,12 +20,12 @@ if __name__ == "__main__":
     os.chdir(project_root)
     from forecasting.config import cfg, ensure_dirs, setup_prophet_logging
     from forecasting.db import latest_month_in_db, fetch_schema_overview
-    from forecasting.cli import run_forecast, run_roll_check
+    from forecasting.cli import run_forecast, run_roll_check, run_forecast_with_specific_model
 else:
     # 當作為模組導入時，使用相對導入
     from .config import cfg, ensure_dirs, setup_prophet_logging
     from .db import latest_month_in_db, fetch_schema_overview
-    from .cli import run_forecast, run_roll_check
+    from .cli import run_forecast, run_roll_check, run_forecast_with_specific_model
 
 
 def _safe_setup_stdout():
@@ -47,6 +47,108 @@ def _p(msg: str):
             pass
 
 
+def analyze_prediction_trends(stock_id: str, baseline_values: dict) -> dict:
+    """分析預測趨勢方向"""
+    try:
+        if __name__ == "__main__":
+            from forecasting.db import load_monthly_revenue
+        else:
+            from .db import load_monthly_revenue
+
+        # 載入歷史資料
+        rows, _ = load_monthly_revenue(stock_id)
+        if not rows:
+            return None
+
+        # 轉換為DataFrame並排序
+        import pandas as pd
+        df = pd.DataFrame(rows)
+        df["date"] = pd.to_datetime(df["date"]).dt.to_period("M").dt.to_timestamp()
+        df = df.sort_values("date").drop_duplicates("date")
+
+        if df.empty:
+            return None
+
+        # 獲取最新營收資料
+        latest_row = df.iloc[-1]
+        latest_revenue = float(latest_row["revenue"])
+        latest_month = latest_row["date"].strftime("%Y-%m")
+
+        # 計算預測月份
+        next_month = (latest_row["date"] + pd.offsets.MonthBegin(1)).strftime("%Y-%m")
+
+        # 分析各模型的趨勢方向
+        model_trends = {}
+        for model_name, value_str in baseline_values.items():
+            try:
+                # 移除千分位符號並轉換為數值
+                predicted_value = float(value_str.replace(",", ""))
+                change_amount = predicted_value - latest_revenue
+                change_percent = (change_amount / latest_revenue) * 100
+                trend_direction = "上漲" if change_amount > 0 else "下跌"
+
+                model_trends[model_name] = {
+                    "predicted_value": predicted_value,
+                    "change_amount": change_amount,
+                    "change_percent": change_percent,
+                    "trend_direction": trend_direction
+                }
+            except (ValueError, TypeError):
+                continue
+
+        return {
+            "latest_month": latest_month,
+            "latest_revenue": latest_revenue,
+            "latest_revenue_formatted": f"{latest_revenue:,.0f}",
+            "prediction_month": next_month,
+            "model_trends": model_trends
+        }
+
+    except Exception as e:
+        print(f"趨勢分析失敗: {e}")
+        return None
+
+
+def get_backtest_metrics(stock_id: str) -> dict:
+    """獲取回測指標（趨勢準確率、MAPE、RMSE）"""
+    try:
+        if __name__ == "__main__":
+            from forecasting.param_store import _load_all
+        else:
+            from .param_store import _load_all
+
+        # 從 best_params.json 中讀取回測結果
+        data = _load_all()
+        stock_data = data.get(stock_id, {})
+
+        # 查找回測結果
+        metrics_data = {}
+        for key, value in stock_data.items():
+            if key.endswith("_backtest_result") and isinstance(value, dict):
+                model_name = key.replace("_backtest_result", "")
+                metrics_data[model_name] = {
+                    "trend_accuracy": value.get("trend_accuracy"),
+                    "mape": value.get("mape"),
+                    "rmse": value.get("rmse"),
+                    "n_predictions": value.get("n_predictions")
+                }
+
+        return metrics_data if metrics_data else None
+
+    except Exception as e:
+        print(f"獲取回測指標失敗: {e}")
+        return None
+
+
+def get_backtest_trend_accuracy(stock_id: str) -> dict:
+    """獲取回測趨勢準確率（向後相容）"""
+    metrics = get_backtest_metrics(stock_id)
+    if metrics:
+        return {model: data["trend_accuracy"] for model, data in metrics.items()
+                if data["trend_accuracy"] is not None}
+    return None
+
+
 def show_main_menu():
     """顯示主選單"""
     _p("\n" + "="*60)
@@ -64,6 +166,11 @@ def show_main_menu():
     _p("  7) 多變量特徵整合")
     _p("  8) 批量預測多檔股票")
     _p("")
+    _p("📊 預測結果統計")
+    _p("  11) 查看預測結果統計表")
+    _p("  12) 匯出預測結果到CSV")
+    _p("  13) 手動添加預測結果到統計表")
+    _p("")
     _p("⚙️  系統設定")
     _p("  9) 模型啟用設定")
     _p("  10) 系統狀態檢查")
@@ -73,30 +180,154 @@ def show_main_menu():
 
 
 def handle_single_forecast():
-    """處理單次預測"""
+    """處理單次預測 - 同時顯示 XGBoost 和 Prophet 兩種模型結果"""
     stock_id = input("📈 請輸入股票代碼(4碼): ").strip()
     if not stock_id:
         _p("❌ 股票代碼不能為空")
         return
-    
+
     try:
         _p(f"🔄 正在預測 {stock_id} 的營收...")
-        result = run_forecast(stock_id)
-        _p("✅ 預測完成！")
-        _p(f"📊 最佳模型: {result['最佳模型']}")
-        _p(f"📁 CSV檔案: {result['CSV路徑']}")
-        _p(f"📁 JSON檔案: {result['JSON路徑']}")
-        _p(f"📈 圖表檔案: {result['歷史對比圖']}")
-        
-        if result['警告']:
-            _p("⚠️  警告訊息:")
-            for warning in result['警告']:
-                _p(f"   - {warning}")
-        
-        _p("\n📋 預測摘要:")
-        for item in result['預測摘要']:
-            _p(f"   {item['日期']} {item['情境']}: {item['預測值']} (異常: {item['異常']})")
-            
+
+        # 獲取回測最佳模型
+        if __name__ == "__main__":
+            from forecasting.param_store import get_best_model
+        else:
+            from .param_store import get_best_model
+        best_model = get_best_model(stock_id)
+
+        # 同時執行 XGBoost 和 Prophet 預測
+        results = {}
+        model_names = ["XGBoost", "Prophet"]
+
+        for model_name in model_names:
+            try:
+                _p(f"   🔄 執行 {model_name} 預測...")
+                result = run_forecast_with_specific_model(stock_id, model_name)
+                results[model_name] = result
+                _p(f"   ✅ {model_name} 預測完成")
+            except Exception as e:
+                _p(f"   ❌ {model_name} 預測失敗: {e}")
+                results[model_name] = None
+
+        _p("\n" + "="*60)
+        _p("📊 雙模型預測結果比較")
+        _p("="*60)
+
+        # 獲取回測指標
+        backtest_metrics = get_backtest_metrics(stock_id)
+
+        # 顯示每個模型的結果
+        for model_name in model_names:
+            result = results.get(model_name)
+            if result is None:
+                continue
+
+            # 標註是否為回測最佳模型
+            is_best = (best_model == model_name)
+            best_marker = " 🏆 (回測最佳)" if is_best else ""
+
+            # 獲取該模型的回測誤差率
+            error_info = ""
+            if backtest_metrics and model_name in backtest_metrics:
+                metrics = backtest_metrics[model_name]
+                mape = metrics.get("mape")
+                if mape is not None:
+                    error_info = f" (回測誤差率: {mape:.1f}%)"
+
+            _p(f"\n📈 {model_name} 模型{best_marker}{error_info}")
+            _p("-" * 40)
+            _p(f"📁 CSV檔案: {result['CSV路徑']}")
+            _p(f"📁 JSON檔案: {result['JSON路徑']}")
+            _p(f"📈 圖表檔案: {result['歷史對比圖']}")
+
+            if result['警告']:
+                _p("⚠️  警告訊息:")
+                for warning in result['警告']:
+                    _p(f"   - {warning}")
+
+            _p("📋 預測摘要:")
+            for item in result['預測摘要']:
+                _p(f"   {item['日期']} {item['情境']}: {item['預測值']} (異常: {item['異常']})")
+
+        # 顯示模型比較摘要
+        _p("\n" + "="*60)
+        _p("📊 模型比較摘要")
+        _p("="*60)
+
+        if best_model:
+            _p(f"🏆 回測最佳模型: {best_model}")
+        else:
+            _p("ℹ️  尚未進行回測，建議先執行選單功能 5 進行回測分析")
+
+        # 比較基準情境預測值
+        baseline_values = {}
+        for model_name in model_names:
+            result = results.get(model_name)
+            if result and result['預測摘要']:
+                for item in result['預測摘要']:
+                    if item['情境'] == 'baseline':
+                        baseline_values[model_name] = item['預測值']
+                        break
+
+        if len(baseline_values) >= 2:
+            _p("\n📊 基準情境預測值比較:")
+            for model_name, value in baseline_values.items():
+                is_best = (best_model == model_name)
+                best_marker = " 🏆" if is_best else ""
+                _p(f"   {model_name}: {value}{best_marker}")
+
+        # 顯示趨勢分析和回測準確率
+        _p("\n" + "="*60)
+        _p("📈 趨勢分析與回測表現")
+        _p("="*60)
+
+        # 獲取歷史資料進行趨勢分析
+        trend_analysis = analyze_prediction_trends(stock_id, baseline_values)
+        if trend_analysis:
+            _p(f"📅 最新營收月份: {trend_analysis['latest_month']}")
+            _p(f"💰 最新營收金額: {trend_analysis['latest_revenue_formatted']}")
+            _p(f"📊 預測月份: {trend_analysis['prediction_month']}")
+
+            _p("\n🔍 各模型趨勢預測:")
+            for model_name in model_names:
+                if model_name in trend_analysis['model_trends']:
+                    trend_info = trend_analysis['model_trends'][model_name]
+                    is_best = (best_model == model_name)
+                    best_marker = " 🏆" if is_best else ""
+
+                    trend_icon = "📈" if trend_info['trend_direction'] == "上漲" else "📉"
+                    _p(f"   {trend_icon} {model_name}{best_marker}: {trend_info['trend_direction']} "
+                       f"({trend_info['change_percent']:+.1f}%)")
+
+        # 顯示回測詳細指標
+        if backtest_metrics:
+            _p("\n📊 回測表現指標:")
+            for model_name in model_names:
+                if model_name in backtest_metrics:
+                    metrics = backtest_metrics[model_name]
+                    is_best = (best_model == model_name)
+                    best_marker = " 🏆" if is_best else ""
+
+                    mape = metrics.get("mape")
+                    trend_accuracy = metrics.get("trend_accuracy")
+                    n_predictions = metrics.get("n_predictions", 0)
+
+                    if mape is not None and trend_accuracy is not None:
+                        # MAPE 評級
+                        mape_icon = "✅" if mape <= 8.0 else "⚠️" if mape <= 15.0 else "❌"
+                        # 趨勢準確率評級
+                        trend_icon = "✅" if trend_accuracy >= 0.8 else "⚠️" if trend_accuracy >= 0.6 else "❌"
+
+                        _p(f"   {model_name}{best_marker}:")
+                        _p(f"     {mape_icon} 誤差率(MAPE): {mape:.1f}%")
+                        _p(f"     {trend_icon} 趨勢準確率: {trend_accuracy:.1%}")
+                        _p(f"     📊 回測次數: {n_predictions} 次")
+                    else:
+                        _p(f"   ❓ {model_name}: 回測資料不完整")
+        else:
+            _p("\nℹ️  尚無回測指標資料，建議先執行選單功能 5 進行回測分析")
+
     except Exception as e:
         _p(f"❌ 預測失敗: {e}")
 
@@ -251,7 +482,20 @@ def handle_parameter_tuning():
         _p("❌ 股票代碼不能為空")
         return
 
-    _p("⚙️  開始參數調校...")
+    # 詢問測試年數
+    _p("📊 請選擇調校測試期間:")
+    _p("  1) 1年 (預設，較快)")
+    _p("  2) 2年 (更多驗證資料，可能更準確)")
+    _p("  3) 3年 (最多驗證資料，較慢)")
+
+    while True:
+        test_choice = input("請選擇 (1-3): ").strip()
+        if test_choice in ["1", "2", "3"]:
+            test_years = int(test_choice)
+            break
+        _p("❌ 請輸入 1、2 或 3")
+
+    _p(f"⚙️  開始參數調校（使用 {test_years} 年測試資料）...")
     _p("⚠️  此過程可能需要較長時間，請耐心等待...")
 
     try:
@@ -259,7 +503,7 @@ def handle_parameter_tuning():
             from forecasting.tuning import comprehensive_tuning
         else:
             from .tuning import comprehensive_tuning
-        result = comprehensive_tuning(stock_id)
+        result = comprehensive_tuning(stock_id, test_years=test_years)
 
         if "error" in result:
             _p(f"❌ 參數調校失敗: {result['error']}")
@@ -423,7 +667,7 @@ def main():
 
     while True:
         show_main_menu()
-        choice = input("🎯 請選擇功能 (1-10, q): ").strip().lower()
+        choice = input("🎯 請選擇功能 (1-13, q): ").strip().lower()
         
         if choice == "1":
             handle_single_forecast()
@@ -445,6 +689,12 @@ def main():
             handle_model_settings()
         elif choice == "10":
             handle_system_status()
+        elif choice == "11":
+            handle_prediction_results_view()
+        elif choice == "12":
+            handle_prediction_results_export()
+        elif choice == "13":
+            handle_manual_add_prediction()
         elif choice in {"q", "quit", "exit"}:
             _p("👋 感謝使用台灣股市營收預測系統，再見！")
             break
@@ -452,6 +702,230 @@ def main():
             _p("❌ 無效選項，請重新選擇")
         
         input("\n⏸️  按 Enter 繼續...")
+
+
+def handle_prediction_results_view():
+    """查看預測結果統計表"""
+    _p("📊 預測結果統計表")
+    _p("=" * 80)
+
+    try:
+        if __name__ == "__main__":
+            from forecasting.db import get_latest_prediction_summary
+        else:
+            from .db import get_latest_prediction_summary
+
+        results = get_latest_prediction_summary()
+
+        if not results:
+            _p("📋 目前沒有預測結果記錄")
+            _p("💡 請先執行「單次預測」功能來產生預測結果")
+            return
+
+        # 表格標題
+        _p(f"{'股票代碼':<8} {'股票名稱':<12} {'模型':<8} {'預測月份':<8} {'預測營收':<15} {'最新營收':<15} {'趨勢準確率':<10} {'誤差率':<8} {'預測時間':<16}")
+        _p("=" * 80)
+
+        # 顯示結果
+        for row in results:
+            stock_id = row['stock_id'] or 'N/A'
+            stock_name = (row['stock_name'] or 'N/A')[:10]  # 限制長度
+            model_name = row['model_name'] or 'N/A'
+            target_month = row['target_month'] or 'N/A'
+
+            # 格式化營收數字
+            predicted_revenue = row['predicted_revenue']
+            pred_revenue_str = f"{predicted_revenue/1e8:.1f}億" if predicted_revenue else 'N/A'
+
+            latest_revenue = row['latest_revenue']
+            latest_revenue_str = f"{latest_revenue/1e8:.1f}億" if latest_revenue else 'N/A'
+
+            # 格式化準確率和誤差率
+            trend_accuracy = row['trend_accuracy']
+            trend_acc_str = f"{trend_accuracy*100:.1f}%" if trend_accuracy else 'N/A'
+
+            mape = row['mape']
+            mape_str = f"{mape:.1f}%" if mape else 'N/A'
+
+            # 格式化預測時間
+            prediction_date = row['prediction_date'][:16] if row['prediction_date'] else 'N/A'
+
+            _p(f"{stock_id:<8} {stock_name:<12} {model_name:<8} {target_month:<8} {pred_revenue_str:<15} {latest_revenue_str:<15} {trend_acc_str:<10} {mape_str:<8} {prediction_date:<16}")
+
+        _p("=" * 80)
+        _p(f"📋 共顯示 {len(results)} 筆預測結果")
+
+    except Exception as e:
+        _p(f"❌ 查詢預測結果失敗: {e}")
+
+
+def handle_prediction_results_export():
+    """匯出預測結果到CSV"""
+    _p("📤 匯出預測結果到CSV")
+
+    try:
+        if __name__ == "__main__":
+            from forecasting.db import get_latest_prediction_summary
+        else:
+            from .db import get_latest_prediction_summary
+
+        results = get_latest_prediction_summary()
+
+        if not results:
+            _p("📋 目前沒有預測結果記錄")
+            return
+
+        # 轉換為 DataFrame
+        import pandas as pd
+        df = pd.DataFrame(results)
+
+        # 重新命名欄位為中文
+        df = df.rename(columns={
+            'stock_id': '股票代碼',
+            'stock_name': '股票名稱',
+            'model_name': '模型',
+            'prediction_date': '預測時間',
+            'target_month': '預測月份',
+            'predicted_revenue': '預測營收',
+            'latest_revenue': '最新營收',
+            'latest_revenue_month': '最新營收月份',
+            'trend_accuracy': '趨勢準確率',
+            'mape': '誤差率MAPE',
+            'scenario': '情境'
+        })
+
+        # 格式化數值
+        if '預測營收' in df.columns:
+            df['預測營收(億元)'] = df['預測營收'].apply(lambda x: f"{x/1e8:.2f}" if pd.notna(x) else '')
+        if '最新營收' in df.columns:
+            df['最新營收(億元)'] = df['最新營收'].apply(lambda x: f"{x/1e8:.2f}" if pd.notna(x) else '')
+        if '趨勢準確率' in df.columns:
+            df['趨勢準確率(%)'] = df['趨勢準確率'].apply(lambda x: f"{x*100:.1f}" if pd.notna(x) else '')
+        if '誤差率MAPE' in df.columns:
+            df['誤差率MAPE(%)'] = df['誤差率MAPE'].apply(lambda x: f"{x:.1f}" if pd.notna(x) else '')
+
+        # 選擇要匯出的欄位
+        export_columns = ['股票代碼', '股票名稱', '模型', '預測月份', '預測營收(億元)',
+                         '最新營收(億元)', '最新營收月份', '趨勢準確率(%)', '誤差率MAPE(%)', '預測時間']
+        df_export = df[export_columns]
+
+        # 匯出檔案
+        import os
+        os.makedirs("outputs/reports", exist_ok=True)
+
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"outputs/reports/prediction_results_{timestamp}.csv"
+
+        df_export.to_csv(filename, index=False, encoding='utf-8-sig')
+
+        _p(f"✅ 預測結果已匯出到: {filename}")
+        _p(f"📊 共匯出 {len(df_export)} 筆記錄")
+
+    except Exception as e:
+        _p(f"❌ 匯出預測結果失敗: {e}")
+
+
+def handle_manual_add_prediction():
+    """手動添加預測結果到統計表"""
+    _p("📝 手動添加預測結果到統計表")
+    _p("=" * 50)
+
+    try:
+        # 輸入股票資訊
+        stock_id = input("請輸入股票代碼(4碼): ").strip()
+        if not stock_id or len(stock_id) != 4:
+            _p("❌ 請輸入有效的4碼股票代碼")
+            return
+
+        stock_name = input("請輸入股票名稱(可選): ").strip() or stock_id
+
+        # 選擇模型
+        _p("請選擇模型:")
+        _p("  1) Prophet")
+        _p("  2) XGBoost")
+        _p("  3) LSTM")
+
+        model_choice = input("請選擇 (1-3): ").strip()
+        model_map = {"1": "Prophet", "2": "XGBoost", "3": "LSTM"}
+        if model_choice not in model_map:
+            _p("❌ 請選擇有效的模型")
+            return
+        model_name = model_map[model_choice]
+
+        # 輸入預測資訊
+        target_month = input("請輸入預測月份(YYYY-MM): ").strip()
+        if not target_month or len(target_month) != 7 or target_month[4] != '-':
+            _p("❌ 請輸入有效的月份格式(如: 2025-08)")
+            return
+
+        try:
+            predicted_revenue = float(input("請輸入預測營收(元): ").strip())
+        except ValueError:
+            _p("❌ 請輸入有效的數字")
+            return
+
+        # 輸入最新營收資訊(可選)
+        latest_revenue_str = input("請輸入最新營收(元，可選): ").strip()
+        latest_revenue = None
+        if latest_revenue_str:
+            try:
+                latest_revenue = float(latest_revenue_str)
+            except ValueError:
+                _p("⚠️  最新營收格式錯誤，將設為空值")
+
+        latest_revenue_month = input("請輸入最新營收月份(YYYY-MM，可選): ").strip() or None
+
+        # 輸入回測指標(可選)
+        trend_accuracy_str = input("請輸入趨勢準確率(0-1，可選): ").strip()
+        trend_accuracy = None
+        if trend_accuracy_str:
+            try:
+                trend_accuracy = float(trend_accuracy_str)
+                if not 0 <= trend_accuracy <= 1:
+                    _p("⚠️  趨勢準確率應在0-1之間，將設為空值")
+                    trend_accuracy = None
+            except ValueError:
+                _p("⚠️  趨勢準確率格式錯誤，將設為空值")
+
+        mape_str = input("請輸入誤差率MAPE(%)，可選): ").strip()
+        mape = None
+        if mape_str:
+            try:
+                mape = float(mape_str)
+                if mape < 0:
+                    _p("⚠️  MAPE應為正數，將設為空值")
+                    mape = None
+            except ValueError:
+                _p("⚠️  MAPE格式錯誤，將設為空值")
+
+        # 保存到資料庫
+        if __name__ == "__main__":
+            from forecasting.db import save_prediction_result
+        else:
+            from .db import save_prediction_result
+
+        save_prediction_result(
+            stock_id=stock_id,
+            stock_name=stock_name,
+            model_name=model_name,
+            target_month=target_month,
+            predicted_revenue=predicted_revenue,
+            latest_revenue=latest_revenue,
+            latest_revenue_month=latest_revenue_month,
+            trend_accuracy=trend_accuracy,
+            mape=mape,
+            scenario='baseline'
+        )
+
+        _p("✅ 預測結果已成功添加到統計表")
+        _p(f"📊 股票: {stock_id} ({stock_name})")
+        _p(f"📊 模型: {model_name}")
+        _p(f"📊 預測月份: {target_month}")
+        _p(f"📊 預測營收: {predicted_revenue:,.0f} 元 ({predicted_revenue/1e8:.1f}億)")
+
+    except Exception as e:
+        _p(f"❌ 添加預測結果失敗: {e}")
 
 
 if __name__ == "__main__":

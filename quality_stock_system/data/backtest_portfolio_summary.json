@@ -1,7 +1,7 @@
 {
   "profile": "conservative",
-  "years": 1,
-  "annualized_return": 0.11099999999999999,
-  "max_drawdown": 0.0,
-  "win_rate": 1.0
+  "years": 14,
+  "annualized_return": 0.08116440689715576,
+  "max_drawdown": -0.12174945022789552,
+  "win_rate": 0.6428571428571429
 }

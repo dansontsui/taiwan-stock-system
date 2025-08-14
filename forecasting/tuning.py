@@ -12,7 +12,7 @@ from .predictor import mape, rmse, _safe_import
 from .config import cfg
 
 
-def tune_prophet_params(df: pd.DataFrame, param_grid: Dict = None) -> Dict:
+def tune_prophet_params(df: pd.DataFrame, param_grid: Dict = None, test_years: int = 2) -> Dict:
     """
     Prophet 參數調校
     Args:
@@ -50,7 +50,7 @@ def tune_prophet_params(df: pd.DataFrame, param_grid: Dict = None) -> Dict:
     # 準備資料
     print(f"📊 原始資料: {len(df)} 筆")
     data = df[["date", "y"]].rename(columns={"date": "ds", "y": "y"}).copy()
-    train_df, test_df = train_test_split_time(df)
+    train_df, test_df = train_test_split_time(df, backtest_years=test_years)
 
     if test_df.empty:
         return {"error": "測試資料不足"}
@@ -134,7 +134,7 @@ def tune_prophet_params(df: pd.DataFrame, param_grid: Dict = None) -> Dict:
     }
 
 
-def tune_xgboost_params(df: pd.DataFrame, param_grid: Dict = None) -> Dict:
+def tune_xgboost_params(df: pd.DataFrame, param_grid: Dict = None, test_years: int = 2) -> Dict:
     """
     XGBoost 參數調校
     Args:
@@ -166,7 +166,7 @@ def tune_xgboost_params(df: pd.DataFrame, param_grid: Dict = None) -> Dict:
     target = "y"
     feature_cols = [c for c in df.columns if c not in {"date", "revenue", target, "actual_month"}]
     
-    train_df, test_df = train_test_split_time(df)
+    train_df, test_df = train_test_split_time(df, backtest_years=test_years)
     
     if test_df.empty:
         return {"error": "測試資料不足"}
@@ -355,7 +355,7 @@ def tune_lstm_params(df: pd.DataFrame, param_grid: Dict = None) -> Dict:
     }
 
 
-def comprehensive_tuning(stock_id: str) -> Dict:
+def comprehensive_tuning(stock_id: str, test_years: int = 2) -> Dict:
     """
     對所有啟用模型進行綜合參數調校
     Args:
@@ -380,7 +380,7 @@ def comprehensive_tuning(stock_id: str) -> Dict:
     # Prophet 調校
     if cfg.enable_prophet:
         print("🔧 調校 Prophet 參數...")
-        res = tune_prophet_params(feat_df)
+        res = tune_prophet_params(feat_df, test_years=test_years)
         results['Prophet'] = res
         if 'best_params' in res and res['best_params']:
             from .param_store import save_best_params
@@ -389,7 +389,7 @@ def comprehensive_tuning(stock_id: str) -> Dict:
     # XGBoost 調校
     if cfg.enable_xgboost:
         print("🔧 調校 XGBoost 參數...")
-        res = tune_xgboost_params(feat_df)
+        res = tune_xgboost_params(feat_df, test_years=test_years)
         results['XGBoost'] = res
         if 'best_params' in res and res['best_params']:
             from .param_store import save_best_params
@@ -403,6 +403,18 @@ def comprehensive_tuning(stock_id: str) -> Dict:
         if 'best_params' in res and res['best_params']:
             from .param_store import save_best_params
             save_best_params(stock_id, 'LSTM', res['best_params'])
+
+    # 參數調校完成後，自動執行回測來更新回測指標
+    print("🔄 參數調校完成，正在執行回測驗證...")
+    try:
+        from .backtest import run_backtest_analysis
+        backtest_result = run_backtest_analysis(stock_id, window_months=36)
+        if backtest_result and 'best_model' in backtest_result:
+            print(f"✅ 回測驗證完成，最佳模型: {backtest_result['best_model']}")
+        else:
+            print("⚠️  回測驗證未完成，但參數調校已保存")
+    except Exception as e:
+        print(f"⚠️  回測驗證失敗: {e}，但參數調校已保存")
 
     # 前後比較摘要（若需要，可擴充：先跑一次原參數回測再比較）
     summary = []

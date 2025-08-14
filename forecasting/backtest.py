@@ -301,10 +301,28 @@ def run_backtest_analysis(stock_id: str, window_months: int = 36) -> Dict:
 
     # 保存最佳模型名稱供單次預測使用
     try:
-        from .param_store import save_best_model
+        from .param_store import save_best_model, _load_all, _save_all
         if backtest_results.get('best_model'):
             save_best_model(stock_id, backtest_results['best_model'])
-    except Exception:
+
+        # 保存各模型的回測結果（包含趨勢準確率）
+        data = _load_all()
+        stock_data = data.setdefault(stock_id, {})
+
+        results_all = backtest_results.get('results', {})
+        for model_name, result in results_all.items():
+            if "error" not in result:
+                backtest_key = f"{model_name}_backtest_result"
+                stock_data[backtest_key] = {
+                    "mape": result.get("mape", 0),
+                    "rmse": result.get("rmse", 0),
+                    "trend_accuracy": result.get("trend_accuracy", 0),
+                    "n_predictions": result.get("n_predictions", 0)
+                }
+
+        _save_all(data)
+    except Exception as e:
+        print(f"保存回測結果失敗: {e}")
         pass
 
     return {

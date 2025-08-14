@@ -25,7 +25,19 @@
       "weekly_seasonality": false,
       "daily_seasonality": false
     },
-    "_preferred_model": "Prophet"
+    "_preferred_model": "Prophet",
+    "Prophet_backtest_result": {
+      "mape": 10.879536916276177,
+      "rmse": 19420523840.854454,
+      "trend_accuracy": 0.6742857142857143,
+      "n_predictions": 175
+    },
+    "XGBoost_backtest_result": {
+      "mape": 18.471486179010824,
+      "rmse": 33805436995.57586,
+      "trend_accuracy": 0.5714285714285714,
+      "n_predictions": 175
+    }
   },
   "2385": {
     "Prophet": {
@@ -47,15 +59,27 @@
       "random_state": 42,
       "objective": "reg:squarederror"
     },
-    "_preferred_model": "Prophet"
+    "_preferred_model": "Prophet",
+    "Prophet_backtest_result": {
+      "mape": 10.923326037887206,
+      "rmse": 901017230.501547,
+      "trend_accuracy": 0.6380368098159509,
+      "n_predictions": 163
+    },
+    "XGBoost_backtest_result": {
+      "mape": 17.823303330781737,
+      "rmse": 1667434038.7298975,
+      "trend_accuracy": 0.5644171779141104,
+      "n_predictions": 163
+    }
   },
   "8299": {
     "Prophet": {
-      "changepoint_prior_scale": 0.5,
+      "changepoint_prior_scale": 0.01,
       "seasonality_prior_scale": 0.1,
       "holidays_prior_scale": 0.1,
       "seasonality_mode": "additive",
-      "yearly_seasonality": false,
+      "yearly_seasonality": true,
       "weekly_seasonality": false,
       "daily_seasonality": false,
       "uncertainty_samples": 0
@@ -63,12 +87,58 @@
     "XGBoost": {
       "n_estimators": 100,
       "max_depth": 4,
-      "learning_rate": 0.2,
-      "subsample": 1.0,
-      "colsample_bytree": 0.9,
+      "learning_rate": 0.05,
+      "subsample": 0.9,
+      "colsample_bytree": 0.8,
       "random_state": 42,
       "objective": "reg:squarederror"
     },
-    "_preferred_model": "Prophet"
+    "_preferred_model": "Prophet",
+    "Prophet_backtest_result": {
+      "mape": 12.077419422700201,
+      "rmse": 670385078.3451822,
+      "trend_accuracy": 0.6513157894736842,
+      "n_predictions": 152
+    },
+    "XGBoost_backtest_result": {
+      "mape": 13.246584164497598,
+      "rmse": 709269279.5673181,
+      "trend_accuracy": 0.6052631578947368,
+      "n_predictions": 152
+    }
+  },
+  "6605": {
+    "_preferred_model": "Prophet",
+    "Prophet": {
+      "changepoint_prior_scale": 0.01,
+      "seasonality_prior_scale": 0.1,
+      "holidays_prior_scale": 0.1,
+      "seasonality_mode": "additive",
+      "yearly_seasonality": true,
+      "weekly_seasonality": false,
+      "daily_seasonality": false,
+      "uncertainty_samples": 0
+    },
+    "XGBoost": {
+      "n_estimators": 100,
+      "max_depth": 3,
+      "learning_rate": 0.2,
+      "subsample": 1.0,
+      "colsample_bytree": 1.0,
+      "random_state": 42,
+      "objective": "reg:squarederror"
+    },
+    "Prophet_backtest_result": {
+      "mape": 10.376009146486892,
+      "rmse": 164793388.0353039,
+      "trend_accuracy": 0.6644736842105263,
+      "n_predictions": 152
+    },
+    "XGBoost_backtest_result": {
+      "mape": 11.717452737877691,
+      "rmse": 193022300.77627456,
+      "trend_accuracy": 0.6381578947368421,
+      "n_predictions": 152
+    }
   }
 }

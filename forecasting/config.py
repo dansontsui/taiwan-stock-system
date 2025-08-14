@@ -30,6 +30,8 @@ class Config:
     enable_xgboost: bool = _env_bool("TS_ENABLE_XGBOOST", True)
     # Prophet 穩定性設定
     prophet_stable_mode: bool = _env_bool("TS_PROPHET_STABLE", True)
+    # 調試模式
+    debug: bool = _env_bool("TS_DEBUG", False)
 
 
 cfg = Config()

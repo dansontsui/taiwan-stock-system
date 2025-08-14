@@ -25,6 +25,135 @@ def get_conn(dict_rows: bool = True):
         conn.close()
 
 
+def create_prediction_results_table():
+    """創建預測結果統一資料表"""
+    with get_conn(dict_rows=False) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS prediction_results (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                stock_id TEXT NOT NULL,
+                stock_name TEXT,
+                model_name TEXT NOT NULL,
+                prediction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                target_month TEXT NOT NULL,
+                predicted_revenue REAL NOT NULL,
+                latest_revenue REAL,
+                latest_revenue_month TEXT,
+                trend_accuracy REAL,
+                mape REAL,
+                scenario TEXT DEFAULT 'baseline',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(stock_id, model_name, target_month, scenario, prediction_date)
+            )
+        """)
+
+        # 創建索引以提高查詢效能
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_prediction_stock_model
+            ON prediction_results(stock_id, model_name)
+        """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_prediction_date
+            ON prediction_results(prediction_date)
+        """)
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_target_month
+            ON prediction_results(target_month)
+        """)
+
+        conn.commit()
+
+
+def save_prediction_result(stock_id: str, stock_name: str, model_name: str,
+                          target_month: str, predicted_revenue: float,
+                          latest_revenue: float = None, latest_revenue_month: str = None,
+                          trend_accuracy: float = None, mape: float = None,
+                          scenario: str = 'baseline'):
+    """保存預測結果到資料表"""
+    create_prediction_results_table()  # 確保表格存在
+
+    with get_conn(dict_rows=False) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT OR REPLACE INTO prediction_results
+            (stock_id, stock_name, model_name, target_month, predicted_revenue,
+             latest_revenue, latest_revenue_month, trend_accuracy, mape, scenario)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (stock_id, stock_name, model_name, target_month, predicted_revenue,
+              latest_revenue, latest_revenue_month, trend_accuracy, mape, scenario))
+        conn.commit()
+
+
+def get_prediction_results(stock_id: str = None, model_name: str = None,
+                          limit: int = 100) -> list:
+    """查詢預測結果"""
+    create_prediction_results_table()  # 確保表格存在
+
+    with get_conn() as conn:
+        cursor = conn.cursor()
+
+        query = """
+            SELECT stock_id, stock_name, model_name, prediction_date,
+                   target_month, predicted_revenue, latest_revenue,
+                   latest_revenue_month, trend_accuracy, mape, scenario
+            FROM prediction_results
+            WHERE 1=1
+        """
+        params = []
+
+        if stock_id:
+            query += " AND stock_id = ?"
+            params.append(stock_id)
+
+        if model_name:
+            query += " AND model_name = ?"
+            params.append(model_name)
+
+        query += " ORDER BY prediction_date DESC, stock_id, model_name"
+
+        if limit:
+            query += " LIMIT ?"
+            params.append(limit)
+
+        cursor.execute(query, params)
+        return cursor.fetchall()
+
+
+def get_latest_prediction_summary() -> list:
+    """獲取最新的預測結果摘要（每支股票每個模型的最新預測）"""
+    create_prediction_results_table()  # 確保表格存在
+
+    with get_conn() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT
+                pr.stock_id,
+                pr.stock_name,
+                pr.model_name,
+                pr.prediction_date,
+                pr.target_month,
+                pr.predicted_revenue,
+                pr.latest_revenue,
+                pr.latest_revenue_month,
+                pr.trend_accuracy,
+                pr.mape,
+                pr.scenario
+            FROM prediction_results pr
+            INNER JOIN (
+                SELECT stock_id, model_name, scenario, MAX(prediction_date) as max_date
+                FROM prediction_results
+                WHERE scenario = 'baseline'
+                GROUP BY stock_id, model_name
+            ) latest ON pr.stock_id = latest.stock_id
+                    AND pr.model_name = latest.model_name
+                    AND pr.prediction_date = latest.max_date
+                    AND pr.scenario = 'baseline'
+            ORDER BY pr.stock_id, pr.model_name
+        """)
+        return cursor.fetchall()
+
+
 def fetch_schema_overview() -> dict:
     """回傳資料庫重要表格與欄位資訊（依據 c.py 資料庫分析報告）。"""
     return {

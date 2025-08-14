@@ -1,11 +1,5 @@
 [
   {
-    "stock_id": "1101",
-    "stock_name": "台泥",
-    "error_message": "完整收集流程失敗",
-    "failed_at": "2025-08-05T08:55:38.417036"
-  },
-  {
     "stock_id": "1268",
     "stock_name": "漢來美食",
     "error_message": "完整收集流程失敗",
@@ -40,5 +34,11 @@
     "stock_name": "生展",
     "error_message": "使用者中斷執行",
     "failed_at": "2025-08-08T08:22:52.130108"
+  },
+  {
+    "stock_id": "1101",
+    "stock_name": "台泥",
+    "error_message": "使用者中斷執行",
+    "failed_at": "2025-08-14T09:06:52.095873"
   }
 ]

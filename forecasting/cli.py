@@ -135,6 +135,107 @@ def run_forecast(stock_id: str) -> dict:
     return result
 
 
+def run_forecast_with_specific_model(stock_id: str, model_name: str) -> dict:
+    """使用指定模型進行預測"""
+    ensure_dirs()
+    rows, warnings = load_monthly_revenue(stock_id)
+    hist_df = to_monthly_df(rows)
+    if hist_df.empty:
+        raise SystemExit(f"{stock_id} 無月營收資料")
+
+    feat_df = build_features(hist_df)
+    # 使用指定模型進行預測
+    best_name, pred_point, metrics_df = forecast_with_model(feat_df, stock_id=stock_id, model_name=model_name)
+
+    # 展開情境
+    scenarios_df = expand_scenarios(pred_point, hist_df)
+
+    # 先以基準情境作為 anomaly 檢查的輸入
+    baseline = scenarios_df[scenarios_df["scenario"] == "baseline"][
+        ["date", "forecast_value", "lower_bound", "upper_bound"]
+    ].copy()
+    checked = anomaly_checks(hist_df, baseline)
+
+    # 用調整後值覆寫 baseline，再合併三情境輸出（保守/樂觀仍保留區間，供參考）
+    scenarios_df = scenarios_df.merge(
+        checked[["date", "adjusted_value", "anomaly_flag"]], on="date", how="left"
+    )
+    scenarios_df.loc[scenarios_df["scenario"] == "baseline", "forecast_value"] = scenarios_df.loc[
+        scenarios_df["scenario"] == "baseline", "adjusted_value"
+    ]
+    scenarios_df["anomaly_flag"] = scenarios_df["anomaly_flag"].fillna(0).astype(int)
+    scenarios_df = scenarios_df.drop(columns=["adjusted_value"], errors="ignore")
+
+    # 輸出 CSV / JSON (加上模型名稱以避免覆蓋)
+    out_base = os.path.join(cfg.output_dir, f"{stock_id}_{model_name}_forecast")
+    csv_path = to_utf8_sig(out_base + ".csv")
+    json_path = to_utf8_sig(out_base + ".json")
+
+    # 轉換日期格式 YYYY-MM
+    out_df = scenarios_df.copy()
+    out_df["date"] = pd.to_datetime(out_df["date"]).dt.strftime("%Y-%m")
+    out_df = out_df[["date", "scenario", "forecast_value", "lower_bound", "upper_bound", "anomaly_flag"]]
+    out_df.to_csv(csv_path, index=False, encoding="utf-8-sig")
+    with open(json_path, "w", encoding="utf-8-sig") as f:
+        f.write(out_df.to_json(orient="records", force_ascii=False))
+
+    # 視覺化 (加上模型名稱)
+    hist_plot = plot_history_vs_forecast(hist_df, checked.rename(columns={"adjusted_value": "forecast_value"}),
+                                       title_suffix=f"({model_name})")
+    err_plot = plot_errors(metrics_df, title_suffix=f"({model_name})")
+    sc_plot = plot_scenarios(scenarios_df, title_suffix=f"({model_name})")
+
+    # 友善中文輸出（格式化數字）
+    def fmt(v):
+        try:
+            return f"{float(v):,.0f}"
+        except Exception:
+            return str(v)
+
+    pretty = scenarios_df.copy()
+    # 轉換日期為 YYYY-MM 以利 JSON 序列化
+    pretty["date"] = pd.to_datetime(pretty["date"]).dt.strftime("%Y-%m")
+    pretty["forecast_value_fmt"] = pretty["forecast_value"].apply(fmt)
+    pretty["lower_bound_fmt"] = pretty["lower_bound"].apply(fmt)
+    pretty["upper_bound_fmt"] = pretty["upper_bound"].apply(fmt)
+
+    result = {
+        "最佳模型": best_name,
+        "CSV路徑": csv_path,
+        "JSON路徑": json_path,
+        "歷史對比圖": hist_plot,
+        "誤差圖": err_plot,
+        "情境圖": sc_plot,
+        "警告": warnings,
+        "預測摘要": pretty[["date", "scenario", "forecast_value_fmt", "lower_bound_fmt", "upper_bound_fmt", "anomaly_flag"]]
+            .rename(columns={
+                "date": "日期",
+                "scenario": "情境",
+                "forecast_value_fmt": "預測值",
+                "lower_bound_fmt": "下界",
+                "upper_bound_fmt": "上界",
+                "anomaly_flag": "異常",
+            })
+            .to_dict(orient="records"),
+    }
+    # 為了相容現有流程與測試，加入英文鍵別名
+    result.update({
+        "best_model": best_name,
+        "csv": csv_path,
+        "json": json_path,
+        "history_plot": hist_plot,
+        "error_plot": err_plot,
+        "scenarios_plot": sc_plot,
+        "warnings": warnings,
+    })
+
+    # 保存預測結果到統一資料表（暫時禁用，待修復）
+    # TODO: 修復自動保存功能
+    pass
+
+    return result
+
+
 def run_roll_check(stock_id: str, last_known_month: str | None) -> bool:
     """每日檢查是否有新資料（最新月份變更）。有新資料則回傳 True。"""
     latest = latest_month_in_db(stock_id)

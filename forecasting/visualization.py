@@ -43,7 +43,7 @@ def save_fig(fig, filename: str):
     return _save_svg(filename, filename)
 
 
-def plot_history_vs_forecast(hist_df: pd.DataFrame, forecast_df: pd.DataFrame, title: str = "Historical vs Forecast Revenue") -> str:
+def plot_history_vs_forecast(hist_df: pd.DataFrame, forecast_df: pd.DataFrame, title: str = "Historical vs Forecast Revenue", title_suffix: str = "") -> str:
     if _HAS_MPL:
         fig, ax = plt.subplots(figsize=(10, 5))  # type: ignore
         if not hist_df.empty:
@@ -56,17 +56,21 @@ def plot_history_vs_forecast(hist_df: pd.DataFrame, forecast_df: pd.DataFrame, t
                     forecast_df["date"], forecast_df["lower_bound"], forecast_df["upper_bound"],
                     color="orange", alpha=0.2, label="95% Confidence Interval"
                 )
-        ax.set_title(title, fontsize=14, fontweight='bold')
+        final_title = title + title_suffix
+        ax.set_title(final_title, fontsize=14, fontweight='bold')
         ax.set_xlabel("Date", fontsize=12)
         ax.set_ylabel("Revenue (TWD)", fontsize=12)
         ax.legend(fontsize=10)
         ax.grid(True, alpha=0.3)
-        return save_fig(fig, "history_vs_forecast.png")
+        filename = f"history_vs_forecast{title_suffix.replace('(', '_').replace(')', '').replace(' ', '_')}.png"
+        return save_fig(fig, filename)
     # fallback
-    return _save_svg("history_vs_forecast.png", title)
+    final_title = title + title_suffix
+    filename = f"history_vs_forecast{title_suffix.replace('(', '_').replace(')', '').replace(' ', '_')}.png"
+    return _save_svg(filename, final_title)
 
 
-def plot_errors(metrics_df: pd.DataFrame) -> str:
+def plot_errors(metrics_df: pd.DataFrame, title_suffix: str = "") -> str:
     if _HAS_MPL:
         fig, ax = plt.subplots(figsize=(10, 4))  # type: ignore
         if not metrics_df.empty:
@@ -82,17 +86,21 @@ def plot_errors(metrics_df: pd.DataFrame) -> str:
 
             ax.set_xlabel('Models', fontsize=12)
             ax.set_ylabel('Error Values', fontsize=12)
-            ax.set_title('Model Performance Comparison', fontsize=14, fontweight='bold')
+            title = 'Model Performance Comparison' + title_suffix
+            ax.set_title(title, fontsize=14, fontweight='bold')
             ax.set_xticks(x)
             ax.set_xticklabels(models)
             ax.legend(fontsize=10)
             ax.grid(True, alpha=0.3)
-        return save_fig(fig, "errors.png")
+        filename = f"errors{title_suffix.replace('(', '_').replace(')', '').replace(' ', '_')}.png"
+        return save_fig(fig, filename)
     # fallback
-    return _save_svg("errors.png", "Model Performance Comparison")
+    title = 'Model Performance Comparison' + title_suffix
+    filename = f"errors{title_suffix.replace('(', '_').replace(')', '').replace(' ', '_')}.png"
+    return _save_svg(filename, title)
 
 
-def plot_scenarios(scenarios_df: pd.DataFrame) -> str:
+def plot_scenarios(scenarios_df: pd.DataFrame, title_suffix: str = "") -> str:
     if _HAS_MPL:
         fig, ax = plt.subplots(figsize=(10, 5))  # type: ignore
         if not scenarios_df.empty:
@@ -104,14 +112,18 @@ def plot_scenarios(scenarios_df: pd.DataFrame) -> str:
                 if "lower_bound" in g.columns and "upper_bound" in g.columns:
                     ax.fill_between(g["date"], g["lower_bound"], g["upper_bound"],
                                   color=color, alpha=0.1)
-        ax.set_title("Forecast Scenarios Comparison", fontsize=14, fontweight='bold')
+        title = "Forecast Scenarios Comparison" + title_suffix
+        ax.set_title(title, fontsize=14, fontweight='bold')
         ax.set_xlabel("Date", fontsize=12)
         ax.set_ylabel("Revenue (TWD)", fontsize=12)
         ax.legend(fontsize=10)
         ax.grid(True, alpha=0.3)
-        return save_fig(fig, "scenarios.png")
+        filename = f"scenarios{title_suffix.replace('(', '_').replace(')', '').replace(' ', '_')}.png"
+        return save_fig(fig, filename)
     # fallback
-    return _save_svg("scenarios.png", "Forecast Scenarios Comparison")
+    title = "Forecast Scenarios Comparison" + title_suffix
+    filename = f"scenarios{title_suffix.replace('(', '_').replace(')', '').replace(' ', '_')}.png"
+    return _save_svg(filename, title)
 
 
 def plot_backtest_history(backtest_data: dict, stock_id: str, model_name: str = "Best") -> str:
