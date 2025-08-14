@@ -229,9 +229,94 @@ def run_forecast_with_specific_model(stock_id: str, model_name: str) -> dict:
         "warnings": warnings,
     })
 
-    # 保存預測結果到統一資料表（暫時禁用，待修復）
-    # TODO: 修復自動保存功能
-    pass
+    # 保存預測結果到統一資料表
+    try:
+        from .db import save_prediction_result, get_conn
+
+        # 獲取股票名稱
+        stock_name = None
+        try:
+            with get_conn() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT stock_name FROM stocks WHERE stock_id = ?", (stock_id,))
+                row = cursor.fetchone()
+                if row:
+                    stock_name = row['stock_name']
+        except:
+            pass
+
+        # 獲取最新營收資訊
+        latest_revenue = None
+        latest_revenue_month = None
+        if not hist_df.empty:
+            latest_row = hist_df.sort_values('date').iloc[-1]
+            latest_revenue = float(latest_row['revenue'])
+            latest_revenue_month = latest_row['date'].strftime('%Y-%m')
+
+        # 從 scenarios_df 直接獲取預測資料（這是原始資料）
+        target_month = None
+        predicted_revenue = None
+
+        if not scenarios_df.empty:
+            # 查找 baseline 情境
+            baseline_rows = scenarios_df[scenarios_df['scenario'] == 'baseline']
+            if not baseline_rows.empty:
+                baseline_row = baseline_rows.iloc[0]
+                target_month = baseline_row['date'].strftime('%Y-%m')
+                predicted_revenue = float(baseline_row['forecast_value'])
+
+        # 如果沒有找到基準預測值，直接返回
+        if target_month is None or predicted_revenue is None:
+            return result
+
+        # 嘗試獲取回測指標
+        trend_accuracy = None
+        mape = None
+        try:
+            from .menu import get_backtest_metrics
+            backtest_metrics = get_backtest_metrics(stock_id)
+            if backtest_metrics and model_name in backtest_metrics:
+                model_metrics = backtest_metrics[model_name]
+                trend_accuracy = model_metrics.get('trend_accuracy')
+                mape = model_metrics.get('mape')
+        except:
+            pass
+
+        # 保存預測結果
+        save_prediction_result(
+            stock_id=stock_id,
+            stock_name=stock_name or stock_id,
+            model_name=model_name,
+            target_month=target_month,
+            predicted_revenue=predicted_revenue,
+            latest_revenue=latest_revenue,
+            latest_revenue_month=latest_revenue_month,
+            trend_accuracy=trend_accuracy,
+            mape=mape,
+            scenario='baseline'
+        )
+
+        # 也保存其他情境
+        for _, row in scenarios_df.iterrows():
+            if row['scenario'] != 'baseline':
+                save_prediction_result(
+                    stock_id=stock_id,
+                    stock_name=stock_name or stock_id,
+                    model_name=model_name,
+                    target_month=target_month,
+                    predicted_revenue=float(row['forecast_value']),
+                    latest_revenue=latest_revenue,
+                    latest_revenue_month=latest_revenue_month,
+                    trend_accuracy=trend_accuracy,
+                    mape=mape,
+                    scenario=row['scenario']
+                )
+
+    except Exception as e:
+        # 不影響主要功能，只記錄錯誤
+        print(f"⚠️  保存預測結果失敗: {e}")
+        import traceback
+        traceback.print_exc()
 
     return result
 
