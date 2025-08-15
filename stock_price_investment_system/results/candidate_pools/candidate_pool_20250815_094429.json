@@ -1,0 +1,455 @@
+﻿{
+  "success": true,
+  "candidate_pool": [
+    {
+      "stock_id": "1108",
+      "stock_score": 74.1502276199582,
+      "statistics": {
+        "all_trades": [
+          {
+            "fold_idx": 1,
+            "stock_id": "1108",
+            "entry_date": "2020-03-31",
+            "predicted_return": 0.13823072612285614,
+            "actual_return": 0.150554675118859,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1108",
+            "entry_date": "2020-06-30",
+            "predicted_return": 0.05370774492621422,
+            "actual_return": 0.015259409969481216,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1108",
+            "entry_date": "2021-01-31",
+            "predicted_return": 0.07099611312150955,
+            "actual_return": 0.06944444444444443,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1108",
+            "entry_date": "2022-02-28",
+            "predicted_return": 0.05736170709133148,
+            "actual_return": 0.048888888888888954,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1108",
+            "entry_date": "2022-08-31",
+            "predicted_return": 0.05797167494893074,
+            "actual_return": -0.013761467889908289,
+            "holding_days": 20
+          }
+        ],
+        "fold_count": 3,
+        "total_trades": 5,
+        "win_rate": 0.8,
+        "average_return": 0.054077190106353056,
+        "total_return": 0.2703859505317653,
+        "return_std": 0.05599978511251856,
+        "max_return": 0.150554675118859,
+        "min_return": -0.013761467889908289,
+        "profit_loss_ratio": 5.162011434660391,
+        "sharpe_ratio": 0.9656678145763864
+      },
+      "qualification_reasons": [
+        "勝率符合: 80.00%",
+        "盈虧比符合: 5.16",
+        "交易次數符合: 5",
+        "fold數符合: 3",
+        "最大回撤可接受: 1.38%"
+      ]
+    }
+  ],
+  "rejected_stocks": [
+    {
+      "stock_id": "1109",
+      "stock_score": 37.444568455691446,
+      "statistics": {
+        "all_trades": [
+          {
+            "fold_idx": 0,
+            "stock_id": "1109",
+            "entry_date": "2019-01-31",
+            "predicted_return": 0.05808186158537865,
+            "actual_return": 0.0,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1109",
+            "entry_date": "2020-07-31",
+            "predicted_return": 0.060260411351919174,
+            "actual_return": 0.061946902654867304,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1109",
+            "entry_date": "2021-04-30",
+            "predicted_return": 0.05421368032693863,
+            "actual_return": -0.11403508771929824,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1109",
+            "entry_date": "2021-08-31",
+            "predicted_return": 0.06027583032846451,
+            "actual_return": 0.11832946635730861,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1109",
+            "entry_date": "2022-03-31",
+            "predicted_return": 0.053819820284843445,
+            "actual_return": -0.023529411764705882,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1109",
+            "entry_date": "2022-09-30",
+            "predicted_return": 0.11244887113571167,
+            "actual_return": -0.036666666666666715,
+            "holding_days": 20
+          }
+        ],
+        "fold_count": 4,
+        "total_trades": 6,
+        "win_rate": 0.3333333333333333,
+        "average_return": 0.001007533810250847,
+        "total_return": 0.006045202861505082,
+        "return_std": 0.07386391710915623,
+        "max_return": 0.11832946635730861,
+        "min_return": -0.11403508771929824,
+        "profit_loss_ratio": 1.5520446742829925,
+        "sharpe_ratio": 0.013640405893474506
+      },
+      "rejection_reasons": [
+        "勝率過低: 33.33% < 52.00%",
+        "盈虧比符合: 1.55",
+        "交易次數符合: 6",
+        "fold數符合: 4",
+        "最大回撤可接受: 11.40%"
+      ]
+    },
+    {
+      "stock_id": "1103",
+      "stock_score": 48.22281311349109,
+      "statistics": {
+        "all_trades": [
+          {
+            "fold_idx": 1,
+            "stock_id": "1103",
+            "entry_date": "2020-03-31",
+            "predicted_return": 0.09016873687505722,
+            "actual_return": 0.08910891089108908,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1103",
+            "entry_date": "2022-03-31",
+            "predicted_return": 0.061791568994522095,
+            "actual_return": -0.03579952267303103,
+            "holding_days": 20
+          }
+        ],
+        "fold_count": 2,
+        "total_trades": 2,
+        "win_rate": 0.5,
+        "average_return": 0.026654694109029025,
+        "total_return": 0.05330938821805805,
+        "return_std": 0.06245421678206005,
+        "max_return": 0.08910891089108908,
+        "min_return": -0.03579952267303103,
+        "profit_loss_ratio": 2.489108910891088,
+        "sharpe_ratio": 0.4267877412031781
+      },
+      "rejection_reasons": [
+        "勝率過低: 50.00% < 52.00%",
+        "盈虧比符合: 2.49",
+        "交易次數過少: 2 < 5",
+        "fold數符合: 2",
+        "最大回撤可接受: 3.58%"
+      ]
+    },
+    {
+      "stock_id": "1101",
+      "stock_score": 59.289873012867766,
+      "statistics": {
+        "all_trades": [
+          {
+            "fold_idx": 3,
+            "stock_id": "1101",
+            "entry_date": "2022-02-28",
+            "predicted_return": 0.09948698431253433,
+            "actual_return": 0.024058577405857862,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1101",
+            "entry_date": "2022-07-31",
+            "predicted_return": 0.07420051842927933,
+            "actual_return": -0.0012658227848100546,
+            "holding_days": 20
+          }
+        ],
+        "fold_count": 1,
+        "total_trades": 2,
+        "win_rate": 0.5,
+        "average_return": 0.011396377310523904,
+        "total_return": 0.02279275462104781,
+        "return_std": 0.01266220009533396,
+        "max_return": 0.024058577405857862,
+        "min_return": -0.0012658227848100546,
+        "profit_loss_ratio": 19.006276150628793,
+        "sharpe_ratio": 0.9000313709087165
+      },
+      "rejection_reasons": [
+        "勝率過低: 50.00% < 52.00%",
+        "盈虧比符合: 19.01",
+        "交易次數過少: 2 < 5",
+        "有交易的fold數過少: 1 < 2",
+        "最大回撤可接受: 0.13%"
+      ]
+    },
+    {
+      "stock_id": "1104",
+      "stock_score": 100,
+      "statistics": {
+        "all_trades": [
+          {
+            "fold_idx": 3,
+            "stock_id": "1104",
+            "entry_date": "2022-02-28",
+            "predicted_return": 0.07613883912563324,
+            "actual_return": -0.011627906976744186,
+            "holding_days": 20
+          }
+        ],
+        "fold_count": 1,
+        "total_trades": 1,
+        "win_rate": 0.0,
+        "average_return": -0.011627906976744186,
+        "total_return": -0.011627906976744186,
+        "return_std": 0.0,
+        "max_return": -0.011627906976744186,
+        "min_return": -0.011627906976744186,
+        "profit_loss_ratio": NaN,
+        "sharpe_ratio": 0
+      },
+      "rejection_reasons": [
+        "勝率過低: 0.00% < 52.00%",
+        "盈虧比符合: nan",
+        "交易次數過少: 1 < 5",
+        "有交易的fold數過少: 1 < 2",
+        "最大回撤可接受: 1.16%"
+      ]
+    },
+    {
+      "stock_id": "1110",
+      "stock_score": 23.943037354930173,
+      "statistics": {
+        "all_trades": [
+          {
+            "fold_idx": 3,
+            "stock_id": "1110",
+            "entry_date": "2022-02-28",
+            "predicted_return": 0.07142321020364761,
+            "actual_return": 0.0024449877750611594,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1110",
+            "entry_date": "2022-03-31",
+            "predicted_return": 0.06422656029462814,
+            "actual_return": -0.03037383177570087,
+            "holding_days": 20
+          }
+        ],
+        "fold_count": 1,
+        "total_trades": 2,
+        "win_rate": 0.5,
+        "average_return": -0.013964422000319854,
+        "total_return": -0.02792884400063971,
+        "return_std": 0.016409409775381013,
+        "max_return": 0.0024449877750611594,
+        "min_return": -0.03037383177570087,
+        "profit_loss_ratio": 0.08049652059432143,
+        "sharpe_ratio": -0.8510008703220169
+      },
+      "rejection_reasons": [
+        "勝率過低: 50.00% < 52.00%",
+        "盈虧比過低: 0.08 < 1.20",
+        "交易次數過少: 2 < 5",
+        "有交易的fold數過少: 1 < 2",
+        "最大回撤可接受: 3.04%"
+      ]
+    },
+    {
+      "stock_id": "1210",
+      "stock_score": 71.28706467661691,
+      "statistics": {
+        "all_trades": [
+          {
+            "fold_idx": 3,
+            "stock_id": "1210",
+            "entry_date": "2022-10-31",
+            "predicted_return": 0.06267917156219482,
+            "actual_return": 0.07587064676616907,
+            "holding_days": 20
+          }
+        ],
+        "fold_count": 1,
+        "total_trades": 1,
+        "win_rate": 1.0,
+        "average_return": 0.07587064676616907,
+        "total_return": 0.07587064676616907,
+        "return_std": 0.0,
+        "max_return": 0.07587064676616907,
+        "min_return": 0.07587064676616907,
+        "profit_loss_ratio": Infinity,
+        "sharpe_ratio": 0
+      },
+      "rejection_reasons": [
+        "勝率符合: 100.00%",
+        "盈虧比符合: inf",
+        "交易次數過少: 1 < 5",
+        "有交易的fold數過少: 1 < 2",
+        "最大回撤可接受: 7.59%"
+      ]
+    }
+  ],
+  "pool_size": 1,
+  "total_evaluated": 7,
+  "qualification_rate": 0.14285714285714285,
+  "thresholds_used": {
+    "min_win_rate": 0.52,
+    "min_profit_loss_ratio": 1.2,
+    "min_trade_count": 5,
+    "min_folds_with_trades": 2,
+    "max_drawdown_threshold": 0.25
+  },
+  "report": {
+    "summary": {
+      "total_stocks_evaluated": 7,
+      "qualified_stocks": 1,
+      "rejected_stocks": 6,
+      "qualification_rate": 0.14285714285714285
+    },
+    "thresholds_applied": {
+      "min_win_rate": 0.52,
+      "min_profit_loss_ratio": 1.2,
+      "min_trade_count": 5,
+      "min_folds_with_trades": 2,
+      "max_drawdown_threshold": 0.25
+    },
+    "top_candidates": [
+      {
+        "stock_id": "1108",
+        "stock_score": 74.1502276199582,
+        "statistics": {
+          "all_trades": [
+            {
+              "fold_idx": 1,
+              "stock_id": "1108",
+              "entry_date": "2020-03-31",
+              "predicted_return": 0.13823072612285614,
+              "actual_return": 0.150554675118859,
+              "holding_days": 20
+            },
+            {
+              "fold_idx": 1,
+              "stock_id": "1108",
+              "entry_date": "2020-06-30",
+              "predicted_return": 0.05370774492621422,
+              "actual_return": 0.015259409969481216,
+              "holding_days": 20
+            },
+            {
+              "fold_idx": 2,
+              "stock_id": "1108",
+              "entry_date": "2021-01-31",
+              "predicted_return": 0.07099611312150955,
+              "actual_return": 0.06944444444444443,
+              "holding_days": 20
+            },
+            {
+              "fold_idx": 3,
+              "stock_id": "1108",
+              "entry_date": "2022-02-28",
+              "predicted_return": 0.05736170709133148,
+              "actual_return": 0.048888888888888954,
+              "holding_days": 20
+            },
+            {
+              "fold_idx": 3,
+              "stock_id": "1108",
+              "entry_date": "2022-08-31",
+              "predicted_return": 0.05797167494893074,
+              "actual_return": -0.013761467889908289,
+              "holding_days": 20
+            }
+          ],
+          "fold_count": 3,
+          "total_trades": 5,
+          "win_rate": 0.8,
+          "average_return": 0.054077190106353056,
+          "total_return": 0.2703859505317653,
+          "return_std": 0.05599978511251856,
+          "max_return": 0.150554675118859,
+          "min_return": -0.013761467889908289,
+          "profit_loss_ratio": 5.162011434660391,
+          "sharpe_ratio": 0.9656678145763864
+        },
+        "qualification_reasons": [
+          "勝率符合: 80.00%",
+          "盈虧比符合: 5.16",
+          "交易次數符合: 5",
+          "fold數符合: 3",
+          "最大回撤可接受: 1.38%"
+        ]
+      }
+    ],
+    "rejection_analysis": {
+      "reason_counts": {
+        "low_win_rate": 5,
+        "insufficient_trades": 5,
+        "insufficient_folds": 4,
+        "low_profit_loss_ratio": 1
+      },
+      "most_common_reason": [
+        "low_win_rate",
+        5
+      ],
+      "total_rejected": 6
+    },
+    "score_distribution": {
+      "mean_score": 59.191083461936515,
+      "median_score": 59.289873012867766,
+      "std_score": 23.516270378452734,
+      "min_score": 23.943037354930173,
+      "max_score": 100.0,
+      "score_ranges": {
+        "90-100": 1,
+        "80-89": 0,
+        "70-79": 2,
+        "60-69": 0,
+        "50-59": 1,
+        "0-49": 3
+      }
+    }
+  },
+  "generated_at": "2025-08-15T09:44:29.968584"
+}

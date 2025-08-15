@@ -35,7 +35,7 @@
 
 **必備資料（最少）**
 
-- 月營收（data/taiwan\_stock.db）: company\_id, year, month, revenue, revenue\_publish\_date（若可用）
+- 月營收（專案根目錄 data/taiwan_stock.db）: company_id, year, month, revenue, revenue_publish_date（若可用）
 - 日級 OHLCV（至少 2015 起）: date, open, high, low, close, volume
 - 公司屬性：industry\_code、上市日、退市日、除息日、停牌記錄
 
@@ -54,16 +54,17 @@
 stock_price_investment_system/
 ├── start.py                         # 中文互動選單
 ├── README.md                        # 系統說明
-├── data/                            # 原始資料與 sqlite db
-│   └── taiwan_stock.db
+├── data/                            # 本系統資料快取（不放主DB）
 ├── forecasting/                     # 既有營收預測模組
 ├── price_models/                    # 營收→股價模型
-├── selector/                         # 股票池與選股規則
+├── selector/                        # 股票池與選股規則
 ├── advisor/                         # 投資建議、追蹤與日誌
 ├── orchestrator/                    # 排程與自動化流程
 ├── tests/                           # 單元測試
 └── reports/                         # 回測報表（HTML、CSV）
 ```
+
+注意：主 SQLite 資料庫位於專案根目錄的 `../data/taiwan_stock.db`（上層目錄），本系統資料夾內的 `data/` 僅作為快取或輸出用，不存放主DB。
 
 # 4 Walk-forward 驗證設計（核心）
 

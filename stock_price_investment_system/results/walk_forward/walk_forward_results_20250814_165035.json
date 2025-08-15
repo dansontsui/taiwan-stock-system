@@ -1,0 +1,1171 @@
+﻿{
+  "stock_statistics": {
+    "1109": {
+      "all_trades": [
+        {
+          "fold_idx": 0,
+          "stock_id": "1109",
+          "entry_date": "2019-01-31",
+          "predicted_return": 0.05808186158537865,
+          "actual_return": 0.0,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1109",
+          "entry_date": "2020-07-31",
+          "predicted_return": 0.060260411351919174,
+          "actual_return": 0.061946902654867304,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1109",
+          "entry_date": "2021-04-30",
+          "predicted_return": 0.05421368032693863,
+          "actual_return": -0.11403508771929824,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1109",
+          "entry_date": "2021-08-31",
+          "predicted_return": 0.06027583032846451,
+          "actual_return": 0.11832946635730861,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 3,
+          "stock_id": "1109",
+          "entry_date": "2022-03-31",
+          "predicted_return": 0.053819820284843445,
+          "actual_return": -0.023529411764705882,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 3,
+          "stock_id": "1109",
+          "entry_date": "2022-09-30",
+          "predicted_return": 0.11244887113571167,
+          "actual_return": -0.036666666666666715,
+          "holding_days": 20
+        }
+      ],
+      "fold_count": 4,
+      "total_trades": 6,
+      "win_rate": 0.3333333333333333,
+      "average_return": 0.001007533810250847,
+      "total_return": 0.006045202861505082,
+      "return_std": 0.07386391710915623,
+      "max_return": 0.11832946635730861,
+      "min_return": -0.11403508771929824,
+      "profit_loss_ratio": 1.5520446742829925,
+      "sharpe_ratio": 0.013640405893474506
+    },
+    "1103": {
+      "all_trades": [
+        {
+          "fold_idx": 1,
+          "stock_id": "1103",
+          "entry_date": "2020-03-31",
+          "predicted_return": 0.09016873687505722,
+          "actual_return": 0.08910891089108908,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 3,
+          "stock_id": "1103",
+          "entry_date": "2022-03-31",
+          "predicted_return": 0.061791568994522095,
+          "actual_return": -0.03579952267303103,
+          "holding_days": 20
+        }
+      ],
+      "fold_count": 2,
+      "total_trades": 2,
+      "win_rate": 0.5,
+      "average_return": 0.026654694109029025,
+      "total_return": 0.05330938821805805,
+      "return_std": 0.06245421678206005,
+      "max_return": 0.08910891089108908,
+      "min_return": -0.03579952267303103,
+      "profit_loss_ratio": 2.489108910891088,
+      "sharpe_ratio": 0.4267877412031781
+    },
+    "1108": {
+      "all_trades": [
+        {
+          "fold_idx": 1,
+          "stock_id": "1108",
+          "entry_date": "2020-03-31",
+          "predicted_return": 0.13823072612285614,
+          "actual_return": 0.150554675118859,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1108",
+          "entry_date": "2020-06-30",
+          "predicted_return": 0.05370774492621422,
+          "actual_return": 0.015259409969481216,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1108",
+          "entry_date": "2021-01-31",
+          "predicted_return": 0.07099611312150955,
+          "actual_return": 0.06944444444444443,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 3,
+          "stock_id": "1108",
+          "entry_date": "2022-02-28",
+          "predicted_return": 0.05736170709133148,
+          "actual_return": 0.048888888888888954,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 3,
+          "stock_id": "1108",
+          "entry_date": "2022-08-31",
+          "predicted_return": 0.05797167494893074,
+          "actual_return": -0.013761467889908289,
+          "holding_days": 20
+        }
+      ],
+      "fold_count": 3,
+      "total_trades": 5,
+      "win_rate": 0.8,
+      "average_return": 0.054077190106353056,
+      "total_return": 0.2703859505317653,
+      "return_std": 0.05599978511251856,
+      "max_return": 0.150554675118859,
+      "min_return": -0.013761467889908289,
+      "profit_loss_ratio": 5.162011434660391,
+      "sharpe_ratio": 0.9656678145763864
+    },
+    "1101": {
+      "all_trades": [
+        {
+          "fold_idx": 3,
+          "stock_id": "1101",
+          "entry_date": "2022-02-28",
+          "predicted_return": 0.09948698431253433,
+          "actual_return": 0.024058577405857862,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 3,
+          "stock_id": "1101",
+          "entry_date": "2022-07-31",
+          "predicted_return": 0.07420051842927933,
+          "actual_return": -0.0012658227848100546,
+          "holding_days": 20
+        }
+      ],
+      "fold_count": 1,
+      "total_trades": 2,
+      "win_rate": 0.5,
+      "average_return": 0.011396377310523904,
+      "total_return": 0.02279275462104781,
+      "return_std": 0.01266220009533396,
+      "max_return": 0.024058577405857862,
+      "min_return": -0.0012658227848100546,
+      "profit_loss_ratio": 19.006276150628793,
+      "sharpe_ratio": 0.9000313709087165
+    },
+    "1104": {
+      "all_trades": [
+        {
+          "fold_idx": 3,
+          "stock_id": "1104",
+          "entry_date": "2022-02-28",
+          "predicted_return": 0.07613883912563324,
+          "actual_return": -0.011627906976744186,
+          "holding_days": 20
+        }
+      ],
+      "fold_count": 1,
+      "total_trades": 1,
+      "win_rate": 0.0,
+      "average_return": -0.011627906976744186,
+      "total_return": -0.011627906976744186,
+      "return_std": 0.0,
+      "max_return": -0.011627906976744186,
+      "min_return": -0.011627906976744186,
+      "profit_loss_ratio": NaN,
+      "sharpe_ratio": 0
+    },
+    "1110": {
+      "all_trades": [
+        {
+          "fold_idx": 3,
+          "stock_id": "1110",
+          "entry_date": "2022-02-28",
+          "predicted_return": 0.07142321020364761,
+          "actual_return": 0.0024449877750611594,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 3,
+          "stock_id": "1110",
+          "entry_date": "2022-03-31",
+          "predicted_return": 0.06422656029462814,
+          "actual_return": -0.03037383177570087,
+          "holding_days": 20
+        }
+      ],
+      "fold_count": 1,
+      "total_trades": 2,
+      "win_rate": 0.5,
+      "average_return": -0.013964422000319854,
+      "total_return": -0.02792884400063971,
+      "return_std": 0.016409409775381013,
+      "max_return": 0.0024449877750611594,
+      "min_return": -0.03037383177570087,
+      "profit_loss_ratio": 0.08049652059432143,
+      "sharpe_ratio": -0.8510008703220169
+    },
+    "1210": {
+      "all_trades": [
+        {
+          "fold_idx": 3,
+          "stock_id": "1210",
+          "entry_date": "2022-10-31",
+          "predicted_return": 0.06267917156219482,
+          "actual_return": 0.07587064676616907,
+          "holding_days": 20
+        }
+      ],
+      "fold_count": 1,
+      "total_trades": 1,
+      "win_rate": 1.0,
+      "average_return": 0.07587064676616907,
+      "total_return": 0.07587064676616907,
+      "return_std": 0.0,
+      "max_return": 0.07587064676616907,
+      "min_return": 0.07587064676616907,
+      "profit_loss_ratio": Infinity,
+      "sharpe_ratio": 0
+    }
+  },
+  "fold_results": [
+    {
+      "success": true,
+      "fold_idx": 0,
+      "fold_info": {
+        "train_start": "2015-01-01",
+        "train_end": "2018-12-11",
+        "test_start": "2018-12-12",
+        "test_end": "2019-12-07"
+      },
+      "train_result": {
+        "success": true,
+        "model_type": "xgboost",
+        "training_samples": 248,
+        "validation_samples": 62,
+        "feature_count": 72,
+        "train_metrics": {
+          "mse": 2.7816084904863666e-06,
+          "rmse": 0.0016678154845444883,
+          "mae": 0.0012124270345283401,
+          "r2": 0.9990646692884192,
+          "mean_pred": "-0.00298754",
+          "std_pred": "0.053425327"
+        },
+        "validation_metrics": {
+          "mse": 0.002557664365242207,
+          "rmse": 0.05057335627820451,
+          "mae": 0.037550492517471584,
+          "r2": -0.025968621060001418,
+          "mean_pred": "-0.011058168",
+          "std_pred": "0.0235924"
+        },
+        "cv_r2_mean": -0.0999969333736606,
+        "cv_r2_std": 0.2971874518737467,
+        "feature_names": [
+          "latest_revenue",
+          "revenue_yoy_1m",
+          "revenue_yoy_3m",
+          "revenue_yoy_6m",
+          "revenue_yoy_12m",
+          "revenue_mom_1m",
+          "revenue_mom_3m",
+          "revenue_mom_6m",
+          "revenue_ma_3m",
+          "revenue_to_ma_3m",
+          "revenue_ma_6m",
+          "revenue_to_ma_6m",
+          "revenue_ma_12m",
+          "revenue_to_ma_12m",
+          "revenue_volatility",
+          "revenue_trend",
+          "seasonal_factor",
+          "predicted_revenue_growth",
+          "revenue_prediction_confidence",
+          "revenue_prediction_range",
+          "predicted_eps_growth",
+          "eps_prediction_confidence",
+          "eps_prediction_range",
+          "current_price",
+          "price_change_1d",
+          "price_change_5d",
+          "price_change_20d",
+          "price_to_ma_5",
+          "price_to_ma_20",
+          "price_to_ma_60",
+          "rsi",
+          "macd",
+          "macd_signal",
+          "macd_histogram",
+          "volume_ratio",
+          "price_volume_trend",
+          "price_volatility",
+          "high_low_ratio",
+          "industry_11",
+          "industry_12",
+          "industry_13",
+          "industry_14",
+          "industry_15",
+          "industry_16",
+          "industry_17",
+          "industry_18",
+          "industry_19",
+          "industry_20",
+          "industry_21",
+          "industry_22",
+          "industry_23",
+          "industry_24",
+          "industry_25",
+          "industry_26",
+          "industry_27",
+          "industry_28",
+          "industry_29",
+          "industry_30",
+          "listing_age_years",
+          "is_new_listing",
+          "month",
+          "quarter",
+          "is_q1",
+          "is_q2",
+          "is_q3",
+          "is_q4",
+          "year",
+          "year_progress",
+          "revenue_growth_rsi",
+          "revenue_yoy_price_momentum",
+          "volume_price_momentum",
+          "confidence_technical_confirm"
+        ]
+      },
+      "backtest_result": {
+        "trades": [
+          {
+            "fold_idx": 0,
+            "stock_id": "1109",
+            "entry_date": "2019-01-31",
+            "predicted_return": 0.05808186158537865,
+            "actual_return": 0.0,
+            "holding_days": 20
+          }
+        ],
+        "stock_performance": {
+          "1109": {
+            "trades": [
+              {
+                "fold_idx": 0,
+                "stock_id": "1109",
+                "entry_date": "2019-01-31",
+                "predicted_return": 0.05808186158537865,
+                "actual_return": 0.0,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 1,
+            "winning_trades": 0,
+            "total_return": 0.0
+          }
+        },
+        "metrics": {
+          "total_trades": 1,
+          "total_return": 0.0,
+          "average_return": 0.0,
+          "win_rate": 0.0,
+          "profit_loss_ratio": Infinity,
+          "max_return": 0.0,
+          "min_return": 0.0,
+          "return_std": 0.0,
+          "sharpe_ratio": 0
+        },
+        "total_trades": 1
+      }
+    },
+    {
+      "success": true,
+      "fold_idx": 1,
+      "fold_info": {
+        "train_start": "2015-12-27",
+        "train_end": "2019-12-06",
+        "test_start": "2019-12-07",
+        "test_end": "2020-12-01"
+      },
+      "train_result": {
+        "success": true,
+        "model_type": "xgboost",
+        "training_samples": 224,
+        "validation_samples": 56,
+        "feature_count": 72,
+        "train_metrics": {
+          "mse": 2.413204802202773e-06,
+          "rmse": 0.001553449323989287,
+          "mae": 0.0011736732893257722,
+          "r2": 0.9991128886530736,
+          "mean_pred": "0.0022958915",
+          "std_pred": "0.051077478"
+        },
+        "validation_metrics": {
+          "mse": 0.0024934210066736365,
+          "rmse": 0.049934166726537416,
+          "mae": 0.03797362737916526,
+          "r2": -0.23220469763133034,
+          "mean_pred": "-0.012410136",
+          "std_pred": "0.020301718"
+        },
+        "cv_r2_mean": -0.10339843519738715,
+        "cv_r2_std": 0.14323962810585295,
+        "feature_names": [
+          "latest_revenue",
+          "revenue_yoy_1m",
+          "revenue_yoy_3m",
+          "revenue_yoy_6m",
+          "revenue_yoy_12m",
+          "revenue_mom_1m",
+          "revenue_mom_3m",
+          "revenue_mom_6m",
+          "revenue_ma_3m",
+          "revenue_to_ma_3m",
+          "revenue_ma_6m",
+          "revenue_to_ma_6m",
+          "revenue_ma_12m",
+          "revenue_to_ma_12m",
+          "revenue_volatility",
+          "revenue_trend",
+          "seasonal_factor",
+          "predicted_revenue_growth",
+          "revenue_prediction_confidence",
+          "revenue_prediction_range",
+          "predicted_eps_growth",
+          "eps_prediction_confidence",
+          "eps_prediction_range",
+          "current_price",
+          "price_change_1d",
+          "price_change_5d",
+          "price_change_20d",
+          "price_to_ma_5",
+          "price_to_ma_20",
+          "price_to_ma_60",
+          "rsi",
+          "macd",
+          "macd_signal",
+          "macd_histogram",
+          "volume_ratio",
+          "price_volume_trend",
+          "price_volatility",
+          "high_low_ratio",
+          "industry_11",
+          "industry_12",
+          "industry_13",
+          "industry_14",
+          "industry_15",
+          "industry_16",
+          "industry_17",
+          "industry_18",
+          "industry_19",
+          "industry_20",
+          "industry_21",
+          "industry_22",
+          "industry_23",
+          "industry_24",
+          "industry_25",
+          "industry_26",
+          "industry_27",
+          "industry_28",
+          "industry_29",
+          "industry_30",
+          "listing_age_years",
+          "is_new_listing",
+          "month",
+          "quarter",
+          "is_q1",
+          "is_q2",
+          "is_q3",
+          "is_q4",
+          "year",
+          "year_progress",
+          "revenue_growth_rsi",
+          "revenue_yoy_price_momentum",
+          "volume_price_momentum",
+          "confidence_technical_confirm"
+        ]
+      },
+      "backtest_result": {
+        "trades": [
+          {
+            "fold_idx": 1,
+            "stock_id": "1103",
+            "entry_date": "2020-03-31",
+            "predicted_return": 0.09016873687505722,
+            "actual_return": 0.08910891089108908,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1108",
+            "entry_date": "2020-03-31",
+            "predicted_return": 0.13823072612285614,
+            "actual_return": 0.150554675118859,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1108",
+            "entry_date": "2020-06-30",
+            "predicted_return": 0.05370774492621422,
+            "actual_return": 0.015259409969481216,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1109",
+            "entry_date": "2020-07-31",
+            "predicted_return": 0.060260411351919174,
+            "actual_return": 0.061946902654867304,
+            "holding_days": 20
+          }
+        ],
+        "stock_performance": {
+          "1103": {
+            "trades": [
+              {
+                "fold_idx": 1,
+                "stock_id": "1103",
+                "entry_date": "2020-03-31",
+                "predicted_return": 0.09016873687505722,
+                "actual_return": 0.08910891089108908,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 1,
+            "winning_trades": 1,
+            "total_return": 0.08910891089108908
+          },
+          "1108": {
+            "trades": [
+              {
+                "fold_idx": 1,
+                "stock_id": "1108",
+                "entry_date": "2020-03-31",
+                "predicted_return": 0.13823072612285614,
+                "actual_return": 0.150554675118859,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1108",
+                "entry_date": "2020-06-30",
+                "predicted_return": 0.05370774492621422,
+                "actual_return": 0.015259409969481216,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 2,
+            "winning_trades": 2,
+            "total_return": 0.16581408508834022
+          },
+          "1109": {
+            "trades": [
+              {
+                "fold_idx": 1,
+                "stock_id": "1109",
+                "entry_date": "2020-07-31",
+                "predicted_return": 0.060260411351919174,
+                "actual_return": 0.061946902654867304,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 1,
+            "winning_trades": 1,
+            "total_return": 0.061946902654867304
+          }
+        },
+        "metrics": {
+          "total_trades": 4,
+          "total_return": 0.3168698986342966,
+          "average_return": 0.07921747465857415,
+          "win_rate": 1.0,
+          "profit_loss_ratio": Infinity,
+          "max_return": 0.150554675118859,
+          "min_return": 0.015259409969481216,
+          "return_std": 0.048927863677975435,
+          "sharpe_ratio": 1.6190666974538965
+        },
+        "total_trades": 4
+      }
+    },
+    {
+      "success": true,
+      "fold_idx": 2,
+      "fold_info": {
+        "train_start": "2016-12-21",
+        "train_end": "2020-11-30",
+        "test_start": "2020-12-01",
+        "test_end": "2021-11-26"
+      },
+      "train_result": {
+        "success": true,
+        "model_type": "xgboost",
+        "training_samples": 232,
+        "validation_samples": 58,
+        "feature_count": 72,
+        "train_metrics": {
+          "mse": 2.587430590890674e-06,
+          "rmse": 0.001608549219293794,
+          "mae": 0.0011458442452342834,
+          "r2": 0.9992825357666469,
+          "mean_pred": "0.0055032577",
+          "std_pred": "0.059014253"
+        },
+        "validation_metrics": {
+          "mse": 0.0033307712928927445,
+          "rmse": 0.05771283473277625,
+          "mae": 0.04730354622302544,
+          "r2": -0.6367486209948054,
+          "mean_pred": "-0.021415742",
+          "std_pred": "0.029448045"
+        },
+        "cv_r2_mean": 0.014149154095686933,
+        "cv_r2_std": 0.26254490760192634,
+        "feature_names": [
+          "latest_revenue",
+          "revenue_yoy_1m",
+          "revenue_yoy_3m",
+          "revenue_yoy_6m",
+          "revenue_yoy_12m",
+          "revenue_mom_1m",
+          "revenue_mom_3m",
+          "revenue_mom_6m",
+          "revenue_ma_3m",
+          "revenue_to_ma_3m",
+          "revenue_ma_6m",
+          "revenue_to_ma_6m",
+          "revenue_ma_12m",
+          "revenue_to_ma_12m",
+          "revenue_volatility",
+          "revenue_trend",
+          "seasonal_factor",
+          "predicted_revenue_growth",
+          "revenue_prediction_confidence",
+          "revenue_prediction_range",
+          "predicted_eps_growth",
+          "eps_prediction_confidence",
+          "eps_prediction_range",
+          "current_price",
+          "price_change_1d",
+          "price_change_5d",
+          "price_change_20d",
+          "price_to_ma_5",
+          "price_to_ma_20",
+          "price_to_ma_60",
+          "rsi",
+          "macd",
+          "macd_signal",
+          "macd_histogram",
+          "volume_ratio",
+          "price_volume_trend",
+          "price_volatility",
+          "high_low_ratio",
+          "industry_11",
+          "industry_12",
+          "industry_13",
+          "industry_14",
+          "industry_15",
+          "industry_16",
+          "industry_17",
+          "industry_18",
+          "industry_19",
+          "industry_20",
+          "industry_21",
+          "industry_22",
+          "industry_23",
+          "industry_24",
+          "industry_25",
+          "industry_26",
+          "industry_27",
+          "industry_28",
+          "industry_29",
+          "industry_30",
+          "listing_age_years",
+          "is_new_listing",
+          "month",
+          "quarter",
+          "is_q1",
+          "is_q2",
+          "is_q3",
+          "is_q4",
+          "year",
+          "year_progress",
+          "revenue_growth_rsi",
+          "revenue_yoy_price_momentum",
+          "volume_price_momentum",
+          "confidence_technical_confirm"
+        ]
+      },
+      "backtest_result": {
+        "trades": [
+          {
+            "fold_idx": 2,
+            "stock_id": "1108",
+            "entry_date": "2021-01-31",
+            "predicted_return": 0.07099611312150955,
+            "actual_return": 0.06944444444444443,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1109",
+            "entry_date": "2021-04-30",
+            "predicted_return": 0.05421368032693863,
+            "actual_return": -0.11403508771929824,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1109",
+            "entry_date": "2021-08-31",
+            "predicted_return": 0.06027583032846451,
+            "actual_return": 0.11832946635730861,
+            "holding_days": 20
+          }
+        ],
+        "stock_performance": {
+          "1108": {
+            "trades": [
+              {
+                "fold_idx": 2,
+                "stock_id": "1108",
+                "entry_date": "2021-01-31",
+                "predicted_return": 0.07099611312150955,
+                "actual_return": 0.06944444444444443,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 1,
+            "winning_trades": 1,
+            "total_return": 0.06944444444444443
+          },
+          "1109": {
+            "trades": [
+              {
+                "fold_idx": 2,
+                "stock_id": "1109",
+                "entry_date": "2021-04-30",
+                "predicted_return": 0.05421368032693863,
+                "actual_return": -0.11403508771929824,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 2,
+                "stock_id": "1109",
+                "entry_date": "2021-08-31",
+                "predicted_return": 0.06027583032846451,
+                "actual_return": 0.11832946635730861,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 2,
+            "winning_trades": 1,
+            "total_return": 0.004294378638010368
+          }
+        },
+        "metrics": {
+          "total_trades": 3,
+          "total_return": 0.0737388230824548,
+          "average_return": 0.0245796076941516,
+          "win_rate": 0.6666666666666666,
+          "profit_loss_ratio": 0.8233163781307634,
+          "max_return": 0.11832946635730861,
+          "min_return": -0.11403508771929824,
+          "return_std": 0.1000265354136188,
+          "sharpe_ratio": 0.24573087123844378
+        },
+        "total_trades": 3
+      }
+    },
+    {
+      "success": true,
+      "fold_idx": 3,
+      "fold_info": {
+        "train_start": "2017-12-16",
+        "train_end": "2021-11-25",
+        "test_start": "2021-11-26",
+        "test_end": "2022-11-21"
+      },
+      "train_result": {
+        "success": true,
+        "model_type": "xgboost",
+        "training_samples": 216,
+        "validation_samples": 54,
+        "feature_count": 72,
+        "train_metrics": {
+          "mse": 3.5793941459169215e-06,
+          "rmse": 0.001891928684151948,
+          "mae": 0.0013331134965559302,
+          "r2": 0.9993233842581063,
+          "mean_pred": "0.007842543",
+          "std_pred": "0.07153328"
+        },
+        "validation_metrics": {
+          "mse": 0.0027594514857757785,
+          "rmse": 0.052530481491946925,
+          "mae": 0.04170427511361551,
+          "r2": -0.0853204369178635,
+          "mean_pred": "-0.016869355",
+          "std_pred": "0.029824307"
+        },
+        "cv_r2_mean": 0.03817554938618752,
+        "cv_r2_std": 0.1588068605559669,
+        "feature_names": [
+          "latest_revenue",
+          "revenue_yoy_1m",
+          "revenue_yoy_3m",
+          "revenue_yoy_6m",
+          "revenue_yoy_12m",
+          "revenue_mom_1m",
+          "revenue_mom_3m",
+          "revenue_mom_6m",
+          "revenue_ma_3m",
+          "revenue_to_ma_3m",
+          "revenue_ma_6m",
+          "revenue_to_ma_6m",
+          "revenue_ma_12m",
+          "revenue_to_ma_12m",
+          "revenue_volatility",
+          "revenue_trend",
+          "seasonal_factor",
+          "predicted_revenue_growth",
+          "revenue_prediction_confidence",
+          "revenue_prediction_range",
+          "predicted_eps_growth",
+          "eps_prediction_confidence",
+          "eps_prediction_range",
+          "current_price",
+          "price_change_1d",
+          "price_change_5d",
+          "price_change_20d",
+          "price_to_ma_5",
+          "price_to_ma_20",
+          "price_to_ma_60",
+          "rsi",
+          "macd",
+          "macd_signal",
+          "macd_histogram",
+          "volume_ratio",
+          "price_volume_trend",
+          "price_volatility",
+          "high_low_ratio",
+          "industry_11",
+          "industry_12",
+          "industry_13",
+          "industry_14",
+          "industry_15",
+          "industry_16",
+          "industry_17",
+          "industry_18",
+          "industry_19",
+          "industry_20",
+          "industry_21",
+          "industry_22",
+          "industry_23",
+          "industry_24",
+          "industry_25",
+          "industry_26",
+          "industry_27",
+          "industry_28",
+          "industry_29",
+          "industry_30",
+          "listing_age_years",
+          "is_new_listing",
+          "month",
+          "quarter",
+          "is_q1",
+          "is_q2",
+          "is_q3",
+          "is_q4",
+          "year",
+          "year_progress",
+          "revenue_growth_rsi",
+          "revenue_yoy_price_momentum",
+          "volume_price_momentum",
+          "confidence_technical_confirm"
+        ]
+      },
+      "backtest_result": {
+        "trades": [
+          {
+            "fold_idx": 3,
+            "stock_id": "1101",
+            "entry_date": "2022-02-28",
+            "predicted_return": 0.09948698431253433,
+            "actual_return": 0.024058577405857862,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1104",
+            "entry_date": "2022-02-28",
+            "predicted_return": 0.07613883912563324,
+            "actual_return": -0.011627906976744186,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1108",
+            "entry_date": "2022-02-28",
+            "predicted_return": 0.05736170709133148,
+            "actual_return": 0.048888888888888954,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1110",
+            "entry_date": "2022-02-28",
+            "predicted_return": 0.07142321020364761,
+            "actual_return": 0.0024449877750611594,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1103",
+            "entry_date": "2022-03-31",
+            "predicted_return": 0.061791568994522095,
+            "actual_return": -0.03579952267303103,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1109",
+            "entry_date": "2022-03-31",
+            "predicted_return": 0.053819820284843445,
+            "actual_return": -0.023529411764705882,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1110",
+            "entry_date": "2022-03-31",
+            "predicted_return": 0.06422656029462814,
+            "actual_return": -0.03037383177570087,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1101",
+            "entry_date": "2022-07-31",
+            "predicted_return": 0.07420051842927933,
+            "actual_return": -0.0012658227848100546,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1108",
+            "entry_date": "2022-08-31",
+            "predicted_return": 0.05797167494893074,
+            "actual_return": -0.013761467889908289,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1109",
+            "entry_date": "2022-09-30",
+            "predicted_return": 0.11244887113571167,
+            "actual_return": -0.036666666666666715,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1210",
+            "entry_date": "2022-10-31",
+            "predicted_return": 0.06267917156219482,
+            "actual_return": 0.07587064676616907,
+            "holding_days": 20
+          }
+        ],
+        "stock_performance": {
+          "1101": {
+            "trades": [
+              {
+                "fold_idx": 3,
+                "stock_id": "1101",
+                "entry_date": "2022-02-28",
+                "predicted_return": 0.09948698431253433,
+                "actual_return": 0.024058577405857862,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 3,
+                "stock_id": "1101",
+                "entry_date": "2022-07-31",
+                "predicted_return": 0.07420051842927933,
+                "actual_return": -0.0012658227848100546,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 2,
+            "winning_trades": 1,
+            "total_return": 0.02279275462104781
+          },
+          "1104": {
+            "trades": [
+              {
+                "fold_idx": 3,
+                "stock_id": "1104",
+                "entry_date": "2022-02-28",
+                "predicted_return": 0.07613883912563324,
+                "actual_return": -0.011627906976744186,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 1,
+            "winning_trades": 0,
+            "total_return": -0.011627906976744186
+          },
+          "1108": {
+            "trades": [
+              {
+                "fold_idx": 3,
+                "stock_id": "1108",
+                "entry_date": "2022-02-28",
+                "predicted_return": 0.05736170709133148,
+                "actual_return": 0.048888888888888954,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 3,
+                "stock_id": "1108",
+                "entry_date": "2022-08-31",
+                "predicted_return": 0.05797167494893074,
+                "actual_return": -0.013761467889908289,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 2,
+            "winning_trades": 1,
+            "total_return": 0.03512742099898067
+          },
+          "1110": {
+            "trades": [
+              {
+                "fold_idx": 3,
+                "stock_id": "1110",
+                "entry_date": "2022-02-28",
+                "predicted_return": 0.07142321020364761,
+                "actual_return": 0.0024449877750611594,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 3,
+                "stock_id": "1110",
+                "entry_date": "2022-03-31",
+                "predicted_return": 0.06422656029462814,
+                "actual_return": -0.03037383177570087,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 2,
+            "winning_trades": 1,
+            "total_return": -0.02792884400063971
+          },
+          "1103": {
+            "trades": [
+              {
+                "fold_idx": 3,
+                "stock_id": "1103",
+                "entry_date": "2022-03-31",
+                "predicted_return": 0.061791568994522095,
+                "actual_return": -0.03579952267303103,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 1,
+            "winning_trades": 0,
+            "total_return": -0.03579952267303103
+          },
+          "1109": {
+            "trades": [
+              {
+                "fold_idx": 3,
+                "stock_id": "1109",
+                "entry_date": "2022-03-31",
+                "predicted_return": 0.053819820284843445,
+                "actual_return": -0.023529411764705882,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 3,
+                "stock_id": "1109",
+                "entry_date": "2022-09-30",
+                "predicted_return": 0.11244887113571167,
+                "actual_return": -0.036666666666666715,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 2,
+            "winning_trades": 0,
+            "total_return": -0.0601960784313726
+          },
+          "1210": {
+            "trades": [
+              {
+                "fold_idx": 3,
+                "stock_id": "1210",
+                "entry_date": "2022-10-31",
+                "predicted_return": 0.06267917156219482,
+                "actual_return": 0.07587064676616907,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 1,
+            "winning_trades": 1,
+            "total_return": 0.07587064676616907
+          }
+        },
+        "metrics": {
+          "total_trades": 11,
+          "total_return": -0.0017615296955899723,
+          "average_return": -0.00016013906323545204,
+          "win_rate": 0.36363636363636365,
+          "profit_loss_ratio": 1.7298550275431215,
+          "max_return": 0.07587064676616907,
+          "min_return": -0.036666666666666715,
+          "return_std": 0.034587742428188434,
+          "sharpe_ratio": -0.0046299368502565625
+        },
+        "total_trades": 11
+      }
+    }
+  ],
+  "config": {
+    "training_start": "2015-01",
+    "training_end": "2022-12",
+    "holdout_start": "2023-01",
+    "holdout_end": "2024-12",
+    "train_window_months": 48,
+    "test_window_months": 12,
+    "stride_months": 12,
+    "min_training_samples": 100,
+    "min_stock_history_months": 60
+  },
+  "created_at": "2025-08-14T16:50:35.314660"
+}

@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "start": "2021-06-01",
+  "end": "2021-06-30",
+  "stock_count": 1,
+  "trade_count": 0,
+  "metrics": {
+    "total_return": 0.0,
+    "trade_count": 0
+  }
+}
