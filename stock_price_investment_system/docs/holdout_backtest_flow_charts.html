@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>外層回測流程圖表</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            padding-left: 10px;
+            border-left: 4px solid #3498db;
+        }
+        .chart-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .description {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+        .key-points {
+            background: #f0f8f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #27ae60;
+        }
+        .results {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 外層回測流程圖表</h1>
+        
+        <div class="description">
+            <strong>📋 說明：</strong>本文件包含選單5外層回測的詳細流程圖表，用於說明交易時機和AI模型訓練機制。
+        </div>
+
+        <h2>1. 外層回測交易時機流程圖</h2>
+        <div class="chart-container">
+            <div class="mermaid">
+graph TD
+    A[開始外層回測<br/>2023-01 到 2024-12] --> B[生成月底日期序列<br/>freq='M']
+    B --> C[2023-01-31<br/>第一個月底]
+    C --> D[訓練AI模型<br/>使用2015-01到2023-01-31的資料]
+    D --> E[對4檔候選股票進行預測]
+    E --> F[篩選預測報酬>-5%的股票]
+    F --> G[在月底買入符合條件的股票]
+    G --> H[持有20天後賣出]
+    H --> I[下個月底<br/>2023-02-28]
+    I --> J[重新訓練模型<br/>使用2015-01到2023-02-28的資料]
+    J --> K[重複預測→買入→持有→賣出]
+    K --> L[...持續到2024-12-31]
+    
+    style C fill:#e1f5fe
+    style I fill:#e1f5fe
+    style G fill:#c8e6c9
+    style H fill:#ffcdd2
+            </div>
+        </div>
+
+        <h2>2. 交易執行細節流程圖</h2>
+        <div class="chart-container">
+            <div class="mermaid">
+graph LR
+    A[月底日期<br/>如2023-01-31] --> B[獲取當日收盤價<br/>作為買入價]
+    B --> C[計算賣出日期<br/>買入日+20天]
+    C --> D[獲取賣出日實際收盤價]
+    D --> E[計算實際報酬率<br/>exit_price - entry_price / entry_price]
+    
+    F[買入條件] --> G[預測報酬 > -5%]
+    G --> H[按預測報酬排序<br/>高者優先]
+    H --> I[等權重買入所有符合條件股票]
+    
+    style A fill:#e3f2fd
+    style E fill:#c8e6c9
+    style G fill:#fff3e0
+            </div>
+        </div>
+
+        <h2>3. 滾動式AI模型訓練時間軸</h2>
+        <div class="chart-container">
+            <div class="mermaid">
+timeline
+    title 外層回測滾動式AI訓練時間軸
+    
+    section 2023年1月
+        2023-01-31 : 訓練資料期間
+                   : 2015-01-01 到 2023-01-31
+                   : 重新訓練4檔股票的AI模型
+                   : 進行預測並交易
+    
+    section 2023年2月  
+        2023-02-28 : 訓練資料期間
+                   : 2015-01-01 到 2023-02-28
+                   : 重新訓練4檔股票的AI模型
+                   : 進行預測並交易
+    
+    section 2023年3月
+        2023-03-31 : 訓練資料期間
+                   : 2015-01-01 到 2023-03-31
+                   : 重新訓練4檔股票的AI模型
+                   : 進行預測並交易
+                   
+    section ...持續到
+        2024-12-31 : 訓練資料期間
+                   : 2015-01-01 到 2024-12-31
+                   : 重新訓練4檔股票的AI模型
+                   : 進行預測並交易
+            </div>
+        </div>
+
+        <h2>🔑 關鍵說明</h2>
+        
+        <div class="key-points">
+            <h3>📅 交易頻率與時機</h3>
+            <ul>
+                <li><strong>交易頻率</strong>：每月一次（月底）</li>
+                <li><strong>買入時機</strong>：每個月最後一個交易日</li>
+                <li><strong>持有期間</strong>：固定20天</li>
+                <li><strong>不是每日交易</strong>：系統不會每天檢查股價來決定買賣</li>
+            </ul>
+        </div>
+
+        <div class="key-points">
+            <h3>🤖 AI模型重訓練機制</h3>
+            <ul>
+                <li><strong>頻率</strong>：每個月重新訓練一次</li>
+                <li><strong>訓練資料</strong>：從2015-01-01到當前月底的所有資料</li>
+                <li><strong>模型更新</strong>：每次都是完全重新訓練，不是增量學習</li>
+                <li><strong>個股專屬</strong>：每檔股票都有自己的最佳參數模型</li>
+            </ul>
+        </div>
+
+        <div class="key-points">
+            <h3>🔄 完整流程</h3>
+            <ol>
+                <li><strong>月底觸發</strong>：每個月最後一天</li>
+                <li><strong>重新訓練</strong>：用最新資料重訓4檔股票的AI模型</li>
+                <li><strong>預測報酬</strong>：對每檔股票預測未來20天報酬</li>
+                <li><strong>篩選股票</strong>：選擇預測報酬>-5%的股票</li>
+                <li><strong>等權買入</strong>：在月底收盤價買入</li>
+                <li><strong>持有20天</strong>：固定持有期間</li>
+                <li><strong>自動賣出</strong>：20天後以收盤價賣出</li>
+                <li><strong>下月重複</strong>：進入下個月循環</li>
+            </ol>
+        </div>
+
+        <div class="results">
+            <h3>📊 實際結果</h3>
+            <ul>
+                <li><strong>測試期間</strong>：2023-01 到 2024-12（24個月）</li>
+                <li><strong>總交易數</strong>：57筆</li>
+                <li><strong>總報酬率</strong>：73.45%</li>
+                <li><strong>勝率</strong>：66.7%</li>
+                <li><strong>候選股票</strong>：1314, 1309, 1319, 1215（4檔）</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            },
+            timeline: {
+                useMaxWidth: true
+            }
+        });
+    </script>
+</body>
+</html>

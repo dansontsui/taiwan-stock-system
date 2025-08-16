@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import json
 import logging
 
@@ -21,7 +21,7 @@ from ..visualization.backtest_charts import BacktestCharts
 logger = logging.getLogger(__name__)
 
 class HoldoutBacktester:
-    def __init__(self, feature_engineer: FeatureEngineer | None = None):
+    def __init__(self, feature_engineer: Optional[FeatureEngineer] = None):
         self.cfg = get_config()
         self.paths = self.cfg['output']['paths']
         self.wf = self.cfg['walkforward']
@@ -29,9 +29,9 @@ class HoldoutBacktester:
         self.dm = DataManager()
 
     def run(self,
-            candidate_pool_json: str | None = None,
-            holdout_start: str | None = None,
-            holdout_end: str | None = None) -> Dict[str, Any]:
+            candidate_pool_json: Optional[str] = None,
+            holdout_start: Optional[str] = None,
+            holdout_end: Optional[str] = None) -> Dict[str, Any]:
         """執行外層回測"""
         # 載入候選池
         pool = self._load_candidate_pool(candidate_pool_json)
@@ -58,19 +58,21 @@ class HoldoutBacktester:
                 if stock_id in stock_predictors:
                     try:
                         # 生成訓練資料，使用截至預測日期之前的資料
-                        train_data = self.fe.generate_training_dataset(
+                        # 使用2015年作為訓練開始日期（與內層回測一致）
+                        features_df, targets_df = self.fe.generate_training_dataset(
                             stock_ids=[stock_id],
+                            start_date='2015-01-01',
                             end_date=as_of
                         )
 
-                        if train_data['features'].empty:
+                        if features_df.empty:
                             logger.warning(f"股票 {stock_id} 在 {as_of} 沒有訓練資料")
                             continue
 
                         # 訓練模型
                         train_result = stock_predictors[stock_id].train(
-                            feature_df=train_data['features'],
-                            target_df=train_data['targets']
+                            feature_df=features_df,
+                            target_df=targets_df
                         )
 
                         if not train_result['success']:
@@ -165,7 +167,7 @@ class HoldoutBacktester:
 
         return out
 
-    def _load_candidate_pool(self, path: str | None) -> Dict[str, Any]:
+    def _load_candidate_pool(self, path: Optional[str]) -> Dict[str, Any]:
         if path and Path(path).exists():
             # 嘗試不同編碼方式讀取
             for encoding in ['utf-8-sig', 'utf-8', 'utf-8-bom']:
@@ -191,7 +193,7 @@ class HoldoutBacktester:
         logger.error(f"無法讀取候選池檔案: {files[-1]}")
         return {}
 
-    def _execute_trade(self, stock_id: str, entry_date: str, holding_days: int) -> Dict[str, Any] | None:
+    def _execute_trade(self, stock_id: str, entry_date: str, holding_days: int) -> Optional[Dict[str, Any]]:
         """執行交易並返回詳細資訊"""
         try:
             from datetime import datetime, timedelta
@@ -239,7 +241,7 @@ class HoldoutBacktester:
             logger.debug(f"交易執行失敗 {stock_id} {entry_date}: {e}")
             return None
 
-    def _actual_return(self, stock_id: str, entry_date: str, holding_days: int) -> float | None:
+    def _actual_return(self, stock_id: str, entry_date: str, holding_days: int) -> Optional[float]:
         """保留舊函數以維持相容性"""
         trade_info = self._execute_trade(stock_id, entry_date, holding_days)
         return trade_info['actual_return'] if trade_info else None
