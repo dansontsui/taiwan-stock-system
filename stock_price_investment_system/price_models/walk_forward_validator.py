@@ -38,8 +38,8 @@ class WalkForwardValidator:
         self.wf_config = self.config['walkforward']
 
         # 可選：指定使用的模型與其最佳參數
-        self.models_to_use: List[str] | None = None  # 例如 ['xgboost','lightgbm','random_forest']
-        self.override_models: Dict[str, Dict[str, Any]] | None = None  # 例如 {'xgboost': {...}, 'lightgbm': {...}}
+        self.models_to_use: Optional[List[str]] = None  # 例如 ['xgboost','lightgbm','random_forest']
+        self.override_models: Optional[Dict[str, Dict[str, Any]]] = None  # 例如 {'xgboost': {...}, 'lightgbm': {...}}
 
         # 結果儲存
         self.fold_results = []
@@ -54,8 +54,8 @@ class WalkForwardValidator:
                       train_window_months: int = None,
                       test_window_months: int = None,
                       stride_months: int = None,
-                      models_to_use: List[str] | None = None,
-                      override_models: Dict[str, Dict[str, Any]] | None = None) -> Dict[str, Any]:
+                      models_to_use: Optional[List[str]] = None,
+                      override_models: Optional[Dict[str, Dict[str, Any]]] = None) -> Dict[str, Any]:
         """
         執行Walk-forward驗證
 

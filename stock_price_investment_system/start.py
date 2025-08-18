@@ -101,8 +101,10 @@ def display_menu():
     _p("  6) 顯示/編輯 config 檔案")
     _p("  7) 匯出報表（HTML / CSV）")
     _p("  8) 模型管理（列出 / 匯出 / 刪除）")
-    _p("  9) 超參數調優（單檔股票網格搜尋）")
+    _p("  9) 超參數調優（單檔/批量股票網格搜尋）")
     _p("  10) 系統狀態檢查")
+    _p("  11) 日誌檔案管理（清理/壓縮/查看）")
+    _p("  q) 離開系統")
     _p("-"*60)
     _p("💡 建議執行順序：")
     _p("   首次建置：3→4→5")
@@ -400,7 +402,7 @@ def generate_candidate_pool():
 
 def run_hyperparameter_tuning():
     """執行超參數調優"""
-    _p("\n🔧 超參數調優（單檔股票網格搜尋）")
+    _p("\n🔧 超參數調優")
     _p("="*50)
 
     try:
@@ -420,6 +422,22 @@ def run_hyperparameter_tuning():
 
         _p(f"📊 找到 {len(available_stocks)} 檔可用股票")
         _p(f"前10檔: {available_stocks[:10]}")
+
+        # 選擇調優模式
+        _p("\n📋 調優模式：")
+        _p("  1) 單檔股票調優")
+        _p("  2) 自動掃描所有股票（批量調優）")
+
+        tuning_mode = get_user_input("選擇調優模式 (1-2)", "1")
+
+        if tuning_mode == '2':
+            # 批量調優所有股票
+            run_batch_hyperparameter_tuning(available_stocks)
+            return
+
+        # 單檔股票調優（原有邏輯）
+        _p("\n🔧 單檔股票網格搜尋")
+        _p("-" * 30)
 
         # 讓使用者選擇股票
         stock_id = get_user_input("請輸入要調優的股票代碼", available_stocks[0])
@@ -556,6 +574,288 @@ def run_hyperparameter_tuning():
         logging.error(f"Hyperparameter tuning failed: {e}")
 
 
+def run_batch_hyperparameter_tuning(available_stocks):
+    """批量執行所有股票的超參數調優"""
+    _p("\n🚀 自動掃描所有股票最佳參數")
+    _p("="*50)
+
+    try:
+        from stock_price_investment_system.price_models.hyperparameter_tuner import HyperparameterTuner
+        from stock_price_investment_system.utils.log_manager import BatchLogManager, clean_old_logs
+
+        # 顯示當前已調優股票狀態
+        tuned_df = HyperparameterTuner.get_tuned_stocks_info()
+        if not tuned_df.empty:
+            successful_count = len(tuned_df[tuned_df['是否成功'] == '成功'])
+            _p(f"📊 當前已調優股票: {len(tuned_df)} 檔 (成功: {successful_count} 檔)")
+
+            # 詢問是否跳過已調優股票
+            skip_existing = confirm_action("是否跳過已成功調優的股票？")
+            if skip_existing:
+                successful_stocks = tuned_df[tuned_df['是否成功'] == '成功']['股票代碼'].astype(str).tolist()
+                available_stocks = [s for s in available_stocks if str(s) not in successful_stocks]
+                _p(f"📈 跳過已調優股票，剩餘 {len(available_stocks)} 檔待調優")
+
+        if not available_stocks:
+            _p("✅ 所有股票都已調優完成！")
+            return
+
+        # 設定批量調優參數
+        _p(f"\n📋 批量調優設定:")
+        _p(f"   待調優股票數: {len(available_stocks)}")
+        _p(f"   前10檔: {available_stocks[:10]}")
+
+        # 選擇調優範圍
+        max_stocks = int(get_user_input("最大調優股票數（0=全部）", "50"))
+        if max_stocks > 0 and len(available_stocks) > max_stocks:
+            available_stocks = available_stocks[:max_stocks]
+            _p(f"📊 限制為前 {max_stocks} 檔股票")
+
+        # 選擇模型類型
+        _p("\n📋 模型選擇：")
+        _p("  1) 只測試最佳模型 (RandomForest)")
+        _p("  2) 測試所有模型 (XGBoost + LightGBM + RandomForest)")
+
+        model_choice = get_user_input("選擇模型範圍 (1-2)", "1")
+        test_all_models = (model_choice == '2')
+
+        # 設定參數組合數量
+        max_combinations = int(get_user_input("每個模型最大參數組合數", "10"))
+
+        # 日誌模式選擇
+        _p(f"\n📝 日誌設定：")
+        _p(f"  1) 標準模式（詳細日誌，適合小量股票）")
+        _p(f"  2) 簡化模式（僅關鍵訊息，適合大量股票）")
+        _p(f"  3) 靜默模式（最少日誌，僅結果摘要）")
+
+        log_mode = get_user_input("選擇日誌模式 (1-3)", "2")
+
+        # 確認執行
+        _p(f"\n🎯 即將開始批量調優:")
+        _p(f"   股票數量: {len(available_stocks)}")
+        _p(f"   模型類型: {'全部模型' if test_all_models else '最佳模型(RandomForest)'}")
+        _p(f"   每模型組合數: {max_combinations}")
+        _p(f"   日誌模式: {['標準', '簡化', '靜默'][int(log_mode)-1]}")
+        _p(f"   預估時間: {len(available_stocks) * (3 if test_all_models else 1) * 2} 分鐘")
+
+        if not confirm_action("確認執行批量調優？"):
+            _p("❌ 取消執行")
+            return
+
+        # 清理舊日誌檔案
+        _p("🧹 清理舊日誌檔案...")
+        clean_old_logs()
+
+        # 初始化日誌管理器
+        log_manager = BatchLogManager(log_mode=log_mode, max_log_size_mb=100)
+        log_manager.start_batch_logging("batch_hyperparameter_tuning")
+
+        # 執行批量調優
+        tuner = HyperparameterTuner()
+        successful_count = 0
+        failed_count = 0
+
+        _p(f"\n🚀 開始批量調優...")
+        if log_mode != '3':
+            _p(f"進度追蹤: 0/{len(available_stocks)}")
+
+        for i, stock_id in enumerate(available_stocks, 1):
+            try:
+                if test_all_models:
+                    # 測試所有模型
+                    result = tuner.tune_all_models(
+                        stock_id=stock_id,
+                        max_combinations=max_combinations
+                    )
+
+                    if result['best_overall']['model']:
+                        successful_count += 1
+                        best = result['best_overall']
+                        result_msg = f"✅ 成功 - 最佳: {best['model']} (分數: {best['score']:.4f})"
+                    else:
+                        failed_count += 1
+                        result_msg = "❌ 失敗 - 所有模型都無法訓練"
+
+                else:
+                    # 只測試最佳模型
+                    result = tuner.tune_single_stock(
+                        stock_id=stock_id,
+                        model_type='random_forest',
+                        max_combinations=max_combinations
+                    )
+
+                    if result['success']:
+                        successful_count += 1
+                        result_msg = f"✅ 成功 - RandomForest (分數: {result['best_score']:.4f})"
+                    else:
+                        failed_count += 1
+                        result_msg = "❌ 失敗 - 無法找到有效參數"
+
+            except Exception as e:
+                failed_count += 1
+                result_msg = f"❌ 錯誤 - {str(e)[:50]}..."
+                # 錯誤仍然記錄到日誌
+                logging.error(f"Stock {stock_id} tuning failed: {e}")
+
+            # 使用日誌管理器記錄進度
+            log_manager.log_progress(i, len(available_stocks), successful_count, failed_count, stock_id, result_msg)
+            log_manager.log_summary(i, len(available_stocks), successful_count, failed_count)
+
+        # 停止批量日誌記錄
+        log_manager.stop_batch_logging()
+
+        # 最終結果摘要
+        _p(f"\n🎉 批量調優完成！")
+        _p(f"📊 總結果:")
+        _p(f"   成功調優: {successful_count} 檔")
+        _p(f"   調優失敗: {failed_count} 檔")
+        _p(f"   成功率: {successful_count/(successful_count+failed_count)*100:.1f}%")
+
+        # 顯示調優後的統計
+        updated_tuned_df = HyperparameterTuner.get_tuned_stocks_info()
+        if not updated_tuned_df.empty:
+            successful_total = len(updated_tuned_df[updated_tuned_df['是否成功'] == '成功'])
+            model_counts = updated_tuned_df[updated_tuned_df['是否成功'] == '成功']['模型類型'].value_counts()
+
+            _p(f"\n📈 系統調優總覽:")
+            _p(f"   總成功股票: {successful_total} 檔")
+            _p(f"   模型分佈:")
+            for model, count in model_counts.items():
+                _p(f"     {model}: {count} 檔")
+
+        _p(f"\n💡 下一步建議:")
+        _p(f"   1. 執行選項3 (walk-forward驗證) - 使用已調優參數")
+        _p(f"   2. 執行選項4 (生成候選池) - 篩選獲利股票")
+        _p(f"   3. 執行選項5 (外層回測) - 驗證最終績效")
+
+    except Exception as e:
+        _p(f"❌ 批量調優執行失敗: {e}")
+        logging.error(f"Batch hyperparameter tuning failed: {e}")
+
+
+def run_log_management():
+    """日誌檔案管理"""
+    _p("\n🗂️  日誌檔案管理")
+    _p("="*50)
+
+    try:
+        from stock_price_investment_system.utils.log_manager import clean_old_logs
+        from pathlib import Path
+        import os
+
+        log_dir = Path("stock_price_investment_system/logs")
+
+        # 檢查日誌目錄
+        if not log_dir.exists():
+            _p("📁 日誌目錄不存在，將自動建立")
+            log_dir.mkdir(parents=True, exist_ok=True)
+            return
+
+        # 統計日誌檔案
+        log_files = list(log_dir.glob("*.log"))
+        gz_files = list(log_dir.glob("*.log.gz"))
+
+        total_size = sum(f.stat().st_size for f in log_files + gz_files)
+        total_size_mb = total_size / (1024 * 1024)
+
+        _p(f"📊 日誌檔案統計:")
+        _p(f"   未壓縮日誌: {len(log_files)} 個")
+        _p(f"   壓縮日誌: {len(gz_files)} 個")
+        _p(f"   總大小: {total_size_mb:.1f} MB")
+
+        if log_files:
+            _p(f"\n📄 最近的日誌檔案:")
+            for log_file in sorted(log_files, key=lambda x: x.stat().st_mtime, reverse=True)[:5]:
+                size_mb = log_file.stat().st_size / (1024 * 1024)
+                mtime = datetime.fromtimestamp(log_file.stat().st_mtime).strftime('%Y-%m-%d %H:%M')
+                _p(f"   {log_file.name} ({size_mb:.1f} MB, {mtime})")
+
+        # 管理選項
+        _p(f"\n📋 管理選項:")
+        _p(f"  1) 清理舊日誌檔案（保留7天）")
+        _p(f"  2) 壓縮大日誌檔案（>10MB）")
+        _p(f"  3) 查看最新日誌檔案")
+        _p(f"  4) 自訂清理設定")
+        _p(f"  q) 返回主選單")
+
+        choice = get_user_input("選擇操作 (1-4, q)", "q")
+
+        if choice == '1':
+            # 清理舊日誌
+            _p("\n🧹 清理舊日誌檔案...")
+            clean_old_logs(keep_days=7, compress_days=1)
+            _p("✅ 清理完成")
+
+        elif choice == '2':
+            # 壓縮大檔案
+            _p("\n📦 壓縮大日誌檔案...")
+            compressed_count = 0
+
+            for log_file in log_files:
+                size_mb = log_file.stat().st_size / (1024 * 1024)
+                if size_mb > 10:  # 大於10MB
+                    try:
+                        import gzip
+                        compressed_file = log_file.with_suffix('.log.gz')
+
+                        with open(log_file, 'rb') as f_in:
+                            with gzip.open(compressed_file, 'wb') as f_out:
+                                f_out.writelines(f_in)
+
+                        log_file.unlink()
+                        compressed_count += 1
+                        _p(f"   ✅ 壓縮: {log_file.name}")
+
+                    except Exception as e:
+                        _p(f"   ❌ 壓縮失敗 {log_file.name}: {e}")
+
+            _p(f"📦 壓縮完成，共處理 {compressed_count} 個檔案")
+
+        elif choice == '3':
+            # 查看最新日誌
+            if log_files:
+                latest_log = max(log_files, key=lambda x: x.stat().st_mtime)
+                _p(f"\n📄 最新日誌檔案: {latest_log.name}")
+
+                try:
+                    with open(latest_log, 'r', encoding='utf-8') as f:
+                        lines = f.readlines()
+
+                    _p(f"📊 檔案資訊:")
+                    _p(f"   行數: {len(lines)}")
+                    _p(f"   大小: {latest_log.stat().st_size / (1024 * 1024):.1f} MB")
+
+                    # 顯示最後20行
+                    _p(f"\n📝 最後20行內容:")
+                    _p("-" * 50)
+                    for line in lines[-20:]:
+                        _p(line.rstrip())
+                    _p("-" * 50)
+
+                except Exception as e:
+                    _p(f"❌ 讀取日誌檔案失敗: {e}")
+            else:
+                _p("📄 沒有找到日誌檔案")
+
+        elif choice == '4':
+            # 自訂清理設定
+            _p(f"\n⚙️  自訂清理設定:")
+
+            keep_days = int(get_user_input("保留天數", "7"))
+            compress_days = int(get_user_input("壓縮天數（超過此天數的檔案將被壓縮）", "1"))
+
+            _p(f"\n🧹 執行自訂清理...")
+            _p(f"   保留天數: {keep_days}")
+            _p(f"   壓縮天數: {compress_days}")
+
+            clean_old_logs(keep_days=keep_days, compress_days=compress_days)
+            _p("✅ 自訂清理完成")
+
+    except Exception as e:
+        _p(f"❌ 日誌管理執行失敗: {e}")
+        logging.error(f"Log management failed: {e}")
+
+
 def main():
     _safe_setup_stdout()
     setup_logging()
@@ -621,6 +921,8 @@ def main():
             run_hyperparameter_tuning()
         elif sel == '10':
             _p('🩺 系統狀態檢查（尚未實作）')
+        elif sel == '11':
+            run_log_management()
         elif sel in {'q', 'quit', 'exit'}:
             _p("👋 再見！")
             return 0

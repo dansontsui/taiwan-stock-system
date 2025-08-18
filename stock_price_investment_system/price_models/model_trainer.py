@@ -4,7 +4,7 @@
 提供最小功能封裝 StockPricePredictor 的訓練流程。
 """
 
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 import pandas as pd
 
 from .feature_engineering import FeatureEngineer
@@ -17,15 +17,15 @@ class ModelTrainer:
     """簡易模型訓練器"""
 
     def __init__(self,
-                 feature_engineer: FeatureEngineer | None = None,
-                 model_type: str | None = None):
+                 feature_engineer: Optional[FeatureEngineer] = None,
+                 model_type: Optional[str] = None):
         self.feature_engineer = feature_engineer or FeatureEngineer()
         self.model_type = model_type
         self.predictor = StockPricePredictor(self.feature_engineer, model_type=self.model_type)
         self.cfg = get_config()
 
     def prepare_training_data(self, stock_ids: List[str], start_date: str, end_date: str,
-                              target_periods: List[int] | None = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
+                              target_periods: Optional[List[int]] = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
         target_periods = target_periods or [20]
         features, targets = self.feature_engineer.generate_training_dataset(
             stock_ids=stock_ids,

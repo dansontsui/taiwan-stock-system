@@ -5,7 +5,7 @@
 
 import pandas as pd
 import numpy as np
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Tuple, Optional
 from datetime import datetime
 from pathlib import Path
 import json
@@ -574,7 +574,7 @@ class HyperparameterTuner:
             return pd.DataFrame()
 
     @classmethod
-    def get_stock_best_params(cls, stock_id: str, model_type: str) -> Dict[str, Any] | None:
+    def get_stock_best_params(cls, stock_id: str, model_type: str) -> Optional[Dict[str, Any]]:
         """獲取特定股票的最佳參數"""
         try:
             registry_df = cls.get_tuned_stocks_info()

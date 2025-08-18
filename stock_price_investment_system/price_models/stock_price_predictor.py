@@ -42,7 +42,7 @@ class StockPricePredictor:
     def __init__(self,
                  feature_engineer: FeatureEngineer = None,
                  model_type: str = None,
-                 override_params: Dict[str, Any] | None = None):
+                 override_params: Optional[Dict[str, Any]] = None):
         """
         初始化股價預測器
         
