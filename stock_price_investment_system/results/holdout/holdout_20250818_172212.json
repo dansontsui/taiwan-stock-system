@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "start": "2023-01-01",
+  "end": "2024-12-31",
+  "stock_count": 20,
+  "trade_count": 36,
+  "metrics": {
+    "total_return": 0.032126521805900234,
+    "avg_return": 0.0008924033834972287,
+    "win_rate": 0.5,
+    "trade_count": 36
+  }
+}

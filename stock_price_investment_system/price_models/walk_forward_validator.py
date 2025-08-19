@@ -279,9 +279,9 @@ class WalkForwardValidator:
         fold_trades = []
         stock_performance = {}
 
-        # 獲取選股門檻
-        selection_rules = get_config('selection')['selection_rules']
-        min_expected_return = selection_rules['min_expected_return']
+        # 獲取Walk-forward驗證門檻（使用寬鬆參數生成更多交易記錄）
+        walkforward_params = get_config('selection')['walkforward_params']
+        min_expected_return = walkforward_params['min_expected_return']
 
         for pred_date in prediction_dates:
             pred_date_str = pred_date.strftime('%Y-%m-%d')

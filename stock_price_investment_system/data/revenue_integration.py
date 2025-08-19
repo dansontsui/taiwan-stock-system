@@ -31,18 +31,10 @@ class RevenueIntegration:
         self.data_manager = data_manager or DataManager()
         self.config = get_config('feature')
         
-        # 嘗試導入EPS預測系統
+        # 暫時禁用EPS預測系統整合（回到之前的純技術分析版本）
         self.eps_predictor = None
-        try:
-            from src.predictors.revenue_predictor import RevenuePredictor
-            from src.predictors.eps_predictor import EPSPredictor
-            self.revenue_predictor = RevenuePredictor()
-            self.eps_predictor = EPSPredictor()
-            logger.info("Successfully integrated with EPS Revenue Predictor system")
-        except ImportError as e:
-            logger.warning(f"Could not import EPS Revenue Predictor: {e}")
-            self.revenue_predictor = None
-            self.eps_predictor = None
+        self.revenue_predictor = None
+        logger.info("EPS Revenue Predictor integration disabled - using technical analysis only")
         
         logger.info("RevenueIntegration initialized")
     
@@ -167,7 +159,7 @@ class RevenueIntegration:
             營收預測結果字典
         """
         if self.revenue_predictor is None:
-            logger.warning("Revenue predictor not available, returning default prediction")
+            # Revenue predictor not available, returning default prediction (silent)
             return self._get_default_prediction()
         
         try:
@@ -209,7 +201,7 @@ class RevenueIntegration:
             EPS預測結果字典
         """
         if self.eps_predictor is None:
-            logger.warning("EPS predictor not available, returning default prediction")
+            # EPS predictor not available, returning default prediction (silent)
             return self._get_default_prediction()
         
         try:

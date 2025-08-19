@@ -91,7 +91,7 @@ class PriceDataManager:
         # 移動平均線
         if 'ma' in indicators:
             for period in tech_config['ma_periods']:
-                df[f'ma_{period}'] = df['close'].rolling(window=period).mean().fillna(method='bfill').fillna(0)
+                df[f'ma_{period}'] = df['close'].rolling(window=period).mean().bfill().fillna(0)
                 df[f'price_to_ma_{period}'] = (df['close'] / df[f'ma_{period}'] - 1).fillna(0)
         
         # RSI
@@ -110,7 +110,7 @@ class PriceDataManager:
         
         # 成交量指標
         if 'volume_indicators' in indicators:
-            df['volume_ma'] = df['volume'].rolling(window=tech_config['volume_ma_period']).mean().fillna(method='bfill').fillna(0)
+            df['volume_ma'] = df['volume'].rolling(window=tech_config['volume_ma_period']).mean().bfill().fillna(0)
             df['volume_ratio'] = (df['volume'] / df['volume_ma']).fillna(1.0)
             df['price_volume_trend'] = (((df['close'] - df['close'].shift(1)) / df['close'].shift(1)) * df['volume']).fillna(0)
         
@@ -198,9 +198,9 @@ class PriceDataManager:
         features = {
             # 價格相關
             'current_price': latest_data['close'],
-            'price_change_1d': (latest_data['close'] - price_df.iloc[-2]['close']) / price_df.iloc[-2]['close'] if len(price_df) > 1 else 0,
-            'price_change_5d': (latest_data['close'] - price_df.iloc[-6]['close']) / price_df.iloc[-6]['close'] if len(price_df) > 5 else 0,
-            'price_change_20d': (latest_data['close'] - price_df.iloc[-21]['close']) / price_df.iloc[-21]['close'] if len(price_df) > 20 else 0,
+            'price_change_1d': (latest_data['close'] - price_df.iloc[-2]['close']) / price_df.iloc[-2]['close'] if len(price_df) > 1 and price_df.iloc[-2]['close'] != 0 else 0,
+            'price_change_5d': (latest_data['close'] - price_df.iloc[-6]['close']) / price_df.iloc[-6]['close'] if len(price_df) > 5 and price_df.iloc[-6]['close'] != 0 else 0,
+            'price_change_20d': (latest_data['close'] - price_df.iloc[-21]['close']) / price_df.iloc[-21]['close'] if len(price_df) > 20 and price_df.iloc[-21]['close'] != 0 else 0,
             
             # 移動平均相關
             'price_to_ma_5': latest_data.get('price_to_ma_5', 0),

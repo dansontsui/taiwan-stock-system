@@ -105,21 +105,29 @@ MODEL_CONFIG = {
 
 # 選股配置
 SELECTION_CONFIG = {
-    # 候選池生成門檻
-    'candidate_pool_thresholds': {
-        'min_win_rate': 0.52,          # 最小勝率52%
-        'min_profit_loss_ratio': 1.2,  # 最小盈虧比1.2
-        'min_trade_count': 5,          # 最小交易次數
-        'min_folds_with_trades': 2,    # 最少有交易的fold數
-        'max_drawdown_threshold': 0.25, # 最大回撤門檻25%
+    # Walk-forward驗證參數（階段1：生成歷史統計）
+    'walkforward_params': {
+        'min_expected_return': 0.03,   # 最小預期報酬3%（寬鬆，用於生成更多交易記錄）
+        'min_confidence_score': 0.5,   # 最小信心分數50%（寬鬆，用於生成更多交易記錄）
+        'technical_confirmation': False, # 技術面確認關閉（寬鬆，用於生成更多交易記錄）
+        'max_correlation': 0.8,        # 最大相關性80%（寬鬆）
     },
-    
-    # 選股規則
+
+    # 候選池生成門檻（階段2：從歷史統計中篩選優質股票）
+    'candidate_pool_thresholds': {
+        'min_win_rate': 0.50,          # 最小勝率50%（與實際選股一致）
+        'min_profit_loss_ratio': 1.3,  # 最小盈虧比1.3（與實際選股一致）
+        'min_trade_count': 5,          # 最小交易次數5（確保統計意義）
+        'min_folds_with_trades': 0,    # 最少有交易的fold數0（修正bug）
+        'max_drawdown_threshold': 0.4, # 最大回撤門檻40%（與實際選股一致）
+    },
+
+    # 實際選股規則（階段3：最終交易決策）
     'selection_rules': {
-        'min_expected_return': 0.02,   # 最小預期報酬5%
-        'min_confidence_score': 0.3,   # 最小信心分數60%
-        'technical_confirmation': True, # 技術面確認
-        'max_correlation': 0.7,        # 最大相關性70%
+        'min_expected_return': 0.05,   # 最小預期報酬5%（嚴格，最終交易門檻）
+        'min_confidence_score': 0.6,   # 最小信心分數60%（嚴格，最終交易門檻）
+        'technical_confirmation': True, # 技術面確認（嚴格，最終交易門檻）
+        'max_correlation': 0.7,        # 最大相關性70%（嚴格，最終交易門檻）
     }
 }
 

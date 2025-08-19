@@ -10,6 +10,7 @@ from typing import Dict, Any, List, Optional
 import json
 import logging
 
+import numpy as np
 import pandas as pd
 
 from ..config.settings import get_config
@@ -31,11 +32,27 @@ class HoldoutBacktester:
     def run(self,
             candidate_pool_json: Optional[str] = None,
             holdout_start: Optional[str] = None,
-            holdout_end: Optional[str] = None) -> Dict[str, Any]:
-        """執行外層回測"""
-        # 載入候選池
-        pool = self._load_candidate_pool(candidate_pool_json)
-        stocks = [s['stock_id'] for s in pool.get('candidate_pool', [])]
+            holdout_end: Optional[str] = None,
+            dynamic_pool: bool = False) -> Dict[str, Any]:
+        """
+        執行外層回測
+
+        Args:
+            candidate_pool_json: 候選池JSON檔案路徑
+            holdout_start: 回測開始日期
+            holdout_end: 回測結束日期
+            dynamic_pool: 是否使用動態候選池（每月重新篩選）
+        """
+        # 載入初始候選池
+        if dynamic_pool:
+            logger.info("使用動態候選池模式：每月重新篩選候選股票")
+            # 動態模式下，先獲取所有可用股票
+            stocks = self._get_all_available_stocks()
+        else:
+            logger.info("使用靜態候選池模式：固定候選股票清單")
+            pool = self._load_candidate_pool(candidate_pool_json)
+            stocks = [s['stock_id'] for s in pool.get('candidate_pool', [])]
+
         if not stocks:
             logger.warning("候選池為空，外層回測無法執行")
             return {'success': False, 'error': 'empty_candidate_pool'}
@@ -103,17 +120,56 @@ class HoldoutBacktester:
                 pred_returns = [p['predicted_return'] for p in predictions]
                 logger.info(f"預測報酬範圍: {min(pred_returns):.4f} ~ {max(pred_returns):.4f}")
 
-            # 選擇預期報酬大於門檻的股票（降低門檻以便測試）
-            prediction_threshold = -0.05  # 允許預測報酬低至-5%的股票
+            # 使用設定檔中的買入條件
+            config = get_config('selection')
+            prediction_threshold = config['selection_rules']['min_expected_return']  # 使用設定檔門檻
+            max_positions = 3  # 每月最多買3檔股票
+
+            logger.info(f"使用預測門檻: {prediction_threshold} ({prediction_threshold*100:.1f}%)")
+
+            # 第一層篩選：預測報酬大於門檻
             positive_preds = [p for p in predictions if p['predicted_return'] > prediction_threshold]
             logger.info(f"符合門檻的預測數: {len(positive_preds)} (門檻: {prediction_threshold})")
-            # 按預期報酬排序
+
+            # 第二層篩選：技術指標確認（可選）
+            if config['selection_rules']['technical_confirmation']:
+                confirmed_preds = []
+                for pred in positive_preds:
+                    if self._technical_confirmation(pred['stock_id'], as_of):
+                        confirmed_preds.append(pred)
+                    else:
+                        logger.debug(f"股票 {pred['stock_id']} 技術指標不支持，跳過")
+                positive_preds = confirmed_preds
+                logger.info(f"技術確認後剩餘: {len(positive_preds)} 檔股票")
+
+            if not positive_preds:
+                logger.info(f"日期 {as_of}: 沒有股票符合買入條件，本月不交易")
+                continue
+
+            # 按預期報酬排序，選擇最好的股票
             positive_preds.sort(key=lambda x: x['predicted_return'], reverse=True)
 
+            # 第二層篩選：限制持股數量，只買最好的幾檔
+            selected_preds = positive_preds[:max_positions]
+            logger.info(f"最終選中股票數: {len(selected_preds)}")
+            for pred in selected_preds:
+                logger.info(f"  {pred['stock_id']}: 預測報酬 {pred['predicted_return']:.4f}")
+
             # 等權下單
-            for pred in positive_preds:
+            for pred in selected_preds:
                 sid = pred['stock_id']
-                trade_info = self._execute_trade(sid, as_of, 20)
+                predicted_return = pred['predicted_return']
+
+                # 動態持有期間：根據預測報酬調整
+                if predicted_return > 0.08:  # 預測報酬 > 8%
+                    holding_days = 30  # 持有30天
+                elif predicted_return > 0.05:  # 預測報酬 > 5%
+                    holding_days = 25  # 持有25天
+                else:
+                    holding_days = 20  # 持有20天
+
+                logger.info(f"股票 {sid} 預測報酬 {predicted_return:.4f}，持有 {holding_days} 天")
+                trade_info = self._execute_trade(sid, as_of, holding_days)
                 if trade_info is None:
                     continue
                 result_records.append({
@@ -166,6 +222,75 @@ class HoldoutBacktester:
                 out['charts'] = {}
 
         return out
+
+    def _technical_confirmation(self, stock_id: str, as_of: str) -> bool:
+        """技術指標確認：檢查是否有技術面支持"""
+        try:
+            # 獲取最近30天的價格資料
+            start_date = (pd.to_datetime(as_of) - pd.Timedelta(days=30)).strftime('%Y-%m-%d')
+            price_df = self.dm.get_stock_prices(stock_id, start_date, as_of)
+
+            if len(price_df) < 20:  # 資料不足
+                return False
+
+            # 計算技術指標
+            closes = price_df['close'].values
+
+            # 1. 價格趨勢：收盤價 > 20日均線
+            ma20 = closes[-20:].mean()
+            current_price = closes[-1]
+            trend_ok = current_price > ma20
+
+            # 2. 動量指標：RSI不能過高（避免追高）
+            def calculate_rsi(prices, period=14):
+                if len(prices) < period + 1:
+                    return 50  # 預設值
+                deltas = np.diff(prices)
+                gains = np.where(deltas > 0, deltas, 0)
+                losses = np.where(deltas < 0, -deltas, 0)
+                avg_gain = gains[-period:].mean()
+                avg_loss = losses[-period:].mean()
+                if avg_loss == 0:
+                    return 100
+                rs = avg_gain / avg_loss
+                return 100 - (100 / (1 + rs))
+
+            rsi = calculate_rsi(closes)
+            rsi_ok = 30 < rsi < 70  # RSI在合理範圍
+
+            # 3. 成交量確認：最近3天平均成交量 > 前10天平均
+            if 'volume' in price_df.columns:
+                volumes = price_df['volume'].values
+                recent_vol = volumes[-3:].mean()
+                prev_vol = volumes[-13:-3].mean()
+                volume_ok = recent_vol > prev_vol * 1.1  # 成交量放大10%
+            else:
+                volume_ok = True  # 沒有成交量資料時跳過此檢查
+
+            # 綜合判斷：至少2個指標支持
+            confirmations = sum([trend_ok, rsi_ok, volume_ok])
+            result = confirmations >= 2
+
+            logger.debug(f"技術確認 {stock_id}: 趨勢={trend_ok}, RSI={rsi_ok}({rsi:.1f}), 成交量={volume_ok}, 結果={result}")
+            return result
+
+        except Exception as e:
+            logger.warning(f"技術指標確認失敗 {stock_id}: {e}")
+            return True  # 確認失敗時不阻擋交易
+
+    def _get_all_available_stocks(self) -> List[str]:
+        """獲取所有可用股票清單"""
+        try:
+            available_stocks = self.dm.get_available_stocks(
+                start_date=self.wf['training_start'] + '-01',
+                end_date=self.wf['training_end'] + '-31',
+                min_history_months=self.wf['min_stock_history_months']
+            )
+            logger.info(f"動態候選池：找到 {len(available_stocks)} 檔可用股票")
+            return available_stocks[:20]  # 限制最多20檔股票，避免計算時間過長
+        except Exception as e:
+            logger.error(f"獲取可用股票失敗: {e}")
+            return []
 
     def _load_candidate_pool(self, path: Optional[str]) -> Dict[str, Any]:
         if path and Path(path).exists():

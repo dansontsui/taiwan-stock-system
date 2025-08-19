@@ -421,11 +421,34 @@ def run_hyperparameter_tuning():
         _p(f"📊 找到 {len(available_stocks)} 檔可用股票")
         _p(f"前10檔: {available_stocks[:10]}")
 
-        # 讓使用者選擇股票
-        stock_id = get_user_input("請輸入要調優的股票代碼", available_stocks[0])
+        # 選擇調優範圍
+        _p("\n📋 調優範圍：")
+        _p("  1) 單檔股票調優")
+        _p("  2) 批量調優多檔股票")
+        _p("  3) 調優全部股票")
 
-        if stock_id not in available_stocks:
-            _p(f"⚠️  股票 {stock_id} 不在可用清單中，但仍會嘗試執行")
+        range_choice = get_user_input("選擇調優範圍 (1-3)", "1")
+
+        if range_choice == '1':
+            # 單檔股票調優
+            stock_id = get_user_input("請輸入要調優的股票代碼", available_stocks[0])
+            if stock_id not in available_stocks:
+                _p(f"⚠️  股票 {stock_id} 不在可用清單中，但仍會嘗試執行")
+            target_stocks = [stock_id]
+
+        elif range_choice == '2':
+            # 批量調優指定數量
+            max_stocks = min(len(available_stocks), 50)  # 最多50檔
+            stock_count = int(get_user_input(f"請輸入要調優的股票數量 (1-{max_stocks})", "5"))
+            stock_count = min(stock_count, max_stocks)
+            target_stocks = available_stocks[:stock_count]
+            _p(f"📊 將調優前 {stock_count} 檔股票: {target_stocks}")
+
+        else:
+            # 調優全部股票
+            target_stocks = available_stocks
+            _p(f"📊 將調優全部 {len(target_stocks)} 檔股票")
+            _p("⚠️  這可能需要數小時時間，建議先測試少量股票")
 
         # 選擇測試模式
         _p("\n📋 測試模式：")
@@ -435,7 +458,21 @@ def run_hyperparameter_tuning():
         mode_choice = get_user_input("選擇測試模式 (1-2)", "1")
 
         # 設定參數組合數量
-        max_combinations = int(get_user_input("每個模型最大參數組合數量", "20"))
+        if len(target_stocks) > 1:
+            # 批量模式下建議較少參數組合
+            default_combinations = "10" if len(target_stocks) > 5 else "15"
+            _p(f"💡 批量模式建議使用較少參數組合以節省時間")
+        else:
+            default_combinations = "20"
+
+        max_combinations = int(get_user_input("每個模型最大參數組合數量", default_combinations))
+
+        # 顯示預估時間
+        if len(target_stocks) > 1:
+            models_per_stock = 3 if mode_choice == '1' else 1
+            total_combinations = len(target_stocks) * models_per_stock * max_combinations
+            estimated_minutes = total_combinations * 0.5  # 每個組合約30秒
+            _p(f"⏱️  預估執行時間: {estimated_minutes:.0f} 分鐘 ({total_combinations} 個參數組合)")
 
         if not confirm_action("確認執行？"):
             _p("❌ 取消執行")
@@ -445,111 +482,154 @@ def run_hyperparameter_tuning():
         from stock_price_investment_system.price_models.hyperparameter_tuner import HyperparameterTuner
         tuner = HyperparameterTuner()
 
-        if mode_choice == '1':
-            # 測試所有模型
-            _p(f"\n🚀 開始對股票 {stock_id} 進行全模型調優...")
-            _p(f"將測試 XGBoost、LightGBM、RandomForest 三個模型")
-            _p(f"每個模型最多 {max_combinations} 個參數組合")
+        # 批量處理邏輯
+        if len(target_stocks) == 1:
+            # 單檔股票調優
+            stock_id = target_stocks[0]
+            if mode_choice == '1':
+                # 測試所有模型
+                _p(f"\n🚀 開始對股票 {stock_id} 進行全模型調優...")
+                _p(f"將測試 XGBoost、LightGBM、RandomForest 三個模型")
+                _p(f"每個模型最多 {max_combinations} 個參數組合")
 
-            all_results = tuner.tune_all_models(
-                stock_id=stock_id,
-                max_combinations=max_combinations
-            )
+                all_results = tuner.tune_all_models(
+                    stock_id=stock_id,
+                    max_combinations=max_combinations
+                )
 
-            _p(f"\n✅ 全模型調優完成！")
-            _p(f"📊 股票: {all_results['stock_id']}")
+                _p(f"\n✅ 全模型調優完成！")
+                _p(f"📊 股票: {all_results['stock_id']}")
 
-            # 顯示每個模型的結果
-            for model_type, result in all_results['all_models'].items():
-                _p(f"\n🔧 {model_type.upper()}:")
-                if result['success']:
-                    _p(f"   🎯 最佳分數: {result['best_score']:.4f}")
-                    _p(f"   📈 成功組合: {result['successful_combinations']}/{result['total_combinations']}")
-                    if result['failed_combinations'] > 0:
-                        _p(f"   ❌ 失敗組合: {result['failed_combinations']}")
+                # 顯示每個模型的結果
+                for model_type, result in all_results['all_models'].items():
+                    _p(f"\n🔧 {model_type.upper()}:")
+                    if result['success']:
+                        _p(f"   🎯 最佳分數: {result['best_score']:.4f}")
+                        _p(f"   📈 成功組合: {result['successful_combinations']}/{result['total_combinations']}")
+                        if result['failed_combinations'] > 0:
+                            _p(f"   ❌ 失敗組合: {result['failed_combinations']}")
+                            _p(f"   🔍 失敗原因: {result['failure_analysis']}")
+                    else:
+                        _p(f"   ❌ 全部失敗 ({result['total_combinations']} 個組合)")
                         _p(f"   🔍 失敗原因: {result['failure_analysis']}")
+
+                # 顯示最佳整體結果
+                best = all_results['best_overall']
+                if best['model']:
+                    _p(f"\n🏆 最佳整體結果:")
+                    _p(f"   模型: {best['model'].upper()}")
+                    _p(f"   分數: {best['score']:.4f}")
+                    _p(f"   參數: {best['params']}")
                 else:
-                    _p(f"   ❌ 全部失敗 ({result['total_combinations']} 個組合)")
-                    _p(f"   🔍 失敗原因: {result['failure_analysis']}")
+                    _p(f"\n❌ 所有模型都失敗")
 
-            # 顯示最佳整體結果
-            best = all_results['best_overall']
-            if best['model']:
-                _p(f"\n🏆 最佳整體結果:")
-                _p(f"   模型: {best['model'].upper()}")
-                _p(f"   分數: {best['score']:.4f}")
-                _p(f"   參數: {best['params']}")
             else:
-                _p(f"\n❌ 所有模型都失敗")
+                # 單檔股票 - 測試單一模型
+                _p("\n📋 選擇模型類型：")
+                _p("  1) xgboost")
+                _p("  2) lightgbm")
+                _p("  3) random_forest")
 
-        else:
-            # 測試單一模型
-            _p("\n📋 選擇模型類型：")
-            _p("  1) xgboost")
-            _p("  2) lightgbm")
-            _p("  3) random_forest")
+                model_choice = get_user_input("選擇模型類型 (1-3)", "1")
+                model_map = {'1': 'xgboost', '2': 'lightgbm', '3': 'random_forest'}
+                model_type = model_map.get(model_choice, 'xgboost')
 
-            model_choice = get_user_input("選擇模型類型 (1-3)", "1")
-            model_map = {'1': 'xgboost', '2': 'lightgbm', '3': 'random_forest'}
-            model_type = model_map.get(model_choice, 'xgboost')
+                _p(f"\n🚀 開始對股票 {stock_id} 進行 {model_type} 模型調優...")
 
-            _p(f"\n🚀 開始對股票 {stock_id} 進行 {model_type} 模型調優...")
+                result = tuner.tune_single_stock(
+                    stock_id=stock_id,
+                    model_type=model_type,
+                    max_combinations=max_combinations
+                )
 
-            result = tuner.tune_single_stock(
-                stock_id=stock_id,
-                model_type=model_type,
-                max_combinations=max_combinations
-            )
+                _p(f"\n✅ 超參數調優完成！")
+                _p(f"📊 股票: {result['stock_id']}")
 
-            _p(f"\n✅ 超參數調優完成！")
-            _p(f"📊 股票: {result['stock_id']}")
+                if result['success']:
+                    _p(f"🎯 最佳分數: {result['best_score']:.4f} (方向準確率)")
+                    _p(f"   📊 分數說明: 預測漲跌方向的準確度，1.0=100%準確")
+                    _p(f"🔧 最佳參數: {result['best_params']}")
+                    _p(f"📈 成功組合: {result['successful_combinations']}/{result['total_combinations']}")
 
-            if result['success']:
-                _p(f"🎯 最佳分數: {result['best_score']:.4f} (方向準確率)")
-                _p(f"   📊 分數說明: 預測漲跌方向的準確度，1.0=100%準確")
-                _p(f"🔧 最佳參數: {result['best_params']}")
-                _p(f"📈 成功組合: {result['successful_combinations']}/{result['total_combinations']}")
+                    if result['failed_combinations'] > 0:
+                        _p(f"❌ 失敗組合: {result['failed_combinations']}")
+                        _p(f"🔍 失敗原因: {result['failure_analysis']}")
 
-                if result['failed_combinations'] > 0:
-                    _p(f"❌ 失敗組合: {result['failed_combinations']}")
+                    summary = result['results_summary']
+                    _p(f"📊 分數統計: 平均={summary['mean_score']:.4f}, 標準差={summary['std_score']:.4f}")
+                    _p(f"🏆 前5名分數: {[f'{s:.4f}' for s in summary['top_5_scores']]}")
+                else:
+                    _p(f"❌ 所有參數組合都失敗 ({result['total_combinations']} 個)")
                     _p(f"🔍 失敗原因: {result['failure_analysis']}")
 
-                summary = result['results_summary']
-                _p(f"📊 分數統計: 平均={summary['mean_score']:.4f}, 標準差={summary['std_score']:.4f}")
-                _p(f"🏆 前5名分數: {[f'{s:.4f}' for s in summary['top_5_scores']]}")
+        else:
+            # 批量處理多檔股票
+            _p(f"\n🚀 開始批量調優 {len(target_stocks)} 檔股票...")
 
-                _p(f"\n💡 CSV欄位說明:")
-                _p(f"   - test_direction_accuracy: 測試集方向準確率 (主要指標)")
-                _p(f"   - test_r2: 測試集R²決定係數")
-                _p(f"   - train_r2: 訓練集R²決定係數")
-                _p(f"   - param_*: 各種模型參數")
-            else:
-                _p(f"❌ 所有參數組合都失敗 ({result['total_combinations']} 個)")
-                _p(f"🔍 失敗原因: {result['failure_analysis']}")
+            if mode_choice == '2':
+                # 批量模式下選擇單一模型
+                _p("\n📋 選擇模型類型：")
+                _p("  1) xgboost")
+                _p("  2) lightgbm")
+                _p("  3) random_forest")
 
+                model_choice = get_user_input("選擇模型類型 (1-3)", "1")
+                model_map = {'1': 'xgboost', '2': 'lightgbm', '3': 'random_forest'}
+                model_type = model_map.get(model_choice, 'xgboost')
+
+            batch_results = []
+            successful_count = 0
+            failed_count = 0
+
+            for i, stock_id in enumerate(target_stocks, 1):
+                _p(f"\n📊 進度: {i}/{len(target_stocks)} - 正在調優股票 {stock_id}")
+
+                try:
+                    if mode_choice == '1':
+                        # 批量全模型調優
+                        result = tuner.tune_all_models(
+                            stock_id=stock_id,
+                            max_combinations=max_combinations
+                        )
+                        if result['best_overall']['model']:
+                            successful_count += 1
+                            _p(f"✅ {stock_id}: 最佳模型 {result['best_overall']['model']}, 分數 {result['best_overall']['score']:.4f}")
+                        else:
+                            failed_count += 1
+                            _p(f"❌ {stock_id}: 所有模型都失敗")
+                    else:
+                        # 批量單一模型調優
+                        result = tuner.tune_single_stock(
+                            stock_id=stock_id,
+                            model_type=model_type,
+                            max_combinations=max_combinations
+                        )
+                        if result['success']:
+                            successful_count += 1
+                            _p(f"✅ {stock_id}: 分數 {result['best_score']:.4f}")
+                        else:
+                            failed_count += 1
+                            _p(f"❌ {stock_id}: 調優失敗")
+
+                    batch_results.append(result)
+
+                except Exception as e:
+                    failed_count += 1
+                    _p(f"❌ {stock_id}: 執行錯誤 - {e}")
+                    logging.error(f"批量調優失敗 {stock_id}: {e}")
+
+            # 批量結果總結
+            _p(f"\n🎉 批量調優完成！")
+            _p(f"📊 總計: {len(target_stocks)} 檔股票")
+            _p(f"✅ 成功: {successful_count} 檔")
+            _p(f"❌ 失敗: {failed_count} 檔")
+            _p(f"📈 成功率: {successful_count/len(target_stocks)*100:.1f}%")
+
+        # 通用結果說明
         _p(f"\n📁 詳細結果已儲存至:")
         _p(f"   stock_price_investment_system/models/hyperparameter_tuning/")
         _p(f"   - JSON: 完整結果與失敗原因")
         _p(f"   - CSV:  所有參數組合與指標（中文欄位，包含失敗記錄）")
-
-        # 提示最佳參數應用
-        if mode_choice == '1':
-            best = all_results['best_overall']
-            if best['model']:
-                _p(f"\n🔧 建議將最佳參數應用到系統:")
-                _p(f"   1. 編輯 stock_price_investment_system/config/settings.py")
-                _p(f"   2. 更新 {best['model']}_params 區段:")
-                for param, value in best['params'].items():
-                    _p(f"      '{param}': {value},")
-                _p(f"   3. 重新執行選單3,4,5 使用最佳參數")
-        else:
-            if result['success']:
-                _p(f"\n🔧 建議將最佳參數應用到系統:")
-                _p(f"   1. 編輯 stock_price_investment_system/config/settings.py")
-                _p(f"   2. 更新 {model_type}_params 區段:")
-                for param, value in result['best_params'].items():
-                    _p(f"      '{param}': {value},")
-                _p(f"   3. 重新執行選單3,4,5 使用最佳參數")
 
     except Exception as e:
         _p(f"❌ 超參數調優執行失敗: {e}")
@@ -557,6 +637,98 @@ def run_hyperparameter_tuning():
 
 
 def main():
+    _safe_setup_stdout()
+    setup_logging()
+
+    while True:
+        display_menu()
+        sel = get_user_input("請選擇功能", "1")
+
+        if sel == '1':
+            _p('📊 資料收集（尚未實作）')
+        elif sel == '2':
+            _p('🔄 資料更新（尚未實作）')
+        elif sel == '3':
+            run_walk_forward_validation()
+        elif sel == '4':
+            generate_candidate_pool()
+        elif sel == '5':
+            try:
+                from stock_price_investment_system.price_models.holdout_backtester import HoldoutBacktester
+                from stock_price_investment_system.price_models.hyperparameter_tuner import HyperparameterTuner
+
+                _p('🏆 開始執行外層 holdout 回測...')
+
+                # 選擇候選池模式
+                _p("\n📋 候選池模式：")
+                _p("  1) 靜態候選池 (使用選單4生成的固定股票清單)")
+                _p("  2) 動態候選池 (每月重新篩選最佳股票，更真實)")
+
+                pool_mode = get_user_input("選擇候選池模式 (1-2)", "1")
+                use_dynamic = (pool_mode == '2')
+
+                if use_dynamic:
+                    _p("✅ 使用動態候選池：每月重新篩選候選股票")
+                    _p("   - 預測門檻：2% (更嚴格)")
+                    _p("   - 每月最多買3檔股票")
+                    _p("   - 只有真正有潛力的股票才會被選中")
+                else:
+                    _p("✅ 使用靜態候選池：固定候選股票清單")
+
+                # 檢查已調優股票
+                tuned_df = HyperparameterTuner.get_tuned_stocks_info()
+                if not tuned_df.empty:
+                    successful_tuned = tuned_df[tuned_df['是否成功'] == '成功']
+                    if not successful_tuned.empty:
+                        model_counts = successful_tuned['模型類型'].value_counts()
+                        _p(f"🧠 將使用個股最佳參數:")
+                        for model, count in model_counts.items():
+                            _p(f"   {model}: {count} 檔股票")
+                        _p(f"   未調優股票將使用預設參數")
+                    else:
+                        _p("⚠️ 沒有成功調優的股票，將使用預設參數")
+                else:
+                    _p("⚠️ 沒有調優記錄，將使用預設參數")
+
+                hb = HoldoutBacktester()
+                res = hb.run(dynamic_pool=use_dynamic)
+                if res.get('success'):
+                    m = res['metrics']
+                    _p(f"✅ 外層回測完成。交易數: {m.get('trade_count',0)}，總報酬: {m.get('total_return',0):.2%}，勝率: {m.get('win_rate',0):.1%}")
+                else:
+                    _p(f"❌ 外層回測失敗: {res.get('error','未知錯誤')}")
+            except Exception as e:
+                _p(f"❌ 外層回測執行失敗: {e}")
+        elif sel == '6':
+            _p('⚙️  顯示/編輯 config 檔案（尚未實作）')
+        elif sel == '7':
+            _p('📋 報表輸出（尚未實作）')
+        elif sel == '8':
+            _p('🗂️  模型管理（尚未實作）')
+        elif sel == '9':
+            run_hyperparameter_tuning()
+        elif sel == '10':
+            _p('🩺 系統狀態檢查（尚未實作）')
+        elif sel in {'q', 'quit', 'exit'}:
+            _p("👋 再見！")
+            return 0
+        else:
+            _p("❌ 無效選項，請重新選擇")
+
+        _p("\n" + "="*60)
+
+
+if __name__ == "__main__":
+    try:
+        exit_code = main()
+        sys.exit(exit_code or 0)
+    except KeyboardInterrupt:
+        _p("\n👋 使用者中斷，再見！")
+        sys.exit(0)
+    except Exception as e:
+        _p(f"❌ 系統錯誤: {e}")
+        logging.error(f"System error: {e}")
+        sys.exit(1)
     _safe_setup_stdout()
     setup_logging()
 
@@ -587,6 +759,22 @@ def main():
 
                 _p('🏆 開始執行外層 holdout 回測...')
 
+                # 選擇候選池模式
+                _p("\n📋 候選池模式：")
+                _p("  1) 靜態候選池 (使用選單4生成的固定股票清單)")
+                _p("  2) 動態候選池 (每月重新篩選最佳股票，更真實)")
+
+                pool_mode = get_user_input("選擇候選池模式 (1-2)", "1")
+                use_dynamic = (pool_mode == '2')
+
+                if use_dynamic:
+                    _p("✅ 使用動態候選池：每月重新篩選候選股票")
+                    _p("   - 預測門檻：2% (更嚴格)")
+                    _p("   - 每月最多買3檔股票")
+                    _p("   - 只有真正有潛力的股票才會被選中")
+                else:
+                    _p("✅ 使用靜態候選池：固定候選股票清單")
+
                 # 檢查已調優股票
                 tuned_df = HyperparameterTuner.get_tuned_stocks_info()
                 if not tuned_df.empty:
@@ -603,7 +791,7 @@ def main():
                     _p("⚠️ 沒有調優記錄，將使用預設參數")
 
                 hb = HoldoutBacktester()
-                res = hb.run()
+                res = hb.run(dynamic_pool=use_dynamic)
                 if res.get('success'):
                     m = res['metrics']
                     _p(f"✅ 外層回測完成。交易數: {m.get('trade_count',0)}，總報酬: {m.get('total_return',0):.2%}，勝率: {m.get('win_rate',0):.1%}")
@@ -623,12 +811,18 @@ def main():
             _p('🩺 系統狀態檢查（尚未實作）')
         elif sel in {'q', 'quit', 'exit'}:
             _p("👋 再見！")
-            return 0
+            break
         else:
-            _p("❌ 無效選項，請重試。")
+            _p("❌ 無效選項，請重新選擇")
+
+        _p("\n" + "="*60)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
-
-
+    try:
+        main()
+    except KeyboardInterrupt:
+        _p("\n👋 使用者中斷，再見！")
+    except Exception as e:
+        _p(f"❌ 系統錯誤: {e}")
+        logging.error(f"System error: {e}")
