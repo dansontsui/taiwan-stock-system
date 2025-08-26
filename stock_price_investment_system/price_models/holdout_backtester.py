@@ -65,7 +65,7 @@ class HoldoutBacktester:
         bar = '█' * filled + '░' * (width - filled)
         return f"[{bar}]"
 
-    def _display_monthly_results(self, month: str, trades: list, monthly_results: list, backtest_session_id: str = None):
+    def _display_monthly_results(self, month: str, trades: list, monthly_results: list, backtest_session_id: str = None, output_dir: Path = None):
         """顯示當月回測結果並保存到月度結果列表，同時立即保存到檔案"""
         # 計算當月統計
         total_trades = len(trades)
@@ -93,7 +93,7 @@ class HoldoutBacktester:
 
         # 立即保存當月結果到檔案
         if backtest_session_id:
-            self._save_monthly_result_immediately(monthly_result, backtest_session_id)
+            self._save_monthly_result_immediately(monthly_result, backtest_session_id, output_dir)
 
         # 顯示當月結果
         if not trades:
@@ -116,7 +116,7 @@ class HoldoutBacktester:
 
         self._log("", "info", force_print=True)  # 空行分隔
 
-    def _save_monthly_result_immediately(self, monthly_result: dict, session_id: str):
+    def _save_monthly_result_immediately(self, monthly_result: dict, session_id: str, output_dir: Path = None):
         """立即保存當月結果到CSV檔案"""
         try:
             import csv
@@ -124,9 +124,12 @@ class HoldoutBacktester:
             from pathlib import Path
             from stock_price_investment_system.config.settings import get_config
 
-            # 獲取holdout結果目錄
-            config = get_config()
-            holdout_dir = Path(config['output']['paths']['holdout_results'])
+            # 使用傳入的輸出目錄，或預設目錄
+            if output_dir:
+                holdout_dir = output_dir
+            else:
+                config = get_config()
+                holdout_dir = Path(config['output']['paths']['holdout_results'])
             holdout_dir.mkdir(parents=True, exist_ok=True)
 
             # 生成月度結果檔案名稱
@@ -184,6 +187,21 @@ class HoldoutBacktester:
         except Exception as e:
             self._log(f"⚠️  保存月度結果失敗: {e}", "warning", force_print=True)
 
+    def _generate_folder_name(self, start: str, end: str, threshold: float, k: int, use_market_filter: bool) -> str:
+        """根據參數組合生成資料夾名稱"""
+        # 提取日期部分 (YYYY-MM-DD -> YYYYMM)
+        start_str = start.replace('-', '')[:6]  # YYYYMM
+        end_str = end.replace('-', '')[:6]      # YYYYMM
+
+        # 格式化參數
+        threshold_str = f"{int(threshold * 1000):03d}"  # 0.020 -> 020
+        k_str = f"k{k}" if k > 0 else "kAll"
+        filter_str = "MF" if use_market_filter else "NoMF"
+
+        # 組合資料夾名稱: holdout_YYYYMM_YYYYMM_020_k10_MF
+        folder_name = f"holdout_{start_str}_{end_str}_{threshold_str}_{k_str}_{filter_str}"
+        return folder_name
+
     def run(self,
             candidate_pool_json: Optional[str] = None,
             holdout_start: Optional[str] = None,
@@ -225,8 +243,14 @@ class HoldoutBacktester:
         result_records: List[Dict[str, Any]] = []
         monthly_results: List[Dict[str, Any]] = []  # 存儲每月結果
 
-        # 生成回測會話ID
+        # 生成參數化資料夾名稱和會話ID
+        folder_name = self._generate_folder_name(start, end, threshold, k, use_market_filter)
         session_id = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+        # 創建參數化輸出目錄
+        base_out_dir = Path(self.paths['holdout_results'])
+        param_out_dir = base_out_dir / folder_name
+        param_out_dir.mkdir(parents=True, exist_ok=True)
 
         months = pd.date_range(start=start, end=end, freq='M')
         total_months = len(months)
@@ -332,7 +356,7 @@ class HoldoutBacktester:
                 month_trades.append(trade_record)
 
             # 顯示當月結果並保存到月度結果，同時立即保存到檔案
-            self._display_monthly_results(as_of, month_trades, monthly_results, session_id)
+            self._display_monthly_results(as_of, month_trades, monthly_results, session_id, param_out_dir)
 
         df = pd.DataFrame(result_records)
         metrics = self._metrics(df)
@@ -360,30 +384,32 @@ class HoldoutBacktester:
             'detailed_trades': result_records  # 添加詳細交易記錄
         }
 
-        # 輸出
-        out_dir = Path(self.paths['holdout_results'])
-        out_dir.mkdir(parents=True, exist_ok=True)
+        # 輸出到參數化目錄
         ts = datetime.now().strftime('%Y%m%d_%H%M%S')
-        fp = out_dir / f'holdout_{ts}.json'
+        fp = param_out_dir / f'holdout_{ts}.json'
         with open(fp, 'w', encoding='utf-8') as f:  # 修正：移除BOM編碼
             json.dump(out, f, ensure_ascii=False, indent=2)
-        self._log(f"外層回測結果輸出: {fp}", "info")
+        self._log(f"外層回測結果輸出: {fp}", "info", force_print=True)
 
         # 輸出詳細交易記錄CSV和圖表
         if not df.empty:
-            csv_fp = out_dir / f'holdout_trades_{ts}.csv'
+            csv_fp = param_out_dir / f'holdout_trades_{ts}.csv'
             df.to_csv(csv_fp, index=False, encoding='utf-8-sig')
-            self._log(f"交易記錄CSV輸出: {csv_fp}", "info")
+            self._log(f"交易記錄CSV輸出: {csv_fp}", "info", force_print=True)
 
             # 生成圖表
             try:
-                chart_generator = BacktestCharts(output_dir=str(out_dir / "charts"))
+                chart_generator = BacktestCharts(output_dir=str(param_out_dir / "charts"))
                 charts = chart_generator.create_holdout_charts(df, metrics)
                 out['charts'] = charts
-                self._log(f"回測圖表已生成: {len(charts)} 個圖表", "info")
+                self._log(f"回測圖表已生成: {len(charts)} 個圖表", "info", force_print=True)
             except Exception as e:
                 logger.warning(f"圖表生成失敗: {e}")
                 out['charts'] = {}
+
+        # 記錄參數化資料夾資訊
+        out['output_folder'] = folder_name
+        self._log(f"📁 所有結果已保存到資料夾: {folder_name}", "info", force_print=True)
 
         return out
 
