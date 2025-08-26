@@ -69,7 +69,7 @@ class StockPricePredictor:
         self.model_dir = Path(self.config['output']['paths']['models'])
         self.model_dir.mkdir(parents=True, exist_ok=True)
         
-        logger.info(f"StockPricePredictor initialized with model type: {self.model_type}")
+        logger.debug(f"StockPricePredictor initialized with model type: {self.model_type}")
     
     def create_model(self) -> Any:
         """建立模型實例"""
@@ -122,7 +122,7 @@ class StockPricePredictor:
         Returns:
             訓練結果字典
         """
-        logger.info(f"Training model with {len(feature_df)} samples")
+        logger.debug(f"Training model with {len(feature_df)} samples")
         
         # 合併特徵和目標
         merged_df = feature_df.merge(
@@ -131,7 +131,7 @@ class StockPricePredictor:
             how='inner'
         )
 
-        logger.info(f"合併後樣本數: {len(merged_df)}")
+        logger.debug(f"合併後樣本數: {len(merged_df)}")
 
         # 檢查 NaN 情況
         nan_counts = merged_df.isnull().sum()
@@ -162,11 +162,27 @@ class StockPricePredictor:
             logger.error(f"特徵矩陣仍有 NaN: {nan_features}")
             # 強制填充
             X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
-            logger.info("已強制將 NaN 和無限值替換為 0")
+            logger.debug("已強制將 NaN 和無限值替換為 0")
 
-        if np.isnan(y).any():
-            logger.error(f"目標變數仍有 NaN: {np.sum(np.isnan(y))} 個")
-            raise ValueError("Target variable contains NaN values")
+        # 清理目標變數中的異常值
+        if np.isnan(y).any() or np.isinf(y).any():
+            nan_count = np.sum(np.isnan(y))
+            inf_count = np.sum(np.isinf(y))
+            logger.warning(f"目標變數包含異常值: NaN={nan_count}, Inf={inf_count}，將進行清理")
+
+            # 清理異常值：NaN和無限值都設為0
+            y = np.nan_to_num(y, nan=0.0, posinf=0.0, neginf=0.0)
+
+            # 移除對應的樣本（如果目標變數原本是NaN）
+            valid_mask = ~(np.isnan(merged_df[target_column].values) | np.isinf(merged_df[target_column].values))
+            if not valid_mask.all():
+                logger.debug(f"移除 {(~valid_mask).sum()} 個目標變數異常的樣本")
+                X = X[valid_mask]
+                y = y[valid_mask]
+
+                if len(y) == 0:
+                    logger.error("清理後沒有有效的訓練樣本")
+                    raise ValueError("No valid training samples after cleaning target variable")
         
         # 儲存特徵名稱
         self.feature_names = feature_columns
@@ -211,8 +227,8 @@ class StockPricePredictor:
                 'feature_names': feature_columns
             }
             
-            logger.info(f"Model training completed successfully")
-            logger.info(f"Validation R²: {val_metrics['r2']:.4f}, RMSE: {val_metrics['rmse']:.4f}")
+            logger.debug(f"Model training completed successfully")
+            logger.debug(f"Validation R²: {val_metrics['r2']:.4f}, RMSE: {val_metrics['rmse']:.4f}")
             
             return result
             

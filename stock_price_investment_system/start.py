@@ -24,6 +24,7 @@ from stock_price_investment_system.price_models.feature_engineering import Featu
 from stock_price_investment_system.price_models.stock_price_predictor import StockPricePredictor
 from stock_price_investment_system.price_models.walk_forward_validator import WalkForwardValidator
 from stock_price_investment_system.selector.candidate_pool_generator import CandidatePoolGenerator
+from stock_price_investment_system.utils.operation_history import get_operation_history
 
 # 設定日誌
 def setup_logging():
@@ -104,6 +105,7 @@ def display_menu():
     _p("  9) 超參數調優（單檔/批量股票網格搜尋）")
     _p("  10) 系統狀態檢查")
     _p("  11) 日誌檔案管理（清理/壓縮/查看）")
+    _p("  12) 查看操作歷史")
     _p("  q) 離開系統")
     _p("-"*60)
     _p("💡 建議執行順序：")
@@ -125,6 +127,109 @@ def confirm_action(message: str) -> bool:
     """確認動作"""
     response = input(f"{message} (y/N): ").strip().lower()
     return response in ['y', 'yes', '是']
+
+def show_operation_history(menu_id: str) -> None:
+    """顯示指定選單的操作歷史"""
+    history = get_operation_history()
+    records = history.get_operations_by_menu(menu_id, limit=5)
+
+    if not records:
+        _p(f"📝 選單 {menu_id} 沒有操作歷史")
+        return
+
+    _p(f"\n📋 選單 {menu_id} 最近操作歷史:")
+    _p("-" * 60)
+
+    for i, record in enumerate(reversed(records), 1):
+        timestamp = record.get('timestamp', '')
+        if timestamp:
+            # 格式化時間顯示
+            try:
+                from datetime import datetime
+                dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                time_str = dt.strftime('%m-%d %H:%M')
+            except:
+                time_str = timestamp[:16]
+        else:
+            time_str = "未知時間"
+
+        operation_name = record.get('operation_name', '未知操作')
+        parameters = record.get('parameters', {})
+        param_str = history.format_parameters(parameters)
+
+        _p(f"  {i}. {time_str} - {operation_name}")
+        _p(f"     參數: {param_str}")
+
+    _p("-" * 60)
+
+def get_date_range_input(prompt: str, default_start: str, default_end: str, menu_id: str = "") -> tuple:
+    """獲取日期區間輸入，支援歷史記錄"""
+    _p(f"\n📅 {prompt}")
+
+    # 從歷史記錄獲取上次設定
+    history = get_operation_history()
+    last_record = history.get_last_operation(menu_id) if menu_id else None
+
+    if last_record and 'parameters' in last_record:
+        last_start = last_record['parameters'].get('date_start', default_start)
+        last_end = last_record['parameters'].get('date_end', default_end)
+        _p(f"上次設定: {last_start} ~ {last_end}")
+    else:
+        last_start, last_end = default_start, default_end
+
+    # 詢問是否使用預設或自訂
+    use_custom = get_user_input("使用自訂日期區間？ (y/N)", "N").lower() == 'y'
+
+    if use_custom:
+        start_date = get_user_input(f"開始日期 (YYYY-MM格式)", last_start)
+        end_date = get_user_input(f"結束日期 (YYYY-MM格式)", last_end)
+
+        # 驗證日期格式
+        try:
+            from datetime import datetime
+            datetime.strptime(start_date + '-01', '%Y-%m-%d')
+            datetime.strptime(end_date + '-01', '%Y-%m-%d')
+            _p(f"✅ 設定日期區間: {start_date} ~ {end_date}")
+            return start_date, end_date
+        except ValueError:
+            _p("❌ 日期格式錯誤，使用預設值")
+            return default_start, default_end
+    else:
+        _p(f"✅ 使用預設區間: {default_start} ~ {default_end}")
+        return default_start, default_end
+
+def get_user_input_with_history(prompt: str, default: str = None, menu_id: str = "", param_name: str = "") -> str:
+    """獲取用戶輸入，支援歷史記錄"""
+    # 嘗試從歷史記錄中獲取上次的值
+    history_default = default
+    if menu_id and param_name:
+        history = get_operation_history()
+        last_record = history.get_last_operation(menu_id)
+        if last_record and 'parameters' in last_record:
+            last_value = last_record['parameters'].get(param_name)
+            if last_value is not None:
+                history_default = str(last_value)
+
+    # 構建提示字串
+    if history_default and history_default != str(default):
+        full_prompt = f"{prompt} [上次: {history_default}, 預設: {default or '無'}]: "
+    elif history_default:
+        full_prompt = f"{prompt} [預設: {history_default}]: "
+    else:
+        full_prompt = f"{prompt}: "
+
+    user_input = input(full_prompt).strip()
+    return user_input if user_input else history_default
+
+def save_operation_to_history(menu_id: str, operation_name: str, parameters: dict) -> None:
+    """保存操作到歷史記錄"""
+    try:
+        history = get_operation_history()
+        history.save_operation(menu_id, operation_name, parameters)
+    except Exception as e:
+        # 歷史記錄失敗不應影響主要功能
+        import logging
+        logging.warning(f"保存操作歷史失敗: {e}")
 
 def run_walk_forward_validation():
     """執行Walk-forward驗證"""
@@ -156,9 +261,15 @@ def run_walk_forward_validation():
         # 獲取股票清單
         _p("\n📊 準備資料...")
         data_manager = DataManager()
+        # 正確處理月底日期
+        from calendar import monthrange
+        year, month = map(int, config['training_end'].split('-'))
+        last_day = monthrange(year, month)[1]
+        end_date = f"{config['training_end']}-{last_day:02d}"
+
         stock_ids = data_manager.get_available_stocks(
             start_date=config['training_start'] + '-01',
-            end_date=config['training_end'] + '-31',
+            end_date=end_date,
             min_history_months=config['min_stock_history_months']
         )
 
@@ -221,21 +332,61 @@ def run_walk_forward_validation():
             _p("❌ 取消執行")
             return
 
-        # 初始化驗證器
+        # 日期區間設定
+        config = get_config()
+        wf_config = config['walkforward']
+
+        training_start, training_end = get_date_range_input(
+            "訓練期間設定",
+            wf_config['training_start'],
+            wf_config['training_end'],
+            "3"
+        )
+
+        # 日誌級別設定
+        log_level_choice = get_user_input_with_history("日誌級別? 1=精簡(預設), 2=詳細", "2", "3", "log_level")
+        verbose_logging = log_level_choice == "2"
+
+        # 日誌輸出設定
+        log_output_choice = get_user_input_with_history("日誌輸出? 1=CLI+檔案(預設), 2=只輸出CLI", "2", "3", "log_output")
+        cli_only_logging = log_output_choice == "2"
+
+        # 設定全域日誌模式
+        if cli_only_logging:
+            from stock_price_investment_system.utils.log_manager import set_cli_only_mode, suppress_verbose_logging, suppress_repetitive_warnings, suppress_data_missing_warnings
+            set_cli_only_mode(True)
+            suppress_verbose_logging()
+            suppress_repetitive_warnings()
+            suppress_data_missing_warnings()  # 完全抑制資料缺失警告
+            _p("🔇 已啟用CLI專用模式，不會記錄日誌檔案")
+            _p("🔇 已抑制重複警告和資料缺失警告")
+
+        # 初始化驗證器（在變數定義之後）
         feature_engineer = FeatureEngineer()
-        validator = WalkForwardValidator(feature_engineer)
+        validator = WalkForwardValidator(feature_engineer, verbose_logging=verbose_logging, cli_only_logging=cli_only_logging)
 
         # 是否使用最佳參數與多模型
         use_best = get_user_input("是否使用最佳參數? (y/N)", "n").lower() in ["y","yes","是"]
-        models_choice = get_user_input("使用哪些模型? 1=全三種, 2=主模型, 3=自選(逗號分隔)", "2")
+        models_choice = get_user_input("使用哪些模型? 1=全三種, 2=主模型, 3=自選(逗號分隔), 4=自動選擇最佳模型", "2")
 
         models_to_use = None
+        use_auto_best_model = False
+
         if models_choice == '1':
             models_to_use = ['xgboost','lightgbm','random_forest']
             _p("🔧 將使用三種模型: XGBoost, LightGBM, RandomForest")
         elif models_choice == '2':
             models_to_use = None  # 使用 primary_model
-            _p("🔧 將使用主模型: random_forest")
+            config = get_config()
+            primary_model = config['model']['primary_model']
+            _p(f"🔧 將使用主模型: {primary_model}")
+        elif models_choice == '4':
+            use_auto_best_model = True
+            models_to_use = ['auto_best']  # 特殊標記
+            _p("🔧 將自動選擇每檔股票的最佳模型和參數")
+            if not use_best:
+                _p("⚠️  自動選擇最佳模型需要使用最佳參數，已自動啟用")
+                use_best = True
         else:
             custom = get_user_input("輸入模型清單(例如: xgboost,random_forest)", "random_forest")
             models_to_use = [m.strip() for m in custom.split(',') if m.strip()]
@@ -247,8 +398,29 @@ def run_walk_forward_validation():
             models_to_use = [config['model']['primary_model']]
             _p(f"🔧 使用預設主模型: {models_to_use}")
 
+        _p(f"📋 訓練期間: {training_start} ~ {training_end}")
         _p(f"📋 模型設定: {models_to_use}")
         _p(f"📋 使用最佳參數: {'是' if use_best else '否'}")
+        _p(f"📋 自動選擇最佳模型: {'是' if use_auto_best_model else '否'}")
+        _p(f"📋 日誌級別: {'詳細' if verbose_logging else '精簡'}")
+
+        # 保存操作到歷史記錄
+        parameters = {
+            'date_start': training_start,
+            'date_end': training_end,
+            'use_best_params': use_best,
+            'models_choice': models_choice,
+            'models_to_use': str(models_to_use),
+            'use_auto_best_model': use_auto_best_model,
+            'log_level': log_level_choice,
+            'log_output': log_output_choice,
+            'cli_only_logging': cli_only_logging
+        }
+        save_operation_to_history('3', '內層Walk-Forward驗證', parameters)
+
+        # 記錄參數到日誌檔案（強制記錄，即使在CLI專用模式下）
+        from stock_price_investment_system.utils.log_manager import log_menu_parameters
+        log_menu_parameters('3', '內層Walk-Forward驗證', parameters, force_log=True)
 
         override_models = None
         if use_best:
@@ -284,9 +456,28 @@ def run_walk_forward_validation():
             else:
                 _p("⚠️ 找不到調優註冊表，將使用預設參數")
 
-        # 執行驗證
+        # 正確處理月底日期
+        from calendar import monthrange
+
+        # 開始日期：月初
+        start_date = training_start + '-01'
+
+        # 結束日期：該月的最後一天
+        year, month = map(int, training_end.split('-'))
+        last_day = monthrange(year, month)[1]
+        end_date = f"{training_end}-{last_day:02d}"
+
+        _p(f"📅 實際訓練期間: {start_date} ~ {end_date}")
+
+        # 記錄開始時間
+        import time
+        start_time = time.time()
+
+        # 執行驗證（使用自訂日期）
         results = validator.run_validation(
             stock_ids=stock_ids,
+            start_date=start_date,
+            end_date=end_date,
             train_window_months=train_window,
             test_window_months=test_window,
             stride_months=stride,
@@ -299,14 +490,27 @@ def run_walk_forward_validation():
         results_file = f"walk_forward_results_{timestamp}.json"
         validator.save_results(results_file)
 
+        # 計算執行時間
+        duration = time.time() - start_time
+
         _p(f"\n✅ Walk-forward 驗證完成！")
         _p(f"📁 結果已儲存至: {results_file}")
         _p(f"📊 總共執行了 {results['fold_count']} 個 fold")
         _p(f"📈 涵蓋 {results['stock_count']} 檔股票")
         _p(f"💼 總交易次數: {results['total_trades']}")
 
+        # 記錄執行摘要
+        from stock_price_investment_system.utils.log_manager import log_execution_summary
+        result_summary = f"處理 {results['stock_count']} 檔股票，{results['fold_count']} 個fold，{results['total_trades']} 筆交易"
+        log_execution_summary('3', '內層Walk-Forward驗證', True, duration, result_summary)
+
     except Exception as e:
         _p(f"❌ Walk-forward 驗證失敗: {e}")
+
+        # 記錄錯誤摘要
+        from stock_price_investment_system.utils.log_manager import log_execution_summary
+        log_execution_summary('3', '內層Walk-Forward驗證', False, None, f"執行錯誤: {str(e)}")
+
         logging.error(f"Walk-forward validation failed: {e}")
 
 def generate_candidate_pool():
@@ -315,6 +519,24 @@ def generate_candidate_pool():
     _p("="*50)
 
     try:
+        # 日誌級別設定
+        log_level_choice = get_user_input_with_history("日誌級別? 1=精簡(預設), 2=詳細", "1", "4", "log_level")
+        verbose_logging = log_level_choice == "2"
+
+        # 日誌輸出設定
+        log_output_choice = get_user_input_with_history("日誌輸出? 1=CLI+檔案(預設), 2=只輸出CLI", "1", "4", "log_output")
+        cli_only_logging = log_output_choice == "2"
+
+        # 設定全域日誌模式
+        if cli_only_logging:
+            from stock_price_investment_system.utils.log_manager import set_cli_only_mode, suppress_verbose_logging, suppress_repetitive_warnings, suppress_data_missing_warnings
+            set_cli_only_mode(True)
+            suppress_verbose_logging()
+            suppress_repetitive_warnings()
+            suppress_data_missing_warnings()  # 完全抑制資料缺失警告
+            _p("🔇 已啟用CLI專用模式，不會記錄日誌檔案")
+            _p("🔇 已抑制重複警告和資料缺失警告")
+
         # 尋找最新的walk-forward結果
         import glob
         from stock_price_investment_system.config.settings import get_config as _get
@@ -364,11 +586,34 @@ def generate_candidate_pool():
         else:
             custom_thresholds = None
 
+        # 記錄參數到日誌檔案
+        parameters = {
+            'walk_forward_file': latest_file,
+            'use_custom_thresholds': adjust_thresholds,
+            'thresholds': custom_thresholds or thresholds,
+            'log_level': log_level_choice,
+            'log_output': log_output_choice,
+            'cli_only_logging': cli_only_logging
+        }
+
+        from stock_price_investment_system.utils.log_manager import log_menu_parameters
+        log_menu_parameters('4', '候選池生成', parameters, force_log=True)
+
+        # 保存操作到歷史記錄
+        save_operation_to_history('4', '候選池生成', parameters)
+
         # 生成候選池
         _p("\n🚀 開始生成候選池...")
 
+        # 記錄開始時間
+        import time
+        start_time = time.time()
+
         generator = CandidatePoolGenerator()
         pool_result = generator.generate_candidate_pool(walk_forward_results, custom_thresholds)
+
+        # 計算執行時間
+        duration = time.time() - start_time
 
         if pool_result['success']:
             # 儲存結果
@@ -393,11 +638,25 @@ def generate_candidate_pool():
                     stats = stock['statistics']
                     _p(f"   {i}. {stock['stock_id']} - 分數: {stock['stock_score']:.1f}")
                     _p(f"      勝率: {stats.get('win_rate', 0):.1%}, 盈虧比: {stats.get('profit_loss_ratio', 0):.2f}")
+
+            # 記錄成功摘要
+            from stock_price_investment_system.utils.log_manager import log_execution_summary
+            result_summary = f"評估 {pool_result['total_evaluated']} 檔股票，合格 {pool_result['pool_size']} 檔，合格率 {pool_result['qualification_rate']:.1%}"
+            log_execution_summary('4', '候選池生成', True, duration, result_summary)
         else:
             _p(f"❌ 候選池生成失敗: {pool_result.get('error', 'Unknown error')}")
 
+            # 記錄失敗摘要
+            from stock_price_investment_system.utils.log_manager import log_execution_summary
+            log_execution_summary('4', '候選池生成', False, duration, f"生成失敗: {pool_result.get('error', 'Unknown error')}")
+
     except Exception as e:
         _p(f"❌ 候選池生成失敗: {e}")
+
+        # 記錄錯誤摘要
+        from stock_price_investment_system.utils.log_manager import log_execution_summary
+        log_execution_summary('4', '候選池生成', False, None, f"執行錯誤: {str(e)}")
+
         logging.error(f"Candidate pool generation failed: {e}")
 
 def run_hyperparameter_tuning():
@@ -410,9 +669,15 @@ def run_hyperparameter_tuning():
         data_manager = DataManager()
         config = get_config('walkforward')
 
+        # 正確處理月底日期
+        from calendar import monthrange
+        year, month = map(int, config['training_end'].split('-'))
+        last_day = monthrange(year, month)[1]
+        end_date = f"{config['training_end']}-{last_day:02d}"
+
         available_stocks = data_manager.get_available_stocks(
             start_date=config['training_start'] + '-01',
-            end_date=config['training_end'] + '-31',
+            end_date=end_date,
             min_history_months=config['min_stock_history_months']
         )
 
@@ -439,8 +704,11 @@ def run_hyperparameter_tuning():
         _p("\n🔧 單檔股票網格搜尋")
         _p("-" * 30)
 
-        # 讓使用者選擇股票
-        stock_id = get_user_input("請輸入要調優的股票代碼", available_stocks[0])
+        # 顯示操作歷史
+        show_operation_history('9')
+
+        # 讓使用者選擇股票（支援歷史記錄）
+        stock_id = get_user_input_with_history("請輸入要調優的股票代碼", available_stocks[0], "9", "stock_id")
 
         if stock_id not in available_stocks:
             _p(f"⚠️  股票 {stock_id} 不在可用清單中，但仍會嘗試執行")
@@ -450,10 +718,10 @@ def run_hyperparameter_tuning():
         _p("  1) 測試所有模型 (XGBoost + LightGBM + RandomForest)")
         _p("  2) 測試單一模型")
 
-        mode_choice = get_user_input("選擇測試模式 (1-2)", "1")
+        mode_choice = get_user_input_with_history("選擇測試模式 (1-2)", "1", "9", "mode_choice")
 
         # 設定參數組合數量
-        max_combinations = int(get_user_input("每個模型最大參數組合數量", "20"))
+        max_combinations = int(get_user_input_with_history("每個模型最大參數組合數量", "20", "9", "max_combinations"))
 
         if not confirm_action("確認執行？"):
             _p("❌ 取消執行")
@@ -568,6 +836,17 @@ def run_hyperparameter_tuning():
                 for param, value in result['best_params'].items():
                     _p(f"      '{param}': {value},")
                 _p(f"   3. 重新執行選單3,4,5 使用最佳參數")
+
+        # 保存操作到歷史記錄
+        parameters = {
+            'stock_id': stock_id,
+            'mode_choice': mode_choice,
+            'max_combinations': max_combinations
+        }
+        if mode_choice == '2':
+            parameters['model_type'] = model_type
+
+        save_operation_to_history('9', '超參數調優', parameters)
 
     except Exception as e:
         _p(f"❌ 超參數調優執行失敗: {e}")
@@ -733,6 +1012,374 @@ def run_batch_hyperparameter_tuning(available_stocks):
         logging.error(f"Batch hyperparameter tuning failed: {e}")
 
 
+def _display_backtest_results(res: dict):
+    """顯示回測結果的詳細摘要"""
+    _p("\n" + "="*60)
+    _p("🏆 投資組合回測結果摘要")
+    _p("="*60)
+
+    # 基本資訊
+    m = res['metrics']
+    _p(f"📅 回測期間: {res.get('start', 'N/A')} ~ {res.get('end', 'N/A')}")
+    _p(f"📊 候選股票數: {res.get('stock_count', 0)} 檔")
+    _p(f"💼 總交易次數: {m.get('trade_count', 0)} 筆")
+
+    # 績效指標
+    _p(f"\n📈 績效指標:")
+    _p(f"   💰 總報酬率: {m.get('total_return', 0):.2%}")
+    _p(f"   📊 平均報酬率: {m.get('avg_return', 0):.2%}")
+    _p(f"   🎯 勝率: {m.get('win_rate', 0):.1%}")
+
+    # 年化指標計算
+    if res.get('start') and res.get('end'):
+        try:
+            from datetime import datetime
+            start_date = datetime.strptime(res['start'], '%Y-%m-%d')
+            end_date = datetime.strptime(res['end'], '%Y-%m-%d')
+            years = (end_date - start_date).days / 365.25
+            if years > 0:
+                total_return = m.get('total_return', 0)
+                annualized_return = (1 + total_return) ** (1/years) - 1
+                _p(f"   📅 年化報酬率: {annualized_return:.2%}")
+        except:
+            pass
+
+    # 風險指標
+    if m.get('trade_count', 0) > 0:
+        _p(f"\n⚠️  風險指標:")
+        if 'max_drawdown' in m:
+            _p(f"   📉 最大回撤: {m['max_drawdown']:.2%}")
+        if 'volatility' in m:
+            _p(f"   📊 波動率: {m['volatility']:.2%}")
+        if 'sharpe_ratio' in m:
+            _p(f"   📈 夏普比率: {m['sharpe_ratio']:.2f}")
+
+    # 檔案輸出資訊
+    _p(f"\n📁 輸出檔案:")
+    if 'charts' in res and res['charts']:
+        _p(f"   📈 圖表檔案: {len(res['charts'])} 個")
+        for chart_name, chart_path in res['charts'].items():
+            _p(f"      - {chart_name}: {chart_path}")
+
+    # 交易分析
+    if m.get('trade_count', 0) > 0:
+        _p(f"\n💡 交易分析:")
+        win_count = int(m.get('win_rate', 0) * m.get('trade_count', 0))
+        lose_count = m.get('trade_count', 0) - win_count
+        _p(f"   ✅ 獲利交易: {win_count} 筆")
+        _p(f"   ❌ 虧損交易: {lose_count} 筆")
+
+        if win_count > 0 and lose_count > 0:
+            avg_win = m.get('avg_return', 0) * m.get('trade_count', 0) / win_count if win_count > 0 else 0
+            avg_loss = m.get('avg_return', 0) * m.get('trade_count', 0) / lose_count if lose_count > 0 else 0
+            if avg_loss != 0:
+                profit_loss_ratio = abs(avg_win / avg_loss)
+                _p(f"   📊 盈虧比: {profit_loss_ratio:.2f}")
+
+    _p("\n" + "="*60)
+
+
+def _save_holdout_results(results: dict, start_date: str, end_date: str):
+    """保存外層回測結果到檔案"""
+    try:
+        import json
+        from datetime import datetime
+        from pathlib import Path
+        from stock_price_investment_system.config.settings import get_config
+
+        # 獲取holdout結果目錄
+        config = get_config()
+        holdout_dir = Path(config['output']['paths']['holdout_results'])
+        holdout_dir.mkdir(parents=True, exist_ok=True)
+
+        # 生成檔案名稱
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = holdout_dir / f"holdout_backtest_{timestamp}.json"
+
+        # 準備保存的資料
+        save_data = {
+            'backtest_info': {
+                'type': 'holdout_backtest',
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'start_date': start_date,
+                'end_date': end_date
+            },
+            'summary': {
+                'success': results.get('success'),
+                'stock_count': results.get('stock_count'),
+                'trade_count': results.get('trade_count'),
+                'total_return': results.get('total_return'),
+                'metrics': results.get('metrics', {}),
+                'params': results.get('params', {})
+            },
+            'monthly_results': results.get('monthly_results', []),
+            'detailed_trades': results.get('detailed_trades', [])
+        }
+
+        # 保存到檔案
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(save_data, f, ensure_ascii=False, indent=2, default=str)
+
+        _p(f"💾 完整回測結果已保存至: {filename}")
+        _p(f"   📊 包含 {len(results.get('monthly_results', []))} 個月的詳細結果")
+        _p(f"   📋 包含 {len(results.get('detailed_trades', []))} 筆交易記錄")
+
+    except Exception as e:
+        _p(f"⚠️  保存回測結果失敗: {e}")
+
+
+def run_stock_prediction():
+    """執行股價預測（選單2）- 使用與選單5完全相同的邏輯確保一致性"""
+    _p("\n📈 股價預測")
+    _p("="*50)
+
+    try:
+        # 顯示操作歷史
+        show_operation_history('2')
+
+        # 日期設定
+        from datetime import datetime
+        current_month = datetime.now().strftime('%Y-%m')
+
+        prediction_date = get_user_input_with_history(
+            "數據月份 (YYYY-MM格式) 預測月底購買",
+            current_month,
+            "2",
+            "prediction_date"
+        )
+
+        # 回測參數設定（與選單5保持一致）
+        _p("\n⚙️  預測參數設定（與選單5回測邏輯保持一致）：")
+        min_pred = float(get_user_input_with_history("最小預測報酬門檻(例如0.02=2%)", "0.02", "2", "min_predicted_return"))
+        top_k = int(get_user_input_with_history("每月最多持股數 TopK (0=不限制)", "10", "2", "top_k"))
+        use_filter_input = get_user_input_with_history("啟用市場濾網(50MA>200MA)？ (y/N)", "y", "2", "use_market_filter")
+        use_filter = use_filter_input.strip().lower() == 'y'
+
+        # 保存操作歷史
+        parameters = {
+            'prediction_date': prediction_date,
+            'min_predicted_return': min_pred,
+            'top_k': top_k,
+            'use_market_filter': use_filter
+        }
+        save_operation_to_history('2', '股價預測', parameters)
+
+        _p(f"\n🎯 預測設定:")
+        _p(f"   預測月份: {prediction_date}")
+        _p(f"   最小報酬門檻: {min_pred:.2%}")
+        _p(f"   TopK限制: {top_k}")
+        _p(f"   市場濾網: {'啟用' if use_filter else '關閉'}")
+
+        # 🔑 關鍵：直接使用 HoldoutBacktester 的邏輯確保一致性
+        _p("\n🚀 使用與選單5相同的回測邏輯進行預測...")
+
+        from stock_price_investment_system.price_models.holdout_backtester import HoldoutBacktester
+
+        # 日誌設定 - 與選單5保持一致
+        verbose_logging = False  # 選單2預設使用簡潔模式
+        cli_only_logging = True  # 選單2預設只輸出到CLI
+
+        # 抑制警告 - 與選單5保持一致
+        from stock_price_investment_system.utils.log_manager import suppress_repetitive_warnings, suppress_data_missing_warnings
+        suppress_repetitive_warnings()
+        suppress_data_missing_warnings()
+
+        # 額外抑制選單2的初始化日誌
+        import logging
+        logging.getLogger('stock_price_investment_system.data.data_manager').setLevel(logging.ERROR)
+        logging.getLogger('stock_price_investment_system.data.price_data').setLevel(logging.ERROR)
+        logging.getLogger('stock_price_investment_system.data.revenue_integration').setLevel(logging.ERROR)
+        logging.getLogger('stock_price_investment_system.price_models.feature_engineering').setLevel(logging.ERROR)
+
+        # 創建回測器 - 使用與選單5相同的日誌設定
+        hb = HoldoutBacktester(verbose_logging=verbose_logging, cli_only_logging=cli_only_logging)
+
+        # 載入候選池
+        pool = hb._load_candidate_pool(None)
+        stocks = [s['stock_id'] for s in pool.get('candidate_pool', [])]
+
+        if not stocks:
+            _p("❌ 候選池為空，無法執行預測")
+            return
+
+        _p(f"📊 候選池股票數: {len(stocks)}")
+
+        # 🔑 使用與選單5完全相同的邏輯
+        # 為每檔股票建立使用最佳參數的預測器
+        stock_predictors = hb._create_stock_predictors(stocks)
+
+        # 設定預測日期（實際月底）- 與選單5保持一致
+        from calendar import monthrange
+        year, month = map(int, prediction_date.split('-'))
+        last_day = monthrange(year, month)[1]
+        as_of = f"{prediction_date}-{last_day:02d}"
+
+        # 市場濾網檢查
+        if use_filter and (not hb._is_market_ok(as_of)):
+            _p(f"⚠️  市場濾網觸發，建議暫停交易: {prediction_date}")
+            _p("📊 大盤技術面不佳 (50MA < 200MA)")
+            return
+
+        # 為每檔股票訓練模型（使用截至預測日期之前的資料）
+        _p(f"🔄 訓練模型，共 {len(stocks)} 檔股票需要處理...")
+        fe = FeatureEngineer()
+
+        for stock_idx, stock_id in enumerate(stocks, 1):
+            if stock_id in stock_predictors:
+                # 顯示訓練進度
+                progress_percent = (stock_idx / len(stocks)) * 100
+                progress_bar = hb._create_progress_bar(stock_idx, len(stocks))
+                _p(f"   📊 [{stock_idx:2d}/{len(stocks)}] {progress_bar} {progress_percent:5.1f}% - 訓練 {stock_id}")
+
+                try:
+                    # 生成訓練資料，使用截至預測日期之前的資料
+                    features_df, targets_df = fe.generate_training_dataset(
+                        stock_ids=[stock_id],
+                        start_date='2015-01-01',
+                        end_date=as_of
+                    )
+
+                    if features_df.empty:
+                        continue
+
+                    # 訓練模型
+                    train_result = stock_predictors[stock_id].train(
+                        feature_df=features_df,
+                        target_df=targets_df
+                    )
+
+                    if not train_result['success']:
+                        _p(f"⚠️  模型訓練失敗 {stock_id}: {train_result.get('error', '未知錯誤')}")
+
+                except Exception as e:
+                    _p(f"⚠️  訓練資料生成失敗 {stock_id}: {e}")
+                    continue
+
+        # 使用個股專屬預測器進行預測
+        _p(f"🔮 執行預測，共 {len(stocks)} 檔股票需要處理...")
+        predictions = []
+        for stock_idx, stock_id in enumerate(stocks, 1):
+            if stock_id in stock_predictors:
+                # 顯示預測進度
+                progress_percent = (stock_idx / len(stocks)) * 100
+                progress_bar = hb._create_progress_bar(stock_idx, len(stocks))
+                _p(f"   🔮 [{stock_idx:2d}/{len(stocks)}] {progress_bar} {progress_percent:5.1f}% - 預測 {stock_id}")
+
+                pred_result = stock_predictors[stock_id].predict(stock_id, as_of)
+                if pred_result['success']:
+                    predictions.append({
+                        'stock_id': stock_id,
+                        'predicted_return': float(pred_result['predicted_return']),
+                        'model_type': getattr(stock_predictors[stock_id], 'model_type', 'unknown')
+                    })
+
+        _p(f"✅ 預測完成: {len(predictions)} 檔成功")
+
+        if predictions:
+            # 🔑 使用與選單5完全相同的篩選邏輯
+            filtered = hb._filter_predictions(predictions, min_pred, top_k)
+
+            _p(f"\n🏆 {prediction_date} 推薦股票")
+            _p("="*60)
+            _p(f"📊 總預測數: {len(predictions)}")
+            _p(f"📊 符合門檻: {len([p for p in predictions if p['predicted_return'] >= min_pred])}")
+            _p(f"📊 最終推薦: {len(filtered)}")
+
+            if filtered:
+                _p(f"\n{'排名':>4} {'股票代碼':>8} {'預測報酬率':>12} {'使用模型':>12}")
+                _p("-"*60)
+
+                for i, pred in enumerate(filtered, 1):
+                    _p(f"{i:>4} {pred['stock_id']:>8} {pred['predicted_return']:>11.2%} {pred['model_type']:>12}")
+
+                _p("="*60)
+                _p(f"💡 平均預測報酬: {sum(p['predicted_return'] for p in filtered)/len(filtered):.2%}")
+
+                # 重要提示
+                _p(f"\n🔍 一致性驗證:")
+                _p(f"   此結果應與選單5回測{prediction_date}的結果完全一致")
+                _p(f"   如有差異，請檢查參數設定是否相同")
+            else:
+                _p("❌ 沒有符合條件的推薦股票")
+        else:
+            _p("❌ 預測失敗，沒有成功的預測結果")
+
+    except Exception as e:
+        _p(f"❌ 股價預測失敗: {e}")
+        import logging
+        logging.error(f"Stock prediction failed: {e}")
+        import traceback
+        traceback.print_exc()
+
+def run_operation_history_viewer():
+    """查看操作歷史"""
+    _p("\n📋 操作歷史查看")
+    _p("="*50)
+
+    try:
+        history = get_operation_history()
+
+        _p("\n📋 選擇查看方式：")
+        _p("  1) 查看最近操作 (所有選單)")
+        _p("  2) 查看指定選單歷史")
+        _p("  3) 清空操作歷史")
+
+        choice = get_user_input("請選擇 (1-3)", "1")
+
+        if choice == '1':
+            # 查看最近操作
+            records = history.get_recent_operations(limit=15)
+            if not records:
+                _p("📝 沒有操作歷史記錄")
+                return
+
+            _p(f"\n📋 最近 {len(records)} 次操作:")
+            _p("-" * 80)
+
+            for i, record in enumerate(reversed(records), 1):
+                timestamp = record.get('timestamp', '')
+                if timestamp:
+                    try:
+                        from datetime import datetime
+                        dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                        time_str = dt.strftime('%m-%d %H:%M')
+                    except:
+                        time_str = timestamp[:16]
+                else:
+                    time_str = "未知時間"
+
+                menu_id = record.get('menu_id', '?')
+                operation_name = record.get('operation_name', '未知操作')
+                parameters = record.get('parameters', {})
+                param_str = history.format_parameters(parameters)
+
+                _p(f"  {i:2d}. [{time_str}] 選單{menu_id} - {operation_name}")
+                _p(f"      參數: {param_str}")
+
+            _p("-" * 80)
+
+        elif choice == '2':
+            # 查看指定選單歷史
+            menu_id = get_user_input("請輸入選單編號 (如: 5, 9)", "5")
+            show_operation_history(menu_id)
+
+        elif choice == '3':
+            # 清空歷史
+            if confirm_action("確認要清空所有操作歷史嗎？"):
+                if history.clear_history():
+                    _p("✅ 操作歷史已清空")
+                else:
+                    _p("❌ 清空操作歷史失敗")
+            else:
+                _p("❌ 取消清空操作")
+        else:
+            _p("❌ 無效選項")
+
+    except Exception as e:
+        _p(f"❌ 查看操作歷史失敗: {e}")
+        import logging
+        logging.error(f"Operation history viewer failed: {e}")
+
 def run_log_management():
     """日誌檔案管理"""
     _p("\n🗂️  日誌檔案管理")
@@ -870,12 +1517,12 @@ def main():
             latest_log = current_logs[-1]
             _p(f"📝 當前日誌: {latest_log.name}")
 
-        sel = input("🎯 請選擇功能 (1-10, q): ").strip().lower()
+        sel = input("🎯 請選擇功能 (1-12, q): ").strip().lower()
 
         if sel == '1':
             _p('⚙️  執行月度流程（尚未實作，將在下一個里程碑補上）')
         elif sel == '2':
-            _p('📈 執行股價預測（尚未實作，將在下一個里程碑補上）')
+            run_stock_prediction()
         elif sel == '3':
             run_walk_forward_validation()
         elif sel == '4':
@@ -902,15 +1549,116 @@ def main():
                 else:
                     _p("⚠️ 沒有調優記錄，將使用預設參數")
 
-                hb = HoldoutBacktester()
-                res = hb.run()
+                # 顯示操作歷史
+                show_operation_history('5')
+
+                # 日誌級別設定
+                log_level_choice = get_user_input_with_history("日誌級別? 1=精簡(預設), 2=詳細", "1", "5", "log_level")
+                verbose_logging = log_level_choice == "2"
+
+                # 日誌輸出設定
+                log_output_choice = get_user_input_with_history("日誌輸出? 1=CLI+檔案(預設), 2=只輸出CLI", "1", "5", "log_output")
+                cli_only_logging = log_output_choice == "2"
+
+                # 設定全域日誌模式
+                if cli_only_logging:
+                    from stock_price_investment_system.utils.log_manager import set_cli_only_mode, suppress_verbose_logging, suppress_repetitive_warnings, suppress_data_missing_warnings
+                    set_cli_only_mode(True)
+                    suppress_verbose_logging()
+                    suppress_repetitive_warnings()
+                    suppress_data_missing_warnings()  # 完全抑制資料缺失警告
+                    _p("🔇 已啟用CLI專用模式，不會記錄日誌檔案")
+                    _p("🔇 已抑制重複警告和資料缺失警告")
+
+                hb = HoldoutBacktester(verbose_logging=verbose_logging, cli_only_logging=cli_only_logging)
+
+                # 日期區間設定
+                config = get_config()
+                wf_config = config['walkforward']
+
+                holdout_start, holdout_end = get_date_range_input(
+                    "外層回測期間設定",
+                    wf_config['holdout_start'],
+                    wf_config['holdout_end'],
+                    "5"
+                )
+
+                # 互動式參數（支援歷史記錄）
+                _p("\n⚙️  回測參數設定：")
+                min_pred = float(get_user_input_with_history("最小預測報酬門檻(例如0.02=2%)", "0.02", "5", "min_predicted_return"))
+                top_k = int(get_user_input_with_history("每月最多持股數 TopK (0=不限制)", "10", "5", "top_k"))
+                use_filter_input = get_user_input_with_history("啟用市場濾網(50MA>200MA)？ (y/N)", "y", "5", "use_market_filter")
+                use_filter = use_filter_input.strip().lower() == 'y'
+
+                # 保存參數到歷史記錄
+                parameters = {
+                    'holdout_start': holdout_start,
+                    'holdout_end': holdout_end,
+                    'min_predicted_return': min_pred,
+                    'top_k': top_k,
+                    'use_market_filter': use_filter,
+                    'log_level': log_level_choice,
+                    'log_output': log_output_choice,
+                    'cli_only_logging': cli_only_logging
+                }
+                save_operation_to_history('5', '外層回測', parameters)
+
+                # 記錄參數到日誌檔案（強制記錄，即使在CLI專用模式下）
+                from stock_price_investment_system.utils.log_manager import log_menu_parameters
+                log_menu_parameters('5', '外層回測', parameters, force_log=True)
+
+                # 正確處理月底日期
+                from datetime import datetime
+                from calendar import monthrange
+
+                # 開始日期：月初
+                start_date = holdout_start + '-01'
+
+                # 結束日期：該月的最後一天
+                year, month = map(int, holdout_end.split('-'))
+                last_day = monthrange(year, month)[1]  # 獲取該月的最後一天
+                end_date = f"{holdout_end}-{last_day:02d}"
+
+                _p(f"📅 實際回測期間: {start_date} ~ {end_date}")
+
+                # 記錄開始時間
+                import time
+                start_time = time.time()
+
+                res = hb.run(
+                    holdout_start=start_date,
+                    holdout_end=end_date,
+                    min_predicted_return=min_pred,
+                    top_k=top_k,
+                    use_market_filter=use_filter
+                )
+
+                # 計算執行時間
+                duration = time.time() - start_time
+
                 if res.get('success'):
-                    m = res['metrics']
-                    _p(f"✅ 外層回測完成。交易數: {m.get('trade_count',0)}，總報酬: {m.get('total_return',0):.2%}，勝率: {m.get('win_rate',0):.1%}")
+                    _display_backtest_results(res)
+
+                    # 保存完整的回測結果（包含月度結果）
+                    _save_holdout_results(res, start_date, end_date)
+
+                    # 記錄成功摘要
+                    from stock_price_investment_system.utils.log_manager import log_execution_summary
+                    result_summary = f"回測期間: {start_date}~{end_date}, 總報酬: {res.get('total_return', 'N/A')}"
+                    log_execution_summary('5', '外層回測', True, duration, result_summary)
                 else:
                     _p(f"❌ 外層回測失敗: {res.get('error','未知錯誤')}")
+
+                    # 記錄失敗摘要
+                    from stock_price_investment_system.utils.log_manager import log_execution_summary
+                    log_execution_summary('5', '外層回測', False, duration, f"回測失敗: {res.get('error','未知錯誤')}")
+
             except Exception as e:
                 _p(f"❌ 外層回測執行失敗: {e}")
+
+                # 記錄錯誤摘要
+                from stock_price_investment_system.utils.log_manager import log_execution_summary
+                log_execution_summary('5', '外層回測', False, None, f"執行錯誤: {str(e)}")
         elif sel == '6':
             _p('⚙️  顯示/編輯 config 檔案（尚未實作）')
         elif sel == '7':
@@ -923,6 +1671,8 @@ def main():
             _p('🩺 系統狀態檢查（尚未實作）')
         elif sel == '11':
             run_log_management()
+        elif sel == '12':
+            run_operation_history_viewer()
         elif sel in {'q', 'quit', 'exit'}:
             _p("👋 再見！")
             return 0
