@@ -194,4 +194,3 @@ outputs/forecasts/2330_interactive_backtest.html
 # 模型相關檔案
 # 超參數調優結果檔案 (通常很大且頻繁變動)
 stock_price_investment_system/models/hyperparameter_tuning/
-stock_price_investment_system/models/hyperparameter_tuning/*
