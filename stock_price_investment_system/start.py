@@ -1153,6 +1153,11 @@ def run_stock_prediction():
         min_pred = float(get_user_input_with_history("最小預測報酬門檻(例如0.02=2%)", "0.02", "2", "min_predicted_return"))
         top_k = int(get_user_input_with_history("每月最多持股數 TopK (0=不限制)", "10", "2", "top_k"))
         use_filter_input = get_user_input_with_history("啟用市場濾網(50MA>200MA)？ (Y/n)", "y", "2", "use_market_filter")
+        # 處理歷史記錄中的布林值
+        if use_filter_input in [True, "True", "true"]:
+            use_filter_input = 'y'
+        elif use_filter_input in [False, "False", "false"]:
+            use_filter_input = 'n'
         use_filter = use_filter_input.strip().lower() == 'y'
 
         # 保存操作歷史
@@ -1160,7 +1165,7 @@ def run_stock_prediction():
             'prediction_date': prediction_date,
             'min_predicted_return': min_pred,
             'top_k': top_k,
-            'use_market_filter': use_filter
+            'use_market_filter': 'y' if use_filter else 'n'  # 保存為字串
         }
         save_operation_to_history('2', '股價預測', parameters)
 
@@ -1588,8 +1593,11 @@ def main():
                 min_pred = float(get_user_input_with_history("最小預測報酬門檻(例如0.02=2%)", "0.02", "5", "min_predicted_return"))
                 top_k = int(get_user_input_with_history("每月最多持股數 TopK (0=不限制)", "10", "5", "top_k"))
                 use_filter_input = get_user_input_with_history("啟用市場濾網(50MA>200MA)？ (Y/n)", "y", "5", "use_market_filter")
-                if use_filter_input == True :
+                # 處理歷史記錄中的布林值
+                if use_filter_input in [True, "True", "true"]:
                     use_filter_input = 'y'
+                elif use_filter_input in [False, "False", "false"]:
+                    use_filter_input = 'n'
                 use_filter = use_filter_input.strip().lower() == 'y'
 
                 # 保存參數到歷史記錄
@@ -1598,7 +1606,7 @@ def main():
                     'holdout_end': holdout_end,
                     'min_predicted_return': min_pred,
                     'top_k': top_k,
-                    'use_market_filter': use_filter,
+                    'use_market_filter': 'y' if use_filter else 'n',  # 保存為字串
                     'log_level': log_level_choice,
                     'log_output': log_output_choice,
                     'cli_only_logging': cli_only_logging
