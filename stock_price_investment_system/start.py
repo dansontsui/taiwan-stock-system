@@ -12,11 +12,23 @@ import logging
 from datetime import datetime
 
 # 添加專案路徑（確保可用套件匯入）
-project_root = Path(__file__).parent
-repo_root = project_root.parent
+project_root = Path(__file__).parent  # stock_price_investment_system/ 目錄
+repo_root = project_root.parent       # 專案根目錄
+
 # 先放入 repo 根目錄，確保以 stock_price_investment_system.* 方式匯入
 if str(repo_root) not in sys.path:
     sys.path.insert(0, str(repo_root))
+
+# 也添加當前目錄，以防在子目錄中執行
+current_dir = Path.cwd()
+if str(current_dir) not in sys.path:
+    sys.path.insert(0, str(current_dir))
+
+# 調試資訊（可選）
+# print(f"Debug: project_root = {project_root}")
+# print(f"Debug: repo_root = {repo_root}")
+# print(f"Debug: current_dir = {current_dir}")
+# print(f"Debug: sys.path[0:3] = {sys.path[0:3]}")
 
 from stock_price_investment_system.config.settings import get_config
 from stock_price_investment_system.data.data_manager import DataManager
