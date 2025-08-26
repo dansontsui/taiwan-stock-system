@@ -537,5 +537,84 @@
       "log_output": "2",
       "cli_only_logging": true
     }
+  },
+  {
+    "timestamp": "2025-08-26T16:07:34.351917",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": false,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T16:08:45.740932",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T16:10:16.884232",
+    "menu_id": "4",
+    "operation_name": "候選池生成",
+    "parameters": {
+      "walk_forward_file": "G:\\WorkFolder\\taiwan-stock-system\\stock_price_investment_system\\results\\walk_forward\\walk_forward_results_20250826_003356.json",
+      "use_custom_thresholds": true,
+      "thresholds": {
+        "min_win_rate": 0.8,
+        "min_profit_loss_ratio": 1.2,
+        "min_trade_count": 5,
+        "min_folds_with_trades": 2,
+        "max_drawdown_threshold": 0.15
+      },
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T16:10:50.844277",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.03,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T16:15:09.907308",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.03,
+      "top_k": 7,
+      "use_market_filter": false,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
   }
 ]

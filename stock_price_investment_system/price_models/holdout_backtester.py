@@ -198,8 +198,12 @@ class HoldoutBacktester:
         k_str = f"k{k}" if k > 0 else "kAll"
         filter_str = "MF" if use_market_filter else "NoMF"
 
-        # 組合資料夾名稱: holdout_YYYYMM_YYYYMM_020_k10_MF
-        folder_name = f"holdout_{start_str}_{end_str}_{threshold_str}_{k_str}_{filter_str}"
+        # 加入執行時間戳記 (MMDDHHMMSS)
+        from datetime import datetime
+        timestamp = datetime.now().strftime('%m%d%H%M%S')
+
+        # 組合資料夾名稱: holdout_YYYYMM_YYYYMM_020_k10_MF_MMDDHHMMSS
+        folder_name = f"holdout_{start_str}_{end_str}_{threshold_str}_{k_str}_{filter_str}_{timestamp}"
         return folder_name
 
     def run(self,
