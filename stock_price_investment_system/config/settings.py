@@ -23,9 +23,9 @@ DATABASE_CONFIG = {
 WALKFORWARD_CONFIG = {
     # 時間範圍
     'training_start': '2015-01',
-    'training_end': '2022-12',
-    'holdout_start': '2023-01',
-    'holdout_end': '2024-12',
+    'training_end': '2024-12',
+    'holdout_start': '2025-01',
+    'holdout_end': '2025-07',
     
     # 視窗設定
     'train_window_months': 48,  # 訓練視窗48個月

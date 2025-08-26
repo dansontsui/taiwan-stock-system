@@ -30,6 +30,297 @@ def _p(msg: str):
             pass
 
 
+def set_cli_only_mode(enabled: bool = True):
+    """
+    設定CLI專用模式 - 禁用所有模組的檔案日誌輸出
+
+    Args:
+        enabled: True=啟用CLI專用模式（不記錄檔案），False=恢復正常模式
+    """
+    # 獲取所有相關的logger
+    loggers_to_modify = [
+        'stock_price_investment_system.data.data_manager',
+        'stock_price_investment_system.data.revenue_integration',
+        'stock_price_investment_system.data.price_data',
+        'stock_price_investment_system.price_models.feature_engineering',
+        'stock_price_investment_system.price_models.stock_price_predictor',
+        'stock_price_investment_system.price_models.holdout_backtester',
+        'stock_price_investment_system.price_models.walk_forward_validator',
+        'stock_price_investment_system.selector.candidate_pool_generator',
+        'stock_price_investment_system',  # 根logger
+    ]
+
+    for logger_name in loggers_to_modify:
+        logger = logging.getLogger(logger_name)
+
+        if enabled:
+            # CLI專用模式：移除所有檔案處理器，只保留控制台處理器
+            handlers_to_remove = []
+            for handler in logger.handlers:
+                if isinstance(handler, logging.FileHandler):
+                    handlers_to_remove.append(handler)
+
+            for handler in handlers_to_remove:
+                logger.removeHandler(handler)
+                handler.close()
+
+            # 設定為不傳播到父logger（避免重複輸出）
+            logger.propagate = False
+
+            # 如果沒有控制台處理器，添加一個簡單的
+            has_console_handler = any(
+                isinstance(h, logging.StreamHandler) and h.stream == sys.stdout
+                for h in logger.handlers
+            )
+
+            if not has_console_handler and logger.level <= logging.WARNING:
+                # 只為警告和錯誤添加控制台處理器
+                console_handler = logging.StreamHandler(sys.stdout)
+                console_handler.setLevel(logging.WARNING)  # 只顯示警告和錯誤
+                formatter = logging.Formatter('%(levelname)s: %(message)s')
+                console_handler.setFormatter(formatter)
+                logger.addHandler(console_handler)
+        else:
+            # 恢復正常模式：重新啟用傳播
+            logger.propagate = True
+
+
+def suppress_verbose_logging():
+    """抑制詳細的INFO級別日誌，只保留WARNING和ERROR"""
+    loggers_to_suppress = [
+        'stock_price_investment_system.data.data_manager',
+        'stock_price_investment_system.data.revenue_integration',
+        'stock_price_investment_system.data.price_data',
+        'stock_price_investment_system.price_models.feature_engineering',
+    ]
+
+    for logger_name in loggers_to_suppress:
+        logger = logging.getLogger(logger_name)
+        logger.setLevel(logging.WARNING)  # 只顯示WARNING和ERROR
+
+
+def suppress_repetitive_warnings():
+    """抑制重複的WARNING訊息，特別是營收/EPS預測器不可用的警告"""
+    import warnings
+
+    # 抑制特定的重複警告
+    warnings.filterwarnings("ignore", message=".*Revenue predictor not available.*")
+    warnings.filterwarnings("ignore", message=".*EPS predictor not available.*")
+
+    # 創建一個通用的重複警告過濾器
+    class RepetitiveWarningFilter(logging.Filter):
+        def __init__(self):
+            super().__init__()
+            self.seen_messages = set()
+            self.max_repeats = 1  # 每種訊息最多顯示1次
+
+        def filter(self, record):
+            try:
+                if record.levelno == logging.WARNING:
+                    # 安全地獲取訊息
+                    try:
+                        message = record.getMessage()
+                    except (TypeError, AttributeError) as e:
+                        # 如果getMessage()失敗，嘗試直接使用msg
+                        message = str(getattr(record, 'msg', ''))
+                        if not message:
+                            # 如果還是沒有訊息，允許通過但記錄問題
+                            print(f"⚠️  日誌記錄格式異常: {e}")
+                            return True
+
+                    # 檢查是否為需要抑制的重複警告
+                    suppress_patterns = [
+                        "predictor not available",
+                        "查無.*價格資料",
+                        "No price data available",
+                        "No monthly revenue data found",
+                        "No revenue data available",
+                        "價格資料缺少必要欄位",
+                        "Missing required columns",
+                        "資料為空",
+                        "Empty data"
+                    ]
+
+                    should_suppress = any(pattern in message for pattern in suppress_patterns)
+
+                    if should_suppress:
+                        if message in self.seen_messages:
+                            return False  # 抑制重複訊息
+                        else:
+                            self.seen_messages.add(message)
+                            # 修改訊息，添加提示
+                            try:
+                                record.msg = f"{record.msg} (後續相同警告將被抑制)"
+                            except (TypeError, AttributeError):
+                                # 如果無法修改msg，就不修改
+                                pass
+                            return True
+            except Exception as e:
+                # 如果過濾器本身出錯，允許日誌通過並記錄問題
+                print(f"⚠️  日誌過濾器錯誤: {e}")
+                return True
+            return True
+
+    # 為相關模組添加過濾器
+    modules_to_filter = [
+        'stock_price_investment_system.data.revenue_integration',
+        'stock_price_investment_system.data.data_manager',
+        'stock_price_investment_system.data.price_data',
+        'stock_price_investment_system.price_models.feature_engineering'
+    ]
+
+    for module_name in modules_to_filter:
+        logger = logging.getLogger(module_name)
+        logger.addFilter(RepetitiveWarningFilter())
+
+
+def suppress_data_missing_warnings():
+    """完全抑制資料缺失相關的WARNING訊息（用於精簡模式）"""
+
+    class DataMissingWarningFilter(logging.Filter):
+        def filter(self, record):
+            try:
+                if record.levelno == logging.WARNING:
+                    # 安全地獲取訊息
+                    try:
+                        message = record.getMessage()
+                    except (TypeError, AttributeError) as e:
+                        # 如果getMessage()失敗，嘗試直接使用msg
+                        message = str(getattr(record, 'msg', ''))
+                        if not message:
+                            # 如果還是沒有訊息，允許通過但記錄問題
+                            print(f"⚠️  日誌記錄格式異常: {e}")
+                            return True
+
+                    # 使用正則表達式進行更精確的匹配
+                    import re
+                    suppress_patterns = [
+                        r"查無.*價格資料",
+                        r"No price data available",
+                        r"No monthly revenue data found",
+                        r"No revenue data available",
+                        r"價格資料缺少必要欄位",
+                        r"Missing required columns",
+                        r"資料為空",
+                        r"Empty data",
+                        r".*predictor not available.*",
+                        r"Revenue predictor not available.*",
+                        r"EPS predictor not available.*"
+                    ]
+
+                    # 如果匹配任何模式，完全抑制
+                    for pattern in suppress_patterns:
+                        if re.search(pattern, message, re.IGNORECASE):
+                            return False
+
+            except Exception as e:
+                # 如果過濾器本身出錯，允許日誌通過並記錄問題
+                print(f"⚠️  日誌過濾器錯誤: {e}")
+                return True
+
+            return True
+
+    # 為所有相關模組添加強力過濾器
+    modules_to_filter = [
+        'stock_price_investment_system.data.revenue_integration',
+        'stock_price_investment_system.data.data_manager',
+        'stock_price_investment_system.data.price_data',
+        'stock_price_investment_system.price_models.feature_engineering',
+        'stock_price_investment_system.price_models.stock_price_predictor',
+        'stock_price_investment_system.price_models.holdout_backtester',
+        'stock_price_investment_system.price_models.walk_forward_validator'
+    ]
+
+    for module_name in modules_to_filter:
+        logger = logging.getLogger(module_name)
+        logger.addFilter(DataMissingWarningFilter())
+
+
+def log_menu_parameters(menu_id: str, menu_name: str, parameters: dict, force_log: bool = True):
+    """
+    記錄選單參數到日誌檔案
+
+    Args:
+        menu_id: 選單編號
+        menu_name: 選單名稱
+        parameters: 參數字典
+        force_log: 是否強制記錄（即使在CLI專用模式下）
+    """
+    import json
+    from datetime import datetime
+    from pathlib import Path
+
+    try:
+        # 創建參數記錄
+        param_record = {
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'menu_id': menu_id,
+            'menu_name': menu_name,
+            'parameters': parameters
+        }
+
+        # 確保日誌目錄存在
+        log_dir = Path("stock_price_investment_system/logs")
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "menu_parameters.log"
+
+        # 格式化參數記錄
+        param_str = json.dumps(param_record, ensure_ascii=False, indent=2)
+        log_entry = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - 選單參數記錄:\n{param_str}\n\n"
+
+        # 直接寫入檔案（追加模式）
+        with open(log_file, 'a', encoding='utf-8') as f:
+            f.write(log_entry)
+
+        # 同時輸出到控制台
+        print(f"📝 已記錄選單{menu_id}的參數到日誌檔案")
+
+    except Exception as e:
+        print(f"⚠️  參數記錄失敗: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+def log_execution_summary(menu_id: str, menu_name: str, success: bool, duration: float = None, result_summary: str = None):
+    """
+    記錄執行摘要到日誌檔案
+
+    Args:
+        menu_id: 選單編號
+        menu_name: 選單名稱
+        success: 是否執行成功
+        duration: 執行時間（秒）
+        result_summary: 結果摘要
+    """
+    from datetime import datetime
+    from pathlib import Path
+
+    try:
+        # 確保日誌目錄存在
+        log_dir = Path("stock_price_investment_system/logs")
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "menu_parameters.log"
+
+        status = "成功" if success else "失敗"
+        duration_str = f", 耗時: {duration:.1f}秒" if duration else ""
+
+        log_message = f"選單{menu_id}執行{status}{duration_str}"
+        if result_summary:
+            log_message += f", 結果: {result_summary}"
+
+        # 直接寫入檔案（追加模式）
+        log_entry = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - {log_message}\n"
+        with open(log_file, 'a', encoding='utf-8') as f:
+            f.write(log_entry)
+
+        # 同時輸出到控制台
+        emoji = "✅" if success else "❌"
+        print(f"{emoji} {log_message}")
+
+    except Exception as e:
+        print(f"⚠️  執行摘要記錄失敗: {e}")
+
+
 class BatchLogManager:
     """批量調優專用的日誌管理器"""
     

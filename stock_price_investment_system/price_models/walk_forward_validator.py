@@ -23,16 +23,22 @@ class WalkForwardValidator:
 
     def __init__(self,
                  feature_engineer: FeatureEngineer = None,
-                 predictor_class: type = StockPricePredictor):
+                 predictor_class: type = StockPricePredictor,
+                 verbose_logging: bool = False,
+                 cli_only_logging: bool = False):
         """
         初始化Walk-forward驗證器
 
         Args:
             feature_engineer: 特徵工程師
             predictor_class: 預測器類別
+            verbose_logging: 是否啟用詳細日誌
+            cli_only_logging: 是否只輸出到CLI（不記錄日誌檔案）
         """
         self.feature_engineer = feature_engineer or FeatureEngineer()
         self.predictor_class = predictor_class
+        self.verbose_logging = verbose_logging
+        self.cli_only_logging = cli_only_logging
 
         self.config = get_config()
         self.wf_config = self.config['walkforward']
@@ -45,7 +51,39 @@ class WalkForwardValidator:
         self.fold_results = []
         self.stock_statistics = {}
 
-        logger.info("WalkForwardValidator initialized")
+        if verbose_logging:
+            logger.info("WalkForwardValidator initialized with verbose logging")
+        else:
+            print("🔧 Walk-Forward驗證器已初始化")
+
+    def _log(self, message: str, level: str = "info", force_print: bool = False):
+        """
+        統一的日誌輸出方法
+
+        Args:
+            message: 日誌訊息
+            level: 日誌級別 (info, warning, error)
+            force_print: 是否強制輸出（用於重要訊息和錯誤）
+        """
+        # 決定是否輸出到控制台
+        should_print = self.verbose_logging or force_print or level in ["warning", "error"]
+
+        if should_print:
+            if level == "error":
+                print(f"❌ {message}")
+            elif level == "warning":
+                print(f"⚠️  {message}")
+            else:
+                print(f"ℹ️  {message}")
+
+        # 決定是否記錄到日誌檔案
+        if not self.cli_only_logging:
+            if level == "error":
+                logger.error(message)
+            elif level == "warning":
+                logger.warning(message)
+            else:
+                logger.info(message)
 
     def run_validation(self,
                       stock_ids: List[str],
@@ -199,6 +237,20 @@ class WalkForwardValidator:
                 # 訓練該股票的獨立模型（使用該股票專屬的最佳參數）
                 # 決定使用的模型清單
                 model_types = self.models_to_use or [self.config['model']['primary_model']]
+
+                # 檢查是否使用自動選擇最佳模型
+                if model_types == ['auto_best']:
+                    # 自動選擇該股票的最佳模型和參數
+                    from .hyperparameter_tuner import HyperparameterTuner
+                    best_model_info = HyperparameterTuner.get_stock_best_model_and_params(stock_id)
+
+                    if best_model_info and best_model_info['success']:
+                        model_types = [best_model_info['model_type']]
+                        logger.debug(f"股票 {stock_id} 自動選擇最佳模型: {best_model_info['model_type']}, 分數: {best_model_info['score']:.4f}")
+                    else:
+                        # 如果沒有調優記錄，回退到主模型
+                        model_types = [self.config['model']['primary_model']]
+                        logger.debug(f"股票 {stock_id} 無調優記錄，使用主模型: {model_types[0]}")
 
                 # 對每一種模型類型都訓練一次（各自一套模型）
                 for mtype in model_types:
@@ -499,21 +551,30 @@ class WalkForwardValidator:
         """儲存交易明細為CSV檔案"""
         import pandas as pd
 
-        # 收集所有交易記錄
+        # 收集所有交易記錄（從stock_statistics中獲取）
         all_trades = []
-        for fold_result in self.fold_results:
-            for trade in fold_result.get('trades', []):
-                trade_record = {
-                    '時間週期': f"Fold {trade['fold_idx']}",
-                    '股票代碼': trade['stock_id'],
-                    '模型類型': trade.get('model_type', 'unknown'),
-                    '進場日期': trade['entry_date'],
-                    '預測報酬': f"{trade['predicted_return']:.2%}",
-                    '實際報酬': f"{trade['actual_return']:.2%}",
-                    '持有天數': trade['holding_days'],
-                    '預測正確': '是' if (trade['predicted_return'] > 0) == (trade['actual_return'] > 0) else '否'
-                }
-                all_trades.append(trade_record)
+
+        for stock_id, stock_stats in self.stock_statistics.items():
+            for trade in stock_stats.get('all_trades', []):
+                try:
+                    # 處理預測報酬（可能是字串或數字）
+                    pred_return = float(trade['predicted_return']) if isinstance(trade['predicted_return'], str) else trade['predicted_return']
+                    actual_return = float(trade['actual_return'])
+
+                    trade_record = {
+                        '時間週期': f"Fold {trade['fold_idx']}",
+                        '股票代碼': trade['stock_id'],
+                        '模型類型': trade.get('model_type', 'unknown'),
+                        '進場日期': trade['entry_date'],
+                        '預測報酬': f"{pred_return:.2%}",
+                        '實際報酬': f"{actual_return:.2%}",
+                        '持有天數': trade['holding_days'],
+                        '預測正確': '是' if (pred_return > 0) == (actual_return > 0) else '否'
+                    }
+                    all_trades.append(trade_record)
+                except (ValueError, KeyError) as e:
+                    logger.warning(f"跳過無效交易記錄: {e}")
+                    continue
 
         if all_trades:
             trades_df = pd.DataFrame(all_trades)

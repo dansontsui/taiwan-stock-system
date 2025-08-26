@@ -1,0 +1,173 @@
+{
+  "backtest_info": {
+    "type": "holdout_backtest",
+    "timestamp": "2025-08-26 10:50:49",
+    "start_date": "2025-01-01",
+    "end_date": "2025-07-31"
+  },
+  "summary": {
+    "success": true,
+    "stock_count": 1,
+    "trade_count": 3,
+    "total_return": 0.03219937378353236,
+    "metrics": {
+      "total_return": 0.03219937378353236,
+      "avg_return": 0.010733124594510786,
+      "win_rate": 0.3333333333333333,
+      "trade_count": 3,
+      "volatility": 0.06378909905844099,
+      "max_return": 0.07920792079207928,
+      "min_return": -0.04700854700854692,
+      "max_drawdown": -0.04700854700854695,
+      "sharpe_ratio": 0.1682595420367598,
+      "profit_loss_ratio": 1.6849684968496896
+    },
+    "params": {
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true
+    }
+  },
+  "monthly_results": [
+    {
+      "month": "2025-01-31",
+      "total_trades": 0,
+      "winning_trades": 0,
+      "win_rate": 0,
+      "avg_return": 0,
+      "total_profit_loss": 0,
+      "trades": []
+    },
+    {
+      "month": "2025-02-28",
+      "total_trades": 0,
+      "winning_trades": 0,
+      "win_rate": 0,
+      "avg_return": 0,
+      "total_profit_loss": 0,
+      "trades": []
+    },
+    {
+      "month": "2025-03-31",
+      "total_trades": 0,
+      "winning_trades": 0,
+      "win_rate": 0,
+      "avg_return": 0,
+      "total_profit_loss": 0,
+      "trades": []
+    },
+    {
+      "month": "2025-04-30",
+      "total_trades": 1,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": 0.0,
+      "total_profit_loss": 0.0,
+      "trades": [
+        {
+          "entry_date": "2025-04-30",
+          "stock_id": "1309",
+          "model_type": "lightgbm",
+          "predicted_return": 0.06617510142295167,
+          "entry_price": 12.0,
+          "exit_date": "2025-05-20",
+          "exit_price": 12.0,
+          "actual_return": 0.0,
+          "holding_days": 20,
+          "profit_loss": 0.0
+        }
+      ]
+    },
+    {
+      "month": "2025-05-31",
+      "total_trades": 0,
+      "winning_trades": 0,
+      "win_rate": 0,
+      "avg_return": 0,
+      "total_profit_loss": 0,
+      "trades": []
+    },
+    {
+      "month": "2025-06-30",
+      "total_trades": 1,
+      "winning_trades": 1,
+      "win_rate": 1.0,
+      "avg_return": 0.07920792079207928,
+      "total_profit_loss": 0.8000000000000007,
+      "trades": [
+        {
+          "entry_date": "2025-06-30",
+          "stock_id": "1309",
+          "model_type": "lightgbm",
+          "predicted_return": 0.04828216138304769,
+          "entry_price": 10.1,
+          "exit_date": "2025-07-18",
+          "exit_price": 10.9,
+          "actual_return": 0.07920792079207928,
+          "holding_days": 18,
+          "profit_loss": 0.8000000000000007
+        }
+      ]
+    },
+    {
+      "month": "2025-07-31",
+      "total_trades": 1,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.04700854700854692,
+      "total_profit_loss": -0.5499999999999989,
+      "trades": [
+        {
+          "entry_date": "2025-07-31",
+          "stock_id": "1309",
+          "model_type": "lightgbm",
+          "predicted_return": 0.07781132413806505,
+          "entry_price": 11.7,
+          "exit_date": "2025-08-04",
+          "exit_price": 11.15,
+          "actual_return": -0.04700854700854692,
+          "holding_days": 4,
+          "profit_loss": -0.5499999999999989
+        }
+      ]
+    }
+  ],
+  "detailed_trades": [
+    {
+      "entry_date": "2025-04-30",
+      "stock_id": "1309",
+      "model_type": "lightgbm",
+      "predicted_return": 0.06617510142295167,
+      "entry_price": 12.0,
+      "exit_date": "2025-05-20",
+      "exit_price": 12.0,
+      "actual_return": 0.0,
+      "holding_days": 20,
+      "profit_loss": 0.0
+    },
+    {
+      "entry_date": "2025-06-30",
+      "stock_id": "1309",
+      "model_type": "lightgbm",
+      "predicted_return": 0.04828216138304769,
+      "entry_price": 10.1,
+      "exit_date": "2025-07-18",
+      "exit_price": 10.9,
+      "actual_return": 0.07920792079207928,
+      "holding_days": 18,
+      "profit_loss": 0.8000000000000007
+    },
+    {
+      "entry_date": "2025-07-31",
+      "stock_id": "1309",
+      "model_type": "lightgbm",
+      "predicted_return": 0.07781132413806505,
+      "entry_price": 11.7,
+      "exit_date": "2025-08-04",
+      "exit_price": 11.15,
+      "actual_return": -0.04700854700854692,
+      "holding_days": 4,
+      "profit_loss": -0.5499999999999989
+    }
+  ]
+}

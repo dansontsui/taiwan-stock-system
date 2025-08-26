@@ -1,0 +1,541 @@
+[
+  {
+    "timestamp": "2025-08-26T08:35:28.038935",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 10,
+      "use_market_filter": false,
+      "log_level": "1",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T08:43:10.038461",
+    "menu_id": "3",
+    "operation_name": "內層Walk-Forward驗證",
+    "parameters": {
+      "date_start": "2025-01",
+      "date_end": "2025-02",
+      "use_best_params": true,
+      "models_choice": "4",
+      "models_to_use": "['auto_best']",
+      "use_auto_best_model": true,
+      "log_level": "1",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T08:48:14.407441",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "1",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T09:14:04.507014",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-08",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "1",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T09:36:35.366155",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-08",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "1",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T09:40:59.625074",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": false,
+      "log_level": "1",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T09:42:14.273553",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "1",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T09:48:56.842228",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": false,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T09:52:29.950723",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-08",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T10:10:03.279260",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-08",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "1",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T10:10:59.764496",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-08",
+      "min_predicted_return": 0.03,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T10:41:42.594680",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-02",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T10:43:14.004699",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": false,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T10:44:22.128663",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T10:47:51.444307",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": false,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T10:48:43.732263",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T10:50:17.388464",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T10:55:14.272937",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": false,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T11:01:00.444892",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": false,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T11:07:10.379342",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": false,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T11:09:30.345151",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-08",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T11:18:04.227756",
+    "menu_id": "4",
+    "operation_name": "候選池生成",
+    "parameters": {
+      "walk_forward_file": "walk_forward_results_20250826_123456.json",
+      "use_custom_thresholds": true,
+      "thresholds": {
+        "min_win_rate": 0.6,
+        "min_profit_loss_ratio": 1.5,
+        "min_trade_count": 10,
+        "min_folds_with_trades": 3,
+        "max_drawdown_threshold": 0.2
+      },
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T11:19:16.507187",
+    "menu_id": "4",
+    "operation_name": "候選池生成",
+    "parameters": {
+      "walk_forward_file": "walk_forward_results_20250826_123456.json",
+      "use_custom_thresholds": true,
+      "thresholds": {
+        "min_win_rate": 0.6,
+        "min_profit_loss_ratio": 1.5,
+        "min_trade_count": 10,
+        "min_folds_with_trades": 3,
+        "max_drawdown_threshold": 0.2
+      },
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T11:19:16.511669",
+    "menu_id": "3",
+    "operation_name": "內層Walk-Forward驗證",
+    "parameters": {
+      "date_start": "2015-01",
+      "date_end": "2024-12",
+      "use_best_params": true,
+      "log_level": "2",
+      "log_output": "2"
+    }
+  },
+  {
+    "timestamp": "2025-08-26T11:19:16.514535",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-06",
+      "min_predicted_return": 0.02,
+      "top_k": 10,
+      "log_level": "2",
+      "log_output": "2"
+    }
+  },
+  {
+    "timestamp": "2025-08-26T11:19:50.365490",
+    "menu_id": "4",
+    "operation_name": "候選池生成",
+    "parameters": {
+      "walk_forward_file": "G:\\WorkFolder\\taiwan-stock-system\\stock_price_investment_system\\results\\walk_forward\\walk_forward_results_20250826_003356.json",
+      "use_custom_thresholds": true,
+      "thresholds": {
+        "min_win_rate": 0.6,
+        "min_profit_loss_ratio": 1.3,
+        "min_trade_count": 5,
+        "min_folds_with_trades": 4,
+        "max_drawdown_threshold": 0.2
+      },
+      "log_level": "1",
+      "log_output": "1",
+      "cli_only_logging": false
+    }
+  },
+  {
+    "timestamp": "2025-08-26T11:20:43.786470",
+    "menu_id": "4",
+    "operation_name": "候選池生成",
+    "parameters": {
+      "walk_forward_file": "G:\\WorkFolder\\taiwan-stock-system\\stock_price_investment_system\\results\\walk_forward\\walk_forward_results_20250826_003356.json",
+      "use_custom_thresholds": true,
+      "thresholds": {
+        "min_win_rate": 0.7,
+        "min_profit_loss_ratio": 1.5,
+        "min_trade_count": 5,
+        "min_folds_with_trades": 2,
+        "max_drawdown_threshold": 0.1
+      },
+      "log_level": "1",
+      "log_output": "1",
+      "cli_only_logging": false
+    }
+  },
+  {
+    "timestamp": "2025-08-26T11:21:31.029792",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-08",
+      "min_predicted_return": 0.03,
+      "top_k": 5,
+      "use_market_filter": true,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T12:10:18.579978",
+    "menu_id": "2",
+    "operation_name": "股價預測",
+    "parameters": {
+      "prediction_date": "2025-08",
+      "min_predicted_return": 0.03,
+      "top_k": 5,
+      "use_market_filter": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T12:41:03.457411",
+    "menu_id": "2",
+    "operation_name": "股價預測",
+    "parameters": {
+      "prediction_date": "2025-07",
+      "min_predicted_return": 0.03,
+      "top_k": 5,
+      "use_market_filter": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T12:47:05.092841",
+    "menu_id": "2",
+    "operation_name": "股價預測",
+    "parameters": {
+      "prediction_date": "2025-07",
+      "min_predicted_return": 0.03,
+      "top_k": 5,
+      "use_market_filter": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T12:52:14.632068",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-07",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.03,
+      "top_k": 5,
+      "use_market_filter": true,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T13:19:50.857665",
+    "menu_id": "2",
+    "operation_name": "股價預測",
+    "parameters": {
+      "prediction_date": "2025-07",
+      "min_predicted_return": 0.03,
+      "top_k": 5,
+      "use_market_filter": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T13:20:15.142571",
+    "menu_id": "2",
+    "operation_name": "股價預測",
+    "parameters": {
+      "prediction_date": "2025-07",
+      "min_predicted_return": 0.03,
+      "top_k": 5,
+      "use_market_filter": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T13:25:09.832322",
+    "menu_id": "2",
+    "operation_name": "股價預測",
+    "parameters": {
+      "prediction_date": "2025-07",
+      "min_predicted_return": 0.03,
+      "top_k": 5,
+      "use_market_filter": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T13:36:13.631406",
+    "menu_id": "2",
+    "operation_name": "股價預測",
+    "parameters": {
+      "prediction_date": "2025-07",
+      "min_predicted_return": 0.03,
+      "top_k": 5,
+      "use_market_filter": true
+    }
+  },
+  {
+    "timestamp": "2025-08-26T14:59:26.971002",
+    "menu_id": "5",
+    "operation_name": "外層回測",
+    "parameters": {
+      "holdout_start": "2025-01",
+      "holdout_end": "2025-07",
+      "min_predicted_return": 0.02,
+      "top_k": 7,
+      "use_market_filter": true,
+      "log_level": "2",
+      "log_output": "2",
+      "cli_only_logging": true
+    }
+  }
+]

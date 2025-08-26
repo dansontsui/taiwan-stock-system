@@ -1,0 +1,591 @@
+{
+  "backtest_info": {
+    "type": "holdout_backtest",
+    "timestamp": "2025-08-26 12:03:37",
+    "start_date": "2025-01-01",
+    "end_date": "2025-08-31"
+  },
+  "summary": {
+    "success": true,
+    "stock_count": 76,
+    "trade_count": 20,
+    "total_return": 0.275385669024913,
+    "metrics": {
+      "total_return": 0.275385669024913,
+      "avg_return": 0.01376928345124565,
+      "win_rate": 0.6,
+      "trade_count": 20,
+      "volatility": 0.06452850366318888,
+      "max_return": 0.15984405458089676,
+      "min_return": -0.0922619047619048,
+      "max_drawdown": -0.22794890885478813,
+      "sharpe_ratio": 0.21338296519496883,
+      "profit_loss_ratio": 1.1217543324669732
+    },
+    "params": {
+      "min_predicted_return": 0.03,
+      "top_k": 5,
+      "use_market_filter": true
+    }
+  },
+  "monthly_results": [
+    {
+      "month": "2025-01-31",
+      "total_trades": 0,
+      "winning_trades": 0,
+      "win_rate": 0,
+      "avg_return": 0,
+      "total_profit_loss": 0,
+      "trades": []
+    },
+    {
+      "month": "2025-02-28",
+      "total_trades": 0,
+      "winning_trades": 0,
+      "win_rate": 0,
+      "avg_return": 0,
+      "total_profit_loss": 0,
+      "trades": []
+    },
+    {
+      "month": "2025-03-31",
+      "total_trades": 5,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.06180502645185475,
+      "total_profit_loss": -7.449999999999999,
+      "trades": [
+        {
+          "entry_date": "2025-03-31",
+          "stock_id": "2101",
+          "model_type": "xgboost",
+          "predicted_return": 0.13359872996807098,
+          "entry_price": 38.8,
+          "exit_date": "2025-04-18",
+          "exit_price": 36.5,
+          "actual_return": -0.059278350515463846,
+          "holding_days": 18,
+          "profit_loss": -2.299999999999997
+        },
+        {
+          "entry_date": "2025-03-31",
+          "stock_id": "6508",
+          "model_type": "xgboost",
+          "predicted_return": 0.1017095074057579,
+          "entry_price": 28.4,
+          "exit_date": "2025-04-18",
+          "exit_price": 26.7,
+          "actual_return": -0.05985915492957744,
+          "holding_days": 18,
+          "profit_loss": -1.6999999999999993
+        },
+        {
+          "entry_date": "2025-03-31",
+          "stock_id": "2331",
+          "model_type": "lightgbm",
+          "predicted_return": 0.10135638665851229,
+          "entry_price": 16.8,
+          "exit_date": "2025-04-18",
+          "exit_price": 15.25,
+          "actual_return": -0.0922619047619048,
+          "holding_days": 18,
+          "profit_loss": -1.5500000000000007
+        },
+        {
+          "entry_date": "2025-03-31",
+          "stock_id": "5276",
+          "model_type": "lightgbm",
+          "predicted_return": 0.09163442657965919,
+          "entry_price": 16.35,
+          "exit_date": "2025-04-18",
+          "exit_price": 15.7,
+          "actual_return": -0.03975535168195731,
+          "holding_days": 18,
+          "profit_loss": -0.6500000000000021
+        },
+        {
+          "entry_date": "2025-03-31",
+          "stock_id": "8074",
+          "model_type": "xgboost",
+          "predicted_return": 0.08995553851127625,
+          "entry_price": 21.6,
+          "exit_date": "2025-04-18",
+          "exit_price": 20.35,
+          "actual_return": -0.057870370370370364,
+          "holding_days": 18,
+          "profit_loss": -1.25
+        }
+      ]
+    },
+    {
+      "month": "2025-04-30",
+      "total_trades": 5,
+      "winning_trades": 4,
+      "win_rate": 0.8,
+      "avg_return": 0.04761031915073716,
+      "total_profit_loss": 13.220000000000002,
+      "trades": [
+        {
+          "entry_date": "2025-04-30",
+          "stock_id": "5701",
+          "model_type": "xgboost",
+          "predicted_return": 0.385973185300827,
+          "entry_price": 5.24,
+          "exit_date": "2025-05-20",
+          "exit_price": 5.31,
+          "actual_return": 0.013358778625954082,
+          "holding_days": 20,
+          "profit_loss": 0.0699999999999994
+        },
+        {
+          "entry_date": "2025-04-30",
+          "stock_id": "6158",
+          "model_type": "xgboost",
+          "predicted_return": 0.2901182174682617,
+          "entry_price": 23.0,
+          "exit_date": "2025-05-20",
+          "exit_price": 25.2,
+          "actual_return": 0.09565217391304345,
+          "holding_days": 20,
+          "profit_loss": 2.1999999999999993
+        },
+        {
+          "entry_date": "2025-04-30",
+          "stock_id": "6651",
+          "model_type": "lightgbm",
+          "predicted_return": 0.17158715645083045,
+          "entry_price": 81.8,
+          "exit_date": "2025-05-20",
+          "exit_price": 87.7,
+          "actual_return": 0.07212713936430325,
+          "holding_days": 20,
+          "profit_loss": 5.900000000000006
+        },
+        {
+          "entry_date": "2025-04-30",
+          "stock_id": "4938",
+          "model_type": "xgboost",
+          "predicted_return": 0.10230377316474915,
+          "entry_price": 80.8,
+          "exit_date": "2025-05-20",
+          "exit_price": 86.1,
+          "actual_return": 0.06559405940594056,
+          "holding_days": 20,
+          "profit_loss": 5.299999999999997
+        },
+        {
+          "entry_date": "2025-04-30",
+          "stock_id": "4903",
+          "model_type": "xgboost",
+          "predicted_return": 0.0801384299993515,
+          "entry_price": 28.8,
+          "exit_date": "2025-05-20",
+          "exit_price": 28.55,
+          "actual_return": -0.008680555555555556,
+          "holding_days": 20,
+          "profit_loss": -0.25
+        }
+      ]
+    },
+    {
+      "month": "2025-05-31",
+      "total_trades": 0,
+      "winning_trades": 0,
+      "win_rate": 0,
+      "avg_return": 0,
+      "total_profit_loss": 0,
+      "trades": []
+    },
+    {
+      "month": "2025-06-30",
+      "total_trades": 5,
+      "winning_trades": 3,
+      "win_rate": 0.6,
+      "avg_return": 0.00328240502584745,
+      "total_profit_loss": 3.200000000000003,
+      "trades": [
+        {
+          "entry_date": "2025-06-30",
+          "stock_id": "5603",
+          "model_type": "xgboost",
+          "predicted_return": 0.3648425340652466,
+          "entry_price": 22.1,
+          "exit_date": "2025-07-18",
+          "exit_price": 20.55,
+          "actual_return": -0.07013574660633487,
+          "holding_days": 18,
+          "profit_loss": -1.5500000000000007
+        },
+        {
+          "entry_date": "2025-06-30",
+          "stock_id": "6158",
+          "model_type": "xgboost",
+          "predicted_return": 0.2821243405342102,
+          "entry_price": 23.05,
+          "exit_date": "2025-07-18",
+          "exit_price": 23.45,
+          "actual_return": 0.017353579175704927,
+          "holding_days": 18,
+          "profit_loss": 0.3999999999999986
+        },
+        {
+          "entry_date": "2025-06-30",
+          "stock_id": "5410",
+          "model_type": "xgboost",
+          "predicted_return": 0.06985441595315933,
+          "entry_price": 27.95,
+          "exit_date": "2025-07-18",
+          "exit_price": 28.9,
+          "actual_return": 0.033989266547406055,
+          "holding_days": 18,
+          "profit_loss": 0.9499999999999993
+        },
+        {
+          "entry_date": "2025-06-30",
+          "stock_id": "3230",
+          "model_type": "xgboost",
+          "predicted_return": 0.06918931007385254,
+          "entry_price": 32.1,
+          "exit_date": "2025-07-18",
+          "exit_price": 31.6,
+          "actual_return": -0.01557632398753894,
+          "holding_days": 18,
+          "profit_loss": -0.5
+        },
+        {
+          "entry_date": "2025-06-30",
+          "stock_id": "4938",
+          "model_type": "xgboost",
+          "predicted_return": 0.06712077558040619,
+          "entry_price": 76.8,
+          "exit_date": "2025-07-18",
+          "exit_price": 80.7,
+          "actual_return": 0.050781250000000076,
+          "holding_days": 18,
+          "profit_loss": 3.9000000000000057
+        }
+      ]
+    },
+    {
+      "month": "2025-07-31",
+      "total_trades": 5,
+      "winning_trades": 5,
+      "win_rate": 1.0,
+      "avg_return": 0.06598943608025275,
+      "total_profit_loss": 12.05,
+      "trades": [
+        {
+          "entry_date": "2025-07-31",
+          "stock_id": "6158",
+          "model_type": "xgboost",
+          "predicted_return": 0.2285565286874771,
+          "entry_price": 23.0,
+          "exit_date": "2025-08-20",
+          "exit_price": 24.35,
+          "actual_return": 0.05869565217391311,
+          "holding_days": 20,
+          "profit_loss": 1.3500000000000014
+        },
+        {
+          "entry_date": "2025-07-31",
+          "stock_id": "5701",
+          "model_type": "xgboost",
+          "predicted_return": 0.1272074580192566,
+          "entry_price": 4.69,
+          "exit_date": "2025-08-05",
+          "exit_price": 4.99,
+          "actual_return": 0.06396588486140721,
+          "holding_days": 5,
+          "profit_loss": 0.2999999999999998
+        },
+        {
+          "entry_date": "2025-07-31",
+          "stock_id": "6664",
+          "model_type": "xgboost",
+          "predicted_return": 0.10205632448196411,
+          "entry_price": 214.0,
+          "exit_date": "2025-08-05",
+          "exit_price": 218.0,
+          "actual_return": 0.018691588785046728,
+          "holding_days": 5,
+          "profit_loss": 4.0
+        },
+        {
+          "entry_date": "2025-07-31",
+          "stock_id": "4938",
+          "model_type": "xgboost",
+          "predicted_return": 0.0945114716887474,
+          "entry_price": 80.0,
+          "exit_date": "2025-08-05",
+          "exit_price": 82.3,
+          "actual_return": 0.028749999999999963,
+          "holding_days": 5,
+          "profit_loss": 2.299999999999997
+        },
+        {
+          "entry_date": "2025-07-31",
+          "stock_id": "8074",
+          "model_type": "xgboost",
+          "predicted_return": 0.08885060250759125,
+          "entry_price": 25.65,
+          "exit_date": "2025-08-05",
+          "exit_price": 29.75,
+          "actual_return": 0.15984405458089676,
+          "holding_days": 5,
+          "profit_loss": 4.100000000000001
+        }
+      ]
+    },
+    {
+      "month": "2025-08-31",
+      "total_trades": 0,
+      "winning_trades": 0,
+      "win_rate": 0,
+      "avg_return": 0,
+      "total_profit_loss": 0,
+      "trades": []
+    }
+  ],
+  "detailed_trades": [
+    {
+      "entry_date": "2025-03-31",
+      "stock_id": "2101",
+      "model_type": "xgboost",
+      "predicted_return": 0.13359872996807098,
+      "entry_price": 38.8,
+      "exit_date": "2025-04-18",
+      "exit_price": 36.5,
+      "actual_return": -0.059278350515463846,
+      "holding_days": 18,
+      "profit_loss": -2.299999999999997
+    },
+    {
+      "entry_date": "2025-03-31",
+      "stock_id": "6508",
+      "model_type": "xgboost",
+      "predicted_return": 0.1017095074057579,
+      "entry_price": 28.4,
+      "exit_date": "2025-04-18",
+      "exit_price": 26.7,
+      "actual_return": -0.05985915492957744,
+      "holding_days": 18,
+      "profit_loss": -1.6999999999999993
+    },
+    {
+      "entry_date": "2025-03-31",
+      "stock_id": "2331",
+      "model_type": "lightgbm",
+      "predicted_return": 0.10135638665851229,
+      "entry_price": 16.8,
+      "exit_date": "2025-04-18",
+      "exit_price": 15.25,
+      "actual_return": -0.0922619047619048,
+      "holding_days": 18,
+      "profit_loss": -1.5500000000000007
+    },
+    {
+      "entry_date": "2025-03-31",
+      "stock_id": "5276",
+      "model_type": "lightgbm",
+      "predicted_return": 0.09163442657965919,
+      "entry_price": 16.35,
+      "exit_date": "2025-04-18",
+      "exit_price": 15.7,
+      "actual_return": -0.03975535168195731,
+      "holding_days": 18,
+      "profit_loss": -0.6500000000000021
+    },
+    {
+      "entry_date": "2025-03-31",
+      "stock_id": "8074",
+      "model_type": "xgboost",
+      "predicted_return": 0.08995553851127625,
+      "entry_price": 21.6,
+      "exit_date": "2025-04-18",
+      "exit_price": 20.35,
+      "actual_return": -0.057870370370370364,
+      "holding_days": 18,
+      "profit_loss": -1.25
+    },
+    {
+      "entry_date": "2025-04-30",
+      "stock_id": "5701",
+      "model_type": "xgboost",
+      "predicted_return": 0.385973185300827,
+      "entry_price": 5.24,
+      "exit_date": "2025-05-20",
+      "exit_price": 5.31,
+      "actual_return": 0.013358778625954082,
+      "holding_days": 20,
+      "profit_loss": 0.0699999999999994
+    },
+    {
+      "entry_date": "2025-04-30",
+      "stock_id": "6158",
+      "model_type": "xgboost",
+      "predicted_return": 0.2901182174682617,
+      "entry_price": 23.0,
+      "exit_date": "2025-05-20",
+      "exit_price": 25.2,
+      "actual_return": 0.09565217391304345,
+      "holding_days": 20,
+      "profit_loss": 2.1999999999999993
+    },
+    {
+      "entry_date": "2025-04-30",
+      "stock_id": "6651",
+      "model_type": "lightgbm",
+      "predicted_return": 0.17158715645083045,
+      "entry_price": 81.8,
+      "exit_date": "2025-05-20",
+      "exit_price": 87.7,
+      "actual_return": 0.07212713936430325,
+      "holding_days": 20,
+      "profit_loss": 5.900000000000006
+    },
+    {
+      "entry_date": "2025-04-30",
+      "stock_id": "4938",
+      "model_type": "xgboost",
+      "predicted_return": 0.10230377316474915,
+      "entry_price": 80.8,
+      "exit_date": "2025-05-20",
+      "exit_price": 86.1,
+      "actual_return": 0.06559405940594056,
+      "holding_days": 20,
+      "profit_loss": 5.299999999999997
+    },
+    {
+      "entry_date": "2025-04-30",
+      "stock_id": "4903",
+      "model_type": "xgboost",
+      "predicted_return": 0.0801384299993515,
+      "entry_price": 28.8,
+      "exit_date": "2025-05-20",
+      "exit_price": 28.55,
+      "actual_return": -0.008680555555555556,
+      "holding_days": 20,
+      "profit_loss": -0.25
+    },
+    {
+      "entry_date": "2025-06-30",
+      "stock_id": "5603",
+      "model_type": "xgboost",
+      "predicted_return": 0.3648425340652466,
+      "entry_price": 22.1,
+      "exit_date": "2025-07-18",
+      "exit_price": 20.55,
+      "actual_return": -0.07013574660633487,
+      "holding_days": 18,
+      "profit_loss": -1.5500000000000007
+    },
+    {
+      "entry_date": "2025-06-30",
+      "stock_id": "6158",
+      "model_type": "xgboost",
+      "predicted_return": 0.2821243405342102,
+      "entry_price": 23.05,
+      "exit_date": "2025-07-18",
+      "exit_price": 23.45,
+      "actual_return": 0.017353579175704927,
+      "holding_days": 18,
+      "profit_loss": 0.3999999999999986
+    },
+    {
+      "entry_date": "2025-06-30",
+      "stock_id": "5410",
+      "model_type": "xgboost",
+      "predicted_return": 0.06985441595315933,
+      "entry_price": 27.95,
+      "exit_date": "2025-07-18",
+      "exit_price": 28.9,
+      "actual_return": 0.033989266547406055,
+      "holding_days": 18,
+      "profit_loss": 0.9499999999999993
+    },
+    {
+      "entry_date": "2025-06-30",
+      "stock_id": "3230",
+      "model_type": "xgboost",
+      "predicted_return": 0.06918931007385254,
+      "entry_price": 32.1,
+      "exit_date": "2025-07-18",
+      "exit_price": 31.6,
+      "actual_return": -0.01557632398753894,
+      "holding_days": 18,
+      "profit_loss": -0.5
+    },
+    {
+      "entry_date": "2025-06-30",
+      "stock_id": "4938",
+      "model_type": "xgboost",
+      "predicted_return": 0.06712077558040619,
+      "entry_price": 76.8,
+      "exit_date": "2025-07-18",
+      "exit_price": 80.7,
+      "actual_return": 0.050781250000000076,
+      "holding_days": 18,
+      "profit_loss": 3.9000000000000057
+    },
+    {
+      "entry_date": "2025-07-31",
+      "stock_id": "6158",
+      "model_type": "xgboost",
+      "predicted_return": 0.2285565286874771,
+      "entry_price": 23.0,
+      "exit_date": "2025-08-20",
+      "exit_price": 24.35,
+      "actual_return": 0.05869565217391311,
+      "holding_days": 20,
+      "profit_loss": 1.3500000000000014
+    },
+    {
+      "entry_date": "2025-07-31",
+      "stock_id": "5701",
+      "model_type": "xgboost",
+      "predicted_return": 0.1272074580192566,
+      "entry_price": 4.69,
+      "exit_date": "2025-08-05",
+      "exit_price": 4.99,
+      "actual_return": 0.06396588486140721,
+      "holding_days": 5,
+      "profit_loss": 0.2999999999999998
+    },
+    {
+      "entry_date": "2025-07-31",
+      "stock_id": "6664",
+      "model_type": "xgboost",
+      "predicted_return": 0.10205632448196411,
+      "entry_price": 214.0,
+      "exit_date": "2025-08-05",
+      "exit_price": 218.0,
+      "actual_return": 0.018691588785046728,
+      "holding_days": 5,
+      "profit_loss": 4.0
+    },
+    {
+      "entry_date": "2025-07-31",
+      "stock_id": "4938",
+      "model_type": "xgboost",
+      "predicted_return": 0.0945114716887474,
+      "entry_price": 80.0,
+      "exit_date": "2025-08-05",
+      "exit_price": 82.3,
+      "actual_return": 0.028749999999999963,
+      "holding_days": 5,
+      "profit_loss": 2.299999999999997
+    },
+    {
+      "entry_date": "2025-07-31",
+      "stock_id": "8074",
+      "model_type": "xgboost",
+      "predicted_return": 0.08885060250759125,
+      "entry_price": 25.65,
+      "exit_date": "2025-08-05",
+      "exit_price": 29.75,
+      "actual_return": 0.15984405458089676,
+      "holding_days": 5,
+      "profit_loss": 4.100000000000001
+    }
+  ]
+}

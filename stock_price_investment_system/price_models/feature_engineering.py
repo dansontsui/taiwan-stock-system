@@ -368,20 +368,27 @@ class FeatureEngineer:
                     for period in target_periods:
                         col_name = f'future_return_{period}d'
                         if col_name in target_row.columns:
-                            targets[f'target_{period}d'] = float(target_row.iloc[0][col_name]) if not pd.isna(target_row.iloc[0][col_name]) else np.nan
+                            raw_value = target_row.iloc[0][col_name]
+                            if pd.isna(raw_value) or np.isinf(raw_value):
+                                targets[f'target_{period}d'] = 0.0  # 用0代替NaN/Inf
+                            else:
+                                # 限制極值範圍，避免過大的報酬率
+                                clean_value = float(raw_value)
+                                clean_value = max(-1.0, min(1.0, clean_value))  # 限制在-100%到100%之間
+                                targets[f'target_{period}d'] = clean_value
                         else:
-                            targets[f'target_{period}d'] = np.nan
+                            targets[f'target_{period}d'] = 0.0  # 缺少欄位時用0
                 else:
                     for period in target_periods:
-                        targets[f'target_{period}d'] = np.nan
+                        targets[f'target_{period}d'] = 0.0  # 無資料時用0
             else:
                 for period in target_periods:
-                    targets[f'target_{period}d'] = np.nan
-                    
+                    targets[f'target_{period}d'] = 0.0  # 無資料時用0
+
         except Exception as e:
             logger.debug(f"Error generating targets for {stock_id} on {as_of_date}: {e}")
             for period in target_periods:
-                targets[f'target_{period}d'] = np.nan
+                targets[f'target_{period}d'] = 0.0  # 異常時用0
         
         return targets
     

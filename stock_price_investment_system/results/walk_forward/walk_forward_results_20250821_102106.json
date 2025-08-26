@@ -1,0 +1,1364 @@
+﻿{
+  "stock_statistics": {
+    "1309": {
+      "all_trades": [
+        {
+          "fold_idx": 0,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2018-12-31",
+          "predicted_return": "0.04791601",
+          "actual_return": 0.02149437052200623,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 0,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2018-12-31",
+          "predicted_return": "0.04791601",
+          "actual_return": 0.02149437052200623,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 0,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2019-03-31",
+          "predicted_return": "0.022528963",
+          "actual_return": 0.004807692307692205,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 0,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2019-03-31",
+          "predicted_return": "0.022528963",
+          "actual_return": 0.004807692307692205,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 0,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2019-04-30",
+          "predicted_return": "0.023424469",
+          "actual_return": 0.07804878048780495,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 0,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2019-04-30",
+          "predicted_return": "0.023424469",
+          "actual_return": 0.07804878048780495,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 0,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2019-09-30",
+          "predicted_return": "0.07532942",
+          "actual_return": 0.017857142857142953,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 0,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2019-09-30",
+          "predicted_return": "0.07532942",
+          "actual_return": 0.017857142857142953,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 0,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2019-10-31",
+          "predicted_return": "0.048332542",
+          "actual_return": -0.039647577092510954,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 0,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2019-10-31",
+          "predicted_return": "0.048332542",
+          "actual_return": -0.039647577092510954,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 0,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2019-11-30",
+          "predicted_return": "0.042230118",
+          "actual_return": 0.056074766355140325,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 0,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2019-11-30",
+          "predicted_return": "0.042230118",
+          "actual_return": 0.056074766355140325,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2019-12-31",
+          "predicted_return": "0.036949117",
+          "actual_return": -0.057017543859649154,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2019-12-31",
+          "predicted_return": "0.036949117",
+          "actual_return": -0.057017543859649154,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-02-29",
+          "predicted_return": "0.021635829",
+          "actual_return": -0.2297734627831715,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-02-29",
+          "predicted_return": "0.021635829",
+          "actual_return": -0.2297734627831715,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-04-30",
+          "predicted_return": "0.15503684",
+          "actual_return": 0.24873096446700518,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-04-30",
+          "predicted_return": "0.15503684",
+          "actual_return": 0.24873096446700518,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-06-30",
+          "predicted_return": "0.024926633",
+          "actual_return": 0.08965517241379316,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-06-30",
+          "predicted_return": "0.024926633",
+          "actual_return": 0.08965517241379316,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-07-31",
+          "predicted_return": "0.022437897",
+          "actual_return": 0.25,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-07-31",
+          "predicted_return": "0.022437897",
+          "actual_return": 0.25,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-08-31",
+          "predicted_return": "0.14337988",
+          "actual_return": 0.3839285714285715,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-08-31",
+          "predicted_return": "0.14337988",
+          "actual_return": 0.3839285714285715,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-09-30",
+          "predicted_return": "0.18135856",
+          "actual_return": 0.1468926553672316,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-09-30",
+          "predicted_return": "0.18135856",
+          "actual_return": 0.1468926553672316,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-10-31",
+          "predicted_return": "0.16601685",
+          "actual_return": -0.022151898734177305,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-10-31",
+          "predicted_return": "0.16601685",
+          "actual_return": -0.022151898734177305,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-11-30",
+          "predicted_return": "0.022904951",
+          "actual_return": -0.016845329249617066,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 1,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-11-30",
+          "predicted_return": "0.022904951",
+          "actual_return": -0.016845329249617066,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-12-31",
+          "predicted_return": "0.08682154",
+          "actual_return": -0.2426187419768935,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2020-12-31",
+          "predicted_return": "0.08682154",
+          "actual_return": -0.2426187419768935,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2021-03-31",
+          "predicted_return": "0.19234386",
+          "actual_return": 0.15063731170336037,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2021-03-31",
+          "predicted_return": "0.19234386",
+          "actual_return": 0.15063731170336037,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2021-05-31",
+          "predicted_return": "0.02801155",
+          "actual_return": 0.018137847642079805,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2021-05-31",
+          "predicted_return": "0.02801155",
+          "actual_return": 0.018137847642079805,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2021-06-30",
+          "predicted_return": "0.024122452",
+          "actual_return": 0.013761467889908289,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2021-06-30",
+          "predicted_return": "0.024122452",
+          "actual_return": 0.013761467889908289,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2021-08-31",
+          "predicted_return": "0.05624655",
+          "actual_return": -0.1545253863134658,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 2,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2021-08-31",
+          "predicted_return": "0.05624655",
+          "actual_return": -0.1545253863134658,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 3,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2022-03-31",
+          "predicted_return": "0.07142297",
+          "actual_return": -0.051622418879056046,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 3,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2022-03-31",
+          "predicted_return": "0.07142297",
+          "actual_return": -0.051622418879056046,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 3,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2022-09-30",
+          "predicted_return": "0.08269272",
+          "actual_return": -0.03712296983758704,
+          "holding_days": 20
+        },
+        {
+          "fold_idx": 3,
+          "stock_id": "1309",
+          "model_type": "xgboost",
+          "entry_date": "2022-09-30",
+          "predicted_return": "0.08269272",
+          "actual_return": -0.03712296983758704,
+          "holding_days": 20
+        }
+      ],
+      "fold_count": 4,
+      "total_trades": 44,
+      "win_rate": 0.5909090909090909,
+      "average_return": 0.028577337032527652,
+      "total_return": 1.2574028294312165,
+      "return_std": 0.14488949791613456,
+      "max_return": 0.3839285714285715,
+      "min_return": -0.2426187419768935,
+      "profit_loss_ratio": 1.2035750197154569,
+      "sharpe_ratio": 0.19723539278926128
+    }
+  },
+  "fold_results": [
+    {
+      "success": true,
+      "fold_idx": 0,
+      "fold_info": {
+        "train_start": "2015-01-01",
+        "train_end": "2018-12-11",
+        "test_start": "2018-12-12",
+        "test_end": "2019-12-07"
+      },
+      "trained_stocks": 2,
+      "backtest_result": {
+        "trades": [
+          {
+            "fold_idx": 0,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2018-12-31",
+            "predicted_return": "0.04791601",
+            "actual_return": 0.02149437052200623,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 0,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2018-12-31",
+            "predicted_return": "0.04791601",
+            "actual_return": 0.02149437052200623,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 0,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2019-03-31",
+            "predicted_return": "0.022528963",
+            "actual_return": 0.004807692307692205,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 0,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2019-03-31",
+            "predicted_return": "0.022528963",
+            "actual_return": 0.004807692307692205,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 0,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2019-04-30",
+            "predicted_return": "0.023424469",
+            "actual_return": 0.07804878048780495,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 0,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2019-04-30",
+            "predicted_return": "0.023424469",
+            "actual_return": 0.07804878048780495,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 0,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2019-09-30",
+            "predicted_return": "0.07532942",
+            "actual_return": 0.017857142857142953,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 0,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2019-09-30",
+            "predicted_return": "0.07532942",
+            "actual_return": 0.017857142857142953,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 0,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2019-10-31",
+            "predicted_return": "0.048332542",
+            "actual_return": -0.039647577092510954,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 0,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2019-10-31",
+            "predicted_return": "0.048332542",
+            "actual_return": -0.039647577092510954,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 0,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2019-11-30",
+            "predicted_return": "0.042230118",
+            "actual_return": 0.056074766355140325,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 0,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2019-11-30",
+            "predicted_return": "0.042230118",
+            "actual_return": 0.056074766355140325,
+            "holding_days": 20
+          }
+        ],
+        "stock_performance": {
+          "1309": {
+            "trades": [
+              {
+                "fold_idx": 0,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2018-12-31",
+                "predicted_return": "0.04791601",
+                "actual_return": 0.02149437052200623,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 0,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2018-12-31",
+                "predicted_return": "0.04791601",
+                "actual_return": 0.02149437052200623,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 0,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2019-03-31",
+                "predicted_return": "0.022528963",
+                "actual_return": 0.004807692307692205,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 0,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2019-03-31",
+                "predicted_return": "0.022528963",
+                "actual_return": 0.004807692307692205,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 0,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2019-04-30",
+                "predicted_return": "0.023424469",
+                "actual_return": 0.07804878048780495,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 0,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2019-04-30",
+                "predicted_return": "0.023424469",
+                "actual_return": 0.07804878048780495,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 0,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2019-09-30",
+                "predicted_return": "0.07532942",
+                "actual_return": 0.017857142857142953,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 0,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2019-09-30",
+                "predicted_return": "0.07532942",
+                "actual_return": 0.017857142857142953,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 0,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2019-10-31",
+                "predicted_return": "0.048332542",
+                "actual_return": -0.039647577092510954,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 0,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2019-10-31",
+                "predicted_return": "0.048332542",
+                "actual_return": -0.039647577092510954,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 0,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2019-11-30",
+                "predicted_return": "0.042230118",
+                "actual_return": 0.056074766355140325,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 0,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2019-11-30",
+                "predicted_return": "0.042230118",
+                "actual_return": 0.056074766355140325,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 12,
+            "winning_trades": 10,
+            "total_return": 0.27727035087455143
+          }
+        },
+        "metrics": {
+          "total_trades": 12,
+          "total_return": 0.27727035087455143,
+          "average_return": 0.023105862572879287,
+          "win_rate": 0.8333333333333334,
+          "profit_loss_ratio": 0.8993374405391472,
+          "max_return": 0.07804878048780495,
+          "min_return": -0.039647577092510954,
+          "return_std": 0.03743580290707943,
+          "sharpe_ratio": 0.6172129560098141
+        },
+        "total_trades": 12
+      }
+    },
+    {
+      "success": true,
+      "fold_idx": 1,
+      "fold_info": {
+        "train_start": "2015-12-27",
+        "train_end": "2019-12-06",
+        "test_start": "2019-12-07",
+        "test_end": "2020-12-01"
+      },
+      "trained_stocks": 2,
+      "backtest_result": {
+        "trades": [
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2019-12-31",
+            "predicted_return": "0.036949117",
+            "actual_return": -0.057017543859649154,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2019-12-31",
+            "predicted_return": "0.036949117",
+            "actual_return": -0.057017543859649154,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-02-29",
+            "predicted_return": "0.021635829",
+            "actual_return": -0.2297734627831715,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-02-29",
+            "predicted_return": "0.021635829",
+            "actual_return": -0.2297734627831715,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-04-30",
+            "predicted_return": "0.15503684",
+            "actual_return": 0.24873096446700518,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-04-30",
+            "predicted_return": "0.15503684",
+            "actual_return": 0.24873096446700518,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-06-30",
+            "predicted_return": "0.024926633",
+            "actual_return": 0.08965517241379316,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-06-30",
+            "predicted_return": "0.024926633",
+            "actual_return": 0.08965517241379316,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-07-31",
+            "predicted_return": "0.022437897",
+            "actual_return": 0.25,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-07-31",
+            "predicted_return": "0.022437897",
+            "actual_return": 0.25,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-08-31",
+            "predicted_return": "0.14337988",
+            "actual_return": 0.3839285714285715,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-08-31",
+            "predicted_return": "0.14337988",
+            "actual_return": 0.3839285714285715,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-09-30",
+            "predicted_return": "0.18135856",
+            "actual_return": 0.1468926553672316,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-09-30",
+            "predicted_return": "0.18135856",
+            "actual_return": 0.1468926553672316,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-10-31",
+            "predicted_return": "0.16601685",
+            "actual_return": -0.022151898734177305,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-10-31",
+            "predicted_return": "0.16601685",
+            "actual_return": -0.022151898734177305,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-11-30",
+            "predicted_return": "0.022904951",
+            "actual_return": -0.016845329249617066,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 1,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-11-30",
+            "predicted_return": "0.022904951",
+            "actual_return": -0.016845329249617066,
+            "holding_days": 20
+          }
+        ],
+        "stock_performance": {
+          "1309": {
+            "trades": [
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2019-12-31",
+                "predicted_return": "0.036949117",
+                "actual_return": -0.057017543859649154,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2019-12-31",
+                "predicted_return": "0.036949117",
+                "actual_return": -0.057017543859649154,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-02-29",
+                "predicted_return": "0.021635829",
+                "actual_return": -0.2297734627831715,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-02-29",
+                "predicted_return": "0.021635829",
+                "actual_return": -0.2297734627831715,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-04-30",
+                "predicted_return": "0.15503684",
+                "actual_return": 0.24873096446700518,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-04-30",
+                "predicted_return": "0.15503684",
+                "actual_return": 0.24873096446700518,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-06-30",
+                "predicted_return": "0.024926633",
+                "actual_return": 0.08965517241379316,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-06-30",
+                "predicted_return": "0.024926633",
+                "actual_return": 0.08965517241379316,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-07-31",
+                "predicted_return": "0.022437897",
+                "actual_return": 0.25,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-07-31",
+                "predicted_return": "0.022437897",
+                "actual_return": 0.25,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-08-31",
+                "predicted_return": "0.14337988",
+                "actual_return": 0.3839285714285715,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-08-31",
+                "predicted_return": "0.14337988",
+                "actual_return": 0.3839285714285715,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-09-30",
+                "predicted_return": "0.18135856",
+                "actual_return": 0.1468926553672316,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-09-30",
+                "predicted_return": "0.18135856",
+                "actual_return": 0.1468926553672316,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-10-31",
+                "predicted_return": "0.16601685",
+                "actual_return": -0.022151898734177305,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-10-31",
+                "predicted_return": "0.16601685",
+                "actual_return": -0.022151898734177305,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-11-30",
+                "predicted_return": "0.022904951",
+                "actual_return": -0.016845329249617066,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 1,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-11-30",
+                "predicted_return": "0.022904951",
+                "actual_return": -0.016845329249617066,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 18,
+            "winning_trades": 10,
+            "total_return": 1.5868382580999727
+          }
+        },
+        "metrics": {
+          "total_trades": 18,
+          "total_return": 1.5868382580999727,
+          "average_return": 0.08815768100555404,
+          "win_rate": 0.5555555555555556,
+          "profit_loss_ratio": 2.7483064020634678,
+          "max_return": 0.3839285714285715,
+          "min_return": -0.2297734627831715,
+          "return_std": 0.1789658777361931,
+          "sharpe_ratio": 0.49259491317950554
+        },
+        "total_trades": 18
+      }
+    },
+    {
+      "success": true,
+      "fold_idx": 2,
+      "fold_info": {
+        "train_start": "2016-12-21",
+        "train_end": "2020-11-30",
+        "test_start": "2020-12-01",
+        "test_end": "2021-11-26"
+      },
+      "trained_stocks": 2,
+      "backtest_result": {
+        "trades": [
+          {
+            "fold_idx": 2,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-12-31",
+            "predicted_return": "0.08682154",
+            "actual_return": -0.2426187419768935,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2020-12-31",
+            "predicted_return": "0.08682154",
+            "actual_return": -0.2426187419768935,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2021-03-31",
+            "predicted_return": "0.19234386",
+            "actual_return": 0.15063731170336037,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2021-03-31",
+            "predicted_return": "0.19234386",
+            "actual_return": 0.15063731170336037,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2021-05-31",
+            "predicted_return": "0.02801155",
+            "actual_return": 0.018137847642079805,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2021-05-31",
+            "predicted_return": "0.02801155",
+            "actual_return": 0.018137847642079805,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2021-06-30",
+            "predicted_return": "0.024122452",
+            "actual_return": 0.013761467889908289,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2021-06-30",
+            "predicted_return": "0.024122452",
+            "actual_return": 0.013761467889908289,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2021-08-31",
+            "predicted_return": "0.05624655",
+            "actual_return": -0.1545253863134658,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 2,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2021-08-31",
+            "predicted_return": "0.05624655",
+            "actual_return": -0.1545253863134658,
+            "holding_days": 20
+          }
+        ],
+        "stock_performance": {
+          "1309": {
+            "trades": [
+              {
+                "fold_idx": 2,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-12-31",
+                "predicted_return": "0.08682154",
+                "actual_return": -0.2426187419768935,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 2,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2020-12-31",
+                "predicted_return": "0.08682154",
+                "actual_return": -0.2426187419768935,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 2,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2021-03-31",
+                "predicted_return": "0.19234386",
+                "actual_return": 0.15063731170336037,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 2,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2021-03-31",
+                "predicted_return": "0.19234386",
+                "actual_return": 0.15063731170336037,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 2,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2021-05-31",
+                "predicted_return": "0.02801155",
+                "actual_return": 0.018137847642079805,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 2,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2021-05-31",
+                "predicted_return": "0.02801155",
+                "actual_return": 0.018137847642079805,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 2,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2021-06-30",
+                "predicted_return": "0.024122452",
+                "actual_return": 0.013761467889908289,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 2,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2021-06-30",
+                "predicted_return": "0.024122452",
+                "actual_return": 0.013761467889908289,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 2,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2021-08-31",
+                "predicted_return": "0.05624655",
+                "actual_return": -0.1545253863134658,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 2,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2021-08-31",
+                "predicted_return": "0.05624655",
+                "actual_return": -0.1545253863134658,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 10,
+            "winning_trades": 6,
+            "total_return": -0.42921500211002167
+          }
+        },
+        "metrics": {
+          "total_trades": 10,
+          "total_return": -0.42921500211002167,
+          "average_return": -0.042921500211002175,
+          "win_rate": 0.6,
+          "profit_loss_ratio": 0.3064154198815073,
+          "max_return": 0.15063731170336037,
+          "min_return": -0.2426187419768935,
+          "return_std": 0.13909754294361104,
+          "sharpe_ratio": -0.3085712321201977
+        },
+        "total_trades": 10
+      }
+    },
+    {
+      "success": true,
+      "fold_idx": 3,
+      "fold_info": {
+        "train_start": "2017-12-16",
+        "train_end": "2021-11-25",
+        "test_start": "2021-11-26",
+        "test_end": "2022-11-21"
+      },
+      "trained_stocks": 2,
+      "backtest_result": {
+        "trades": [
+          {
+            "fold_idx": 3,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2022-03-31",
+            "predicted_return": "0.07142297",
+            "actual_return": -0.051622418879056046,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2022-03-31",
+            "predicted_return": "0.07142297",
+            "actual_return": -0.051622418879056046,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2022-09-30",
+            "predicted_return": "0.08269272",
+            "actual_return": -0.03712296983758704,
+            "holding_days": 20
+          },
+          {
+            "fold_idx": 3,
+            "stock_id": "1309",
+            "model_type": "xgboost",
+            "entry_date": "2022-09-30",
+            "predicted_return": "0.08269272",
+            "actual_return": -0.03712296983758704,
+            "holding_days": 20
+          }
+        ],
+        "stock_performance": {
+          "1309": {
+            "trades": [
+              {
+                "fold_idx": 3,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2022-03-31",
+                "predicted_return": "0.07142297",
+                "actual_return": -0.051622418879056046,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 3,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2022-03-31",
+                "predicted_return": "0.07142297",
+                "actual_return": -0.051622418879056046,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 3,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2022-09-30",
+                "predicted_return": "0.08269272",
+                "actual_return": -0.03712296983758704,
+                "holding_days": 20
+              },
+              {
+                "fold_idx": 3,
+                "stock_id": "1309",
+                "model_type": "xgboost",
+                "entry_date": "2022-09-30",
+                "predicted_return": "0.08269272",
+                "actual_return": -0.03712296983758704,
+                "holding_days": 20
+              }
+            ],
+            "total_trades": 4,
+            "winning_trades": 0,
+            "total_return": -0.17749077743328617
+          }
+        },
+        "metrics": {
+          "total_trades": 4,
+          "total_return": -0.17749077743328617,
+          "average_return": -0.04437269435832154,
+          "win_rate": 0.0,
+          "profit_loss_ratio": NaN,
+          "max_return": -0.03712296983758704,
+          "min_return": -0.051622418879056046,
+          "return_std": 0.007249724520734503,
+          "sharpe_ratio": -6.1206042010856905
+        },
+        "total_trades": 4
+      }
+    }
+  ],
+  "config": {
+    "training_start": "2015-01",
+    "training_end": "2022-12",
+    "holdout_start": "2023-01",
+    "holdout_end": "2024-12",
+    "train_window_months": 48,
+    "test_window_months": 12,
+    "stride_months": 12,
+    "min_training_samples": 10,
+    "min_stock_history_months": 60
+  },
+  "created_at": "2025-08-21T10:21:06.172380"
+}

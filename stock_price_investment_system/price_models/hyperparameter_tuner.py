@@ -315,42 +315,65 @@ class HyperparameterTuner:
             from sklearn.ensemble import RandomForestRegressor
             return RandomForestRegressor(random_state=42, n_jobs=-1)
     
-    def _evaluate_on_test_set(self, predictor: StockPricePredictor, 
-                            test_features: pd.DataFrame, 
+    def _evaluate_on_test_set(self, predictor: StockPricePredictor,
+                            test_features: pd.DataFrame,
                             test_targets: pd.DataFrame,
                             stock_id: str) -> Tuple[float, Dict]:
         """在測試集上評估模型"""
         # 合併特徵和目標
         merged_df = test_features.merge(
-            test_targets[['stock_id', 'as_of_date', 'target_20d']], 
-            on=['stock_id', 'as_of_date'], 
+            test_targets[['stock_id', 'as_of_date', 'target_20d']],
+            on=['stock_id', 'as_of_date'],
             how='inner'
         )
-        
+
         if merged_df.empty:
             return -1.0, {}
-        
-        # 準備特徵
-        feature_columns = [col for col in merged_df.columns 
-                          if col not in ['stock_id', 'as_of_date', 'target_20d']]
-        
-        X_test = merged_df[feature_columns].values
+
+        # 使用訓練時的特徵名稱，確保特徵一致性
+        if hasattr(predictor, 'feature_names') and predictor.feature_names:
+            # 使用訓練時保存的特徵名稱
+            available_features = [col for col in predictor.feature_names if col in merged_df.columns]
+            missing_features = [col for col in predictor.feature_names if col not in merged_df.columns]
+
+            if missing_features:
+                logger.warning(f"測試集缺少特徵: {missing_features}")
+                # 為缺少的特徵填充0
+                for feature in missing_features:
+                    merged_df[feature] = 0.0
+
+            feature_columns = predictor.feature_names
+        else:
+            # 回退到原始邏輯
+            feature_columns = [col for col in merged_df.columns
+                              if col not in ['stock_id', 'as_of_date', 'target_20d']]
+
+        # 準備特徵矩陣，確保順序與訓練時一致
+        X_test_df = merged_df[feature_columns].copy()
+
+        # 清理特徵數據，但不移除特徵（保持與訓練時一致）
+        X_test_df = self._clean_feature_data_without_removal(X_test_df)
+
+        X_test = X_test_df.values
         y_test = merged_df['target_20d'].values
-        
+
+        # 清理目標變數中的異常值
+        y_test = np.nan_to_num(y_test, nan=0.0, posinf=0.0, neginf=0.0)
+
         # 預測
         y_pred = predictor.model.predict(X_test)
-        
+
         # 計算指標
         from sklearn.metrics import mean_squared_error, r2_score
         mse = mean_squared_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
-        
+
         # 計算方向準確率（更重要的指標）
         direction_accuracy = np.mean(np.sign(y_pred) == np.sign(y_test))
-        
+
         # 使用方向準確率作為主要評分
         score = direction_accuracy
-        
+
         metrics = {
             'mse': mse,
             'rmse': np.sqrt(mse),
@@ -359,9 +382,67 @@ class HyperparameterTuner:
             'mean_pred': np.mean(y_pred),
             'std_pred': np.std(y_pred)
         }
-        
+
         return score, metrics
-    
+
+    def _clean_feature_data(self, X: pd.DataFrame, feature_cols: list) -> tuple:
+        """清理特徵資料，處理無限值和異常值"""
+        logger.debug(f"資料清理前: {X.shape}")
+
+        # 1. 處理缺失值
+        X = X.fillna(0)
+
+        # 2. 處理無限值
+        X = X.replace([np.inf, -np.inf], 0)
+
+        # 3. 處理過大的數值
+        max_val = np.finfo(np.float64).max / 1000
+        min_val = np.finfo(np.float64).min / 1000
+        X = X.clip(lower=min_val, upper=max_val)
+
+        # 4. 檢查是否還有問題值
+        if not np.isfinite(X.values).all():
+            logger.warning("資料中仍有非有限值，進行最終清理")
+            X = X.fillna(0)
+            X = X.replace([np.inf, -np.inf], 0)
+
+        # 5. 移除方差為0的特徵
+        variance = X.var()
+        zero_var_cols = variance[variance == 0].index.tolist()
+        if zero_var_cols:
+            logger.debug(f"移除零方差特徵: {len(zero_var_cols)} 個")
+            X = X.drop(columns=zero_var_cols)
+            feature_cols = [col for col in feature_cols if col not in zero_var_cols]
+
+        logger.debug(f"資料清理後: {X.shape}")
+        return X, feature_cols
+
+    def _clean_feature_data_without_removal(self, X: pd.DataFrame) -> pd.DataFrame:
+        """清理特徵資料但不移除任何特徵，確保與訓練時特徵數量一致"""
+        logger.debug(f"資料清理前: {X.shape}")
+
+        # 1. 處理缺失值
+        X = X.fillna(0)
+
+        # 2. 處理無限值
+        X = X.replace([np.inf, -np.inf], 0)
+
+        # 3. 處理過大的數值
+        max_val = np.finfo(np.float64).max / 1000
+        min_val = np.finfo(np.float64).min / 1000
+        X = X.clip(lower=min_val, upper=max_val)
+
+        # 4. 檢查是否還有問題值
+        if not np.isfinite(X.values).all():
+            logger.warning("資料中仍有非有限值，進行最終清理")
+            X = X.fillna(0)
+            X = X.replace([np.inf, -np.inf], 0)
+
+        # 注意：這裡不移除零方差特徵，保持與訓練時的特徵數量一致
+
+        logger.debug(f"資料清理後: {X.shape}")
+        return X
+
     def _save_tuning_results(self, tuning_result: Dict, results_df: pd.DataFrame):
         """儲存調優結果"""
         # 確保輸出目錄存在
@@ -616,4 +697,70 @@ class HyperparameterTuner:
 
         except Exception as e:
             logger.error(f"獲取股票 {stock_id} 最佳參數失敗: {e}")
+            return None
+
+    @classmethod
+    def get_stock_best_model_and_params(cls, stock_id: str) -> Optional[Dict[str, Any]]:
+        """
+        獲取特定股票的最佳模型類型和參數組合
+
+        Args:
+            stock_id: 股票代碼
+
+        Returns:
+            包含最佳模型類型、參數和分數的字典，若無則返回None
+            格式: {
+                'model_type': 'xgboost',
+                'params': {...},
+                'score': 0.65,
+                'success': True
+            }
+        """
+        try:
+            registry_df = cls.get_tuned_stocks_info()
+
+            if registry_df.empty:
+                return None
+
+            # 查找該股票的所有成功記錄
+            try:
+                # 嘗試將股票代碼轉為整數比較
+                stock_id_int = int(stock_id)
+                mask = (registry_df['股票代碼'] == stock_id_int) & \
+                       (registry_df['是否成功'] == '成功')
+            except ValueError:
+                # 如果轉換失敗，用字串比較
+                mask = (registry_df['股票代碼'].astype(str) == stock_id) & \
+                       (registry_df['是否成功'] == '成功')
+
+            matching_records = registry_df[mask]
+
+            if matching_records.empty:
+                logger.debug(f"股票 {stock_id} 沒有成功的調優記錄")
+                return None
+
+            # 找出分數最高的記錄
+            best_record = matching_records.loc[matching_records['最佳分數'].idxmax()]
+
+            # 解析參數
+            try:
+                import ast
+                params = ast.literal_eval(best_record['最佳參數'])
+
+                result = {
+                    'model_type': best_record['模型類型'],
+                    'params': params,
+                    'score': float(best_record['最佳分數']),
+                    'success': True
+                }
+
+                logger.debug(f"股票 {stock_id} 最佳模型: {result['model_type']}, 分數: {result['score']:.4f}")
+                return result
+
+            except Exception as e:
+                logger.error(f"解析股票 {stock_id} 最佳參數失敗: {e}")
+                return None
+
+        except Exception as e:
+            logger.error(f"獲取股票 {stock_id} 最佳模型和參數失敗: {e}")
             return None

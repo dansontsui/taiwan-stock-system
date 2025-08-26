@@ -671,6 +671,96 @@ def run_complete_collection(test_mode=False, stock_id=None):
         print(f"[WARNING] 有 {total_steps - success_count} 個階段未成功完成")
     print("=" * 60)
 
+def run_candidate_pool_collection(csv_file_path):
+    """執行選股池股票的完整資料收集"""
+    # 設定日誌
+    logger = setup_logging()
+
+    print("[CANDIDATE-POOL] 開始選股池股票完整資料收集")
+    print(f"[INFO] 選股池檔案: {csv_file_path}")
+    logger.info(f"開始選股池股票完整資料收集 - 檔案: {csv_file_path}")
+    print("=" * 60)
+
+    # 讀取選股池檔案
+    try:
+        import pandas as pd
+        df = pd.read_csv(csv_file_path, encoding='utf-8')
+
+        # 檢查是否有股票代碼欄位
+        if '股票代碼' not in df.columns:
+            print("[ERROR] 選股池檔案缺少'股票代碼'欄位")
+            logger.error("選股池檔案缺少'股票代碼'欄位")
+            return False
+
+        stock_codes = df['股票代碼'].astype(str).tolist()
+        total_stocks = len(stock_codes)
+
+        print(f"[INFO] 選股池包含 {total_stocks} 檔股票")
+        logger.info(f"選股池包含 {total_stocks} 檔股票")
+
+        # 顯示前10檔股票
+        print(f"[INFO] 前10檔股票: {', '.join(stock_codes[:10])}")
+        if total_stocks > 10:
+            print(f"[INFO] ... 還有 {total_stocks - 10} 檔股票")
+        print()
+
+    except Exception as e:
+        print(f"[ERROR] 讀取選股池檔案失敗: {e}")
+        logger.error(f"讀取選股池檔案失敗: {e}")
+        return False
+
+    # 開始逐股收集
+    success_count = 0
+    failed_stocks = []
+
+    for i, stock_id in enumerate(stock_codes, 1):
+        print(f"\n[{i}/{total_stocks}] 處理股票: {stock_id}")
+        logger.info(f"[{i}/{total_stocks}] 開始處理股票: {stock_id}")
+
+        try:
+            # 執行單一股票的完整收集
+            if run_single_stock_complete_collection(stock_id, test_mode=False, logger=logger):
+                success_count += 1
+                print(f"[{stock_id}] [SUCCESS] 完整收集成功")
+                logger.info(f"股票 {stock_id} 完整收集成功")
+            else:
+                failed_stocks.append(stock_id)
+                print(f"[{stock_id}] [FAILED] 完整收集失敗")
+                logger.warning(f"股票 {stock_id} 完整收集失敗")
+
+        except KeyboardInterrupt:
+            print("\n[WARNING] 使用者中斷執行")
+            logger.warning("使用者中斷執行")
+            break
+        except Exception as e:
+            failed_stocks.append(stock_id)
+            print(f"[{stock_id}] [ERROR] 處理過程發生錯誤: {e}")
+            logger.error(f"股票 {stock_id} 處理過程發生錯誤: {e}")
+
+    # 總結報告
+    print("\n" + "=" * 60)
+    print(f"[CANDIDATE-POOL] 選股池股票收集完成")
+    print(f"[RESULT] 成功: {success_count}/{total_stocks} 檔股票")
+
+    if failed_stocks:
+        print(f"[FAILED] 失敗股票 ({len(failed_stocks)} 檔): {', '.join(failed_stocks)}")
+        logger.warning(f"失敗股票: {', '.join(failed_stocks)}")
+
+    success_rate = (success_count / total_stocks * 100) if total_stocks > 0 else 0
+    print(f"[SUCCESS-RATE] 成功率: {success_rate:.1f}%")
+
+    if success_rate >= 90:
+        print("[STATUS] 收集狀況優秀！")
+    elif success_rate >= 70:
+        print("[STATUS] 收集狀況良好")
+    else:
+        print("[STATUS] 收集狀況需要改善")
+
+    logger.info(f"選股池股票收集完成 - 成功率: {success_rate:.1f}%")
+    print("=" * 60)
+
+    return success_count > 0
+
 def show_help():
     """顯示說明"""
     print("[HELP] 台股資料收集系統 - 完整版")
@@ -692,6 +782,7 @@ def show_help():
     print("  python c.py complete-test # 完整資料收集 (測試模式)")
     print("  python c.py stock-by-stock-test # 逐股完整收集 (測試模式)")
     print("  python c.py stock-by-stock-auto # 逐股完整收集 (自動執行)")
+    print("  python c.py candidate-pool-collection --file FILE # 選股池股票收集")
     print()
     print("續傳選項:")
     print("  python c.py stock-by-stock-test --resume # 續傳逐股收集 (測試模式)")
@@ -700,6 +791,10 @@ def show_help():
     print("說明:")
     print("  python c.py help         # 顯示此說明")
     print("  --resume                 # 續傳模式，從上次中斷處繼續")
+    print("  --file FILE_PATH         # 指定選股池CSV檔案路徑")
+    print()
+    print("範例:")
+    print("  python c.py candidate-pool-collection --file candidate_pool.csv  # 收集選股池股票")
     print()
     print("資料收集階段說明:")
     print("  基礎資料: 股票清單、股價、月營收、現金流")
@@ -805,6 +900,32 @@ def main():
             else:
                 print("[STOCK-BY-STOCK-AUTO] 執行逐股完整收集 (自動執行)")
             run_stock_by_stock_collection(test_mode=False, auto_mode=True, resume_mode=resume_mode)
+
+        elif option in ['candidate-pool-collection', 'cpc']:
+            # 檢查是否有檔案參數
+            csv_file_path = None
+            if '--file' in args:
+                file_index = args.index('--file')
+                if file_index + 1 < len(args):
+                    csv_file_path = args[file_index + 1]
+                else:
+                    print("[ERROR] --file 參數需要指定檔案路徑")
+                    print("[INFO] 使用方法: python c.py candidate-pool-collection --file candidate_pool.csv")
+                    return
+            else:
+                print("[ERROR] 缺少 --file 參數")
+                print("[INFO] 使用方法: python c.py candidate-pool-collection --file candidate_pool.csv")
+                return
+
+            # 檢查檔案是否存在
+            from pathlib import Path
+            if not Path(csv_file_path).exists():
+                print(f"[ERROR] 找不到檔案: {csv_file_path}")
+                return
+
+            print(f"[CANDIDATE-POOL-COLLECTION] 執行選股池股票完整收集")
+            print(f"[INFO] 檔案: {csv_file_path}")
+            run_candidate_pool_collection(csv_file_path)
 
         elif option in ['help', 'h', '--help', '-h']:
             show_help()
