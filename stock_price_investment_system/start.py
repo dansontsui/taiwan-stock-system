@@ -1152,7 +1152,7 @@ def run_stock_prediction():
         _p("\n⚙️  預測參數設定（與選單5回測邏輯保持一致）：")
         min_pred = float(get_user_input_with_history("最小預測報酬門檻(例如0.02=2%)", "0.02", "2", "min_predicted_return"))
         top_k = int(get_user_input_with_history("每月最多持股數 TopK (0=不限制)", "10", "2", "top_k"))
-        use_filter_input = get_user_input_with_history("啟用市場濾網(50MA>200MA)？ (y/N)", "y", "2", "use_market_filter")
+        use_filter_input = get_user_input_with_history("啟用市場濾網(50MA>200MA)？ (Y/n)", "y", "2", "use_market_filter")
         use_filter = use_filter_input.strip().lower() == 'y'
 
         # 保存操作歷史
@@ -1587,7 +1587,9 @@ def main():
                 _p("\n⚙️  回測參數設定：")
                 min_pred = float(get_user_input_with_history("最小預測報酬門檻(例如0.02=2%)", "0.02", "5", "min_predicted_return"))
                 top_k = int(get_user_input_with_history("每月最多持股數 TopK (0=不限制)", "10", "5", "top_k"))
-                use_filter_input = get_user_input_with_history("啟用市場濾網(50MA>200MA)？ (y/N)", "y", "5", "use_market_filter")
+                use_filter_input = get_user_input_with_history("啟用市場濾網(50MA>200MA)？ (Y/n)", "y", "5", "use_market_filter")
+                if use_filter_input == True :
+                    use_filter_input = 'y'
                 use_filter = use_filter_input.strip().lower() == 'y'
 
                 # 保存參數到歷史記錄
