@@ -111,6 +111,7 @@ def display_menu():
     _p("  3) 執行內層 walk-forward（訓練期：2015–2022）")
     _p("  4) 生成 candidate pool（由內層結果套門檻）")
     _p("  5) 執行外層回測（2023–2024）")
+    _p("  5a) 執行每月定期定額投資回測（含交易成本）")
     _p("  6) 顯示/編輯 config 檔案")
     _p("  7) 匯出報表（HTML / CSV）")
     _p("  8) 模型管理（列出 / 匯出 / 刪除）")
@@ -121,8 +122,9 @@ def display_menu():
     _p("  q) 離開系統")
     _p("-"*60)
     _p("💡 建議執行順序：")
-    _p("   首次建置：3→4→5")
-    _p("   每月更新：2→4→5（若績效下降則從3開始）")
+    _p("   首次建置：3→4→5 或 5a")
+    _p("   每月更新：2→4→5 或 5a（若績效下降則從3開始）")
+    _p("   💰 選項5a：每月定期定額投資（含完整交易成本）")
     _p("-"*60)
 
 def get_user_input(prompt: str, default: str = None) -> str:
@@ -1091,6 +1093,74 @@ def _display_backtest_results(res: dict):
     _p("\n" + "="*60)
 
 
+def _display_monthly_investment_results(res: dict):
+    """顯示每月定期定額投資回測結果的詳細摘要"""
+    _p("\n" + "="*60)
+    _p("💰 每月定期定額投資回測結果摘要")
+    _p("="*60)
+
+    # 基本資訊
+    metrics = res.get('portfolio_metrics', {})
+    monthly_results = res.get('monthly_results', [])
+
+    _p(f"📅 投資期間: {res.get('start_date', 'N/A')} ~ {res.get('end_date', 'N/A')}")
+    _p(f"💰 每月投資金額: {res.get('monthly_investment', 0):,.0f} 元")
+    _p(f"📊 投資月數: {metrics.get('total_months', 0)} 個月")
+
+    # 投資績效指標
+    _p(f"\n📈 投資績效:")
+    _p(f"   💵 總投入金額: {metrics.get('total_invested', 0):,.0f} 元")
+    _p(f"   💎 總資產價值: {metrics.get('total_current_value', 0):,.0f} 元")
+    _p(f"   💰 總損益: {metrics.get('total_profit_loss', 0):+,.0f} 元")
+    _p(f"   📊 總報酬率: {metrics.get('total_return', 0):.2%}")
+
+    # 年化指標
+    _p(f"\n📊 年化指標:")
+    _p(f"   📈 年化報酬率: {metrics.get('annualized_return', 0):.2%}")
+    _p(f"   📊 年化波動率: {metrics.get('annualized_volatility', 0):.2%}")
+    _p(f"   🎯 夏普比率: {metrics.get('sharpe_ratio', 0):.2f}")
+    _p(f"   📉 最大回撤: {metrics.get('max_drawdown', 0):.2%}")
+
+    # 勝率統計
+    _p(f"\n🎯 勝率統計:")
+    _p(f"   📈 月度勝率: {metrics.get('monthly_win_rate', 0):.1%}")
+    _p(f"   🎲 平均月報酬: {metrics.get('avg_monthly_return', 0):.2%}")
+    _p(f"   📊 月報酬波動: {metrics.get('monthly_volatility', 0):.2%}")
+
+    # 交易統計
+    _p(f"\n💼 交易統計:")
+    _p(f"   📊 總交易次數: {metrics.get('total_trades', 0)} 筆")
+    _p(f"   ✅ 成功投資月數: {metrics.get('successful_months', 0)} 個月")
+
+    # 顯示最近5個月的詳細結果
+    if monthly_results:
+        _p(f"\n📋 最近5個月投資詳情:")
+        recent_months = monthly_results[-5:] if len(monthly_results) > 5 else monthly_results
+
+        for month_result in recent_months:
+            month = month_result['month']
+            investment = month_result['investment_amount']
+            value = month_result['month_end_value']
+            return_rate = month_result['return_rate']
+            stocks = month_result['selected_stocks']
+
+            if month_result.get('market_filter_triggered'):
+                _p(f"   📅 {month}: 市場濾網觸發，暫停投資")
+            elif investment == 0:
+                _p(f"   📅 {month}: 無符合條件股票，暫停投資")
+            else:
+                _p(f"   📅 {month}: 投資 {investment:,.0f} 元 → {value:,.0f} 元 ({return_rate:+.2%})")
+                _p(f"      📈 投資股票: {', '.join(stocks[:5])}{'...' if len(stocks) > 5 else ''}")
+
+    # 交易成本說明
+    _p(f"\n💡 交易成本說明:")
+    _p(f"   📊 已計入手續費、證交稅、滑價等所有交易成本")
+    _p(f"   💰 報酬率為扣除所有成本後的淨報酬")
+    _p(f"   🔄 每月平均分配資金到入選股票，持有20個交易日")
+
+    _p("\n" + "="*60)
+
+
 def _save_holdout_results(results: dict, start_date: str, end_date: str):
     """保存外層回測結果到檔案"""
     try:
@@ -1327,6 +1397,171 @@ def run_stock_prediction():
         logging.error(f"Stock prediction failed: {e}")
         import traceback
         traceback.print_exc()
+
+def run_monthly_investment_backtest():
+    """執行每月定期定額投資回測"""
+    _p("\n💰 每月定期定額投資回測")
+    _p("="*50)
+
+    try:
+        from stock_price_investment_system.price_models.holdout_backtester import HoldoutBacktester
+        from stock_price_investment_system.price_models.hyperparameter_tuner import HyperparameterTuner
+
+        _p('💰 開始執行每月定期定額投資回測...')
+        _p('📊 此模式將每月平均投入指定金額到入選股票中')
+
+        # 檢查已調優股票
+        tuned_df = HyperparameterTuner.get_tuned_stocks_info()
+        if not tuned_df.empty:
+            successful_tuned = tuned_df[tuned_df['是否成功'] == '成功']
+            if not successful_tuned.empty:
+                model_counts = successful_tuned['模型類型'].value_counts()
+                _p(f"🧠 將使用個股最佳參數:")
+                for model, count in model_counts.items():
+                    _p(f"   {model}: {count} 檔股票")
+                _p(f"   未調優股票將使用預設參數")
+            else:
+                _p("⚠️ 沒有成功調優的股票，將使用預設參數")
+        else:
+            _p("⚠️ 沒有調優記錄，將使用預設參數")
+
+        # 顯示操作歷史
+        show_operation_history('5a')
+
+        # 日誌級別設定
+        log_level_choice = get_user_input_with_history("日誌級別? 1=精簡(預設), 2=詳細", "1", "5a", "log_level")
+        verbose_logging = log_level_choice == "2"
+
+        # 日誌輸出設定
+        log_output_choice = get_user_input_with_history("日誌輸出? 1=CLI+檔案(預設), 2=只輸出CLI", "1", "5a", "log_output")
+        cli_only_logging = log_output_choice == "2"
+
+        # 設定全域日誌模式
+        if cli_only_logging:
+            from stock_price_investment_system.utils.log_manager import set_cli_only_mode, suppress_verbose_logging, suppress_repetitive_warnings, suppress_data_missing_warnings
+            set_cli_only_mode(True)
+            suppress_verbose_logging()
+            suppress_repetitive_warnings()
+            suppress_data_missing_warnings()
+            _p("🔇 已啟用CLI專用模式，不會記錄日誌檔案")
+            _p("🔇 已抑制重複警告和資料缺失警告")
+
+        hb = HoldoutBacktester(verbose_logging=verbose_logging, cli_only_logging=cli_only_logging)
+
+        # 日期區間設定
+        config = get_config()
+        wf_config = config['walkforward']
+
+        holdout_start, holdout_end = get_date_range_input(
+            "每月定期定額投資期間設定",
+            wf_config['holdout_start'],
+            wf_config['holdout_end'],
+            "5a"
+        )
+
+        # 互動式參數設定
+        _p("\n⚙️  投資參數設定：")
+
+        # 每月投資金額
+        default_monthly = config['backtest']['initial_capital']
+        monthly_investment = float(get_user_input_with_history(
+            f"每月投資金額（預設{default_monthly:,.0f}元）",
+            str(default_monthly),
+            "5a",
+            "monthly_investment"
+        ))
+
+        min_pred = float(get_user_input_with_history("最小預測報酬門檻(例如0.02=2%)", "0.02", "5a", "min_predicted_return"))
+        top_k = int(get_user_input_with_history("每月最多持股數 TopK (0=不限制)", "10", "5a", "top_k"))
+        use_filter_input = get_user_input_with_history("啟用市場濾網(50MA>200MA)？ (Y/n)", "y", "5a", "use_market_filter")
+
+        # 處理歷史記錄中的布林值
+        if use_filter_input in [True, "True", "true"]:
+            use_filter_input = 'y'
+        elif use_filter_input in [False, "False", "false"]:
+            use_filter_input = 'n'
+        use_filter = use_filter_input.strip().lower() == 'y'
+
+        # 保存參數到歷史記錄
+        parameters = {
+            'holdout_start': holdout_start,
+            'holdout_end': holdout_end,
+            'monthly_investment': monthly_investment,
+            'min_predicted_return': min_pred,
+            'top_k': top_k,
+            'use_market_filter': 'y' if use_filter else 'n',
+            'log_level': log_level_choice,
+            'log_output': log_output_choice,
+            'cli_only_logging': cli_only_logging
+        }
+        save_operation_to_history('5a', '每月定期定額投資回測', parameters)
+
+        # 記錄參數到日誌檔案
+        from stock_price_investment_system.utils.log_manager import log_menu_parameters
+        log_menu_parameters('5a', '每月定期定額投資回測', parameters, force_log=True)
+
+        # 正確處理月底日期
+        from calendar import monthrange
+
+        # 開始日期：月初
+        start_date = holdout_start + '-01'
+
+        # 結束日期：該月的最後一天
+        year, month = map(int, holdout_end.split('-'))
+        last_day = monthrange(year, month)[1]
+        end_date = f"{holdout_end}-{last_day:02d}"
+
+        _p(f"📅 實際投資期間: {start_date} ~ {end_date}")
+        _p(f"💰 每月投資金額: {monthly_investment:,.0f} 元")
+
+        # 計算總投資月數
+        import pandas as pd
+        months = pd.date_range(start=start_date, end=end_date, freq='M')
+        total_months = len(months)
+        total_investment = monthly_investment * total_months
+
+        _p(f"📊 預計投資月數: {total_months} 個月")
+        _p(f"💵 預計總投資額: {total_investment:,.0f} 元")
+        _p(f"⏱️  預估執行時間: {total_months * 2:.0f}-{total_months * 5:.0f} 分鐘")
+
+        # 記錄開始時間
+        import time
+        start_time = time.time()
+
+        # 執行每月定期定額投資回測
+        res = hb.run_monthly_investment(
+            holdout_start=start_date,
+            holdout_end=end_date,
+            min_predicted_return=min_pred,
+            top_k=top_k,
+            use_market_filter=use_filter,
+            monthly_investment=monthly_investment
+        )
+
+        # 計算執行時間
+        duration = time.time() - start_time
+
+        if res.get('success'):
+            _display_monthly_investment_results(res)
+
+            # 記錄成功摘要
+            from stock_price_investment_system.utils.log_manager import log_execution_summary
+            metrics = res.get('portfolio_metrics', {})
+            result_summary = f"投資期間: {start_date}~{end_date}, 總投入: {metrics.get('total_invested', 'N/A'):,.0f}, 總報酬: {metrics.get('total_return', 'N/A'):.2%}"
+            log_execution_summary('5a', '每月定期定額投資回測', True, duration, result_summary)
+        else:
+            _p(f"❌ 每月定期定額投資回測失敗: {res.get('error','未知錯誤')}")
+
+            # 記錄失敗摘要
+            from stock_price_investment_system.utils.log_manager import log_execution_summary
+            log_execution_summary('5a', '每月定期定額投資回測', False, duration, f"回測失敗: {res.get('error','未知錯誤')}")
+
+    except Exception as e:
+        _p(f"❌ 每月定期定額投資回測執行失敗: {e}")
+
+        # 記錄錯誤摘要
+        from stock_price_investment_system.utils.log_manager import log_execution_summary
+        log_execution_summary('5a', '每月定期定額投資回測', False, None, f"執行錯誤: {str(e)}")
 
 def run_operation_history_viewer():
     """查看操作歷史"""
@@ -1681,6 +1916,8 @@ def main():
                 # 記錄錯誤摘要
                 from stock_price_investment_system.utils.log_manager import log_execution_summary
                 log_execution_summary('5', '外層回測', False, None, f"執行錯誤: {str(e)}")
+        elif sel == '5a':
+            run_monthly_investment_backtest()
         elif sel == '6':
             _p('⚙️  顯示/編輯 config 檔案（尚未實作）')
         elif sel == '7':
