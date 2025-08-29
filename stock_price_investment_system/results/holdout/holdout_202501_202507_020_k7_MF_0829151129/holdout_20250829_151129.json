@@ -1,0 +1,32 @@
+{
+  "backtest_type": "monthly_investment",
+  "parameters": {
+    "start_date": "2025-01-01",
+    "end_date": "2025-07-31",
+    "monthly_investment": 1000000.0,
+    "min_predicted_return": 0.02,
+    "top_k": 7,
+    "use_market_filter": true
+  },
+  "portfolio_metrics": {
+    "total_invested": 0.0,
+    "total_current_value": 0.0,
+    "total_return": 0,
+    "total_profit_loss": 0.0,
+    "avg_monthly_return": 0.0,
+    "monthly_volatility": 0.0,
+    "annualized_return": 0.0,
+    "annualized_volatility": 0.0,
+    "sharpe_ratio": 0.0,
+    "max_drawdown": 0.0,
+    "win_rate": 0.0,
+    "monthly_win_rate": 0,
+    "total_trades": 0,
+    "total_months": 0,
+    "successful_months": 0
+  },
+  "monthly_results_count": 3,
+  "total_trades": 0,
+  "detailed_trades": [],
+  "generated_at": "2025-08-29T15:12:53.122218"
+}

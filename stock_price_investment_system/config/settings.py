@@ -154,7 +154,7 @@ TRADING_CONFIG = {
 BACKTEST_CONFIG = {
     # 初始資金
     'initial_capital': 1000000,        # 初始資金100萬
-    
+
     # 報告設定
     'reporting': {
         'enable_html_reports': True,
@@ -162,7 +162,7 @@ BACKTEST_CONFIG = {
         'enable_interactive_charts': True,
         'chart_library': 'plotly',
     },
-    
+
     # 績效指標
     'performance_metrics': [
         'total_return',
@@ -173,7 +173,66 @@ BACKTEST_CONFIG = {
         'profit_loss_ratio',
         'calmar_ratio',
         'sortino_ratio',
-    ]
+    ],
+
+    # 進場策略參數（A/B/C）
+    'entry_strategies': {
+        'enabled': True,
+        'price_upper_limit': 500.0,        # 價格上限（元）
+        'min_lot_shares': 1000,            # 最小下單股數
+        'lookback_days': 60,               # 指標觀察天數（實際會取更多以滿足交易日）
+
+        # 技術指標窗口
+        'rsi_period': 14,
+        'bb_period': 20,
+        'bb_std': 2,
+        'ma_fast': 20,
+        'ma_slow': 60,
+        'macd_fast': 12,
+        'macd_slow': 26,
+        'macd_signal': 9,
+        'volume_ma': 20,
+
+        # 方案A（積極）
+        'strategy_A': {
+            'enable': True,
+            'rsi_range': [30, 70],            # RSI健康區間
+            'trend_up': True,                  # 價>MA20 且 MA20>MA60
+            'volume_confirm': True,            # 量能放大（>均量）
+            'breakout_high_days': 20,          # 近N日高
+            'macd_positive': True              # MACD>signal 且 MACD>0
+        },
+
+        # 方案B（保守）
+        'strategy_B': {
+            'enable': True,
+            'basic_trend': True,               # 價>MA20 且 MA20>MA60（必須）
+            'need_at_least': 2,                # 需滿足下列條件數
+            'rsi_range': [30, 70],
+            'volume_confirm': True,            # 量能放大
+            'macd_signal': True,               # MACD金叉
+            'near_high_ratio': 0.98,           # 接近前高比例
+            'breakout_high_days': 20
+        },
+
+        # 方案C（左下角，嚴格版）
+        'strategy_C': {
+            'enable': True,
+            'rsi_below': 25,                   # RSI<25
+            'safe_zone': {
+                'use_bb_lower': True,          # 價>布林下軌 或
+                'use_ma20_ratio': True,
+                'ma20_min_ratio': 0.95         # 價/MA20 ≥ 0.95
+            },
+            'volume_boost_ratio': 1.05,        # 量能至少為均量的1.05
+            'turn_signal': {
+                'bullish_candle': True,        # 收紅
+                'macd_hist_turn_pos': True     # MACD柱由負轉正
+            },
+            'signal_window_days': 10,          # 觀察10個交易日，等待觸發
+            'allow_month_cross': True          # 允許跨月觀察
+        }
+    }
 }
 
 # 輸出配置

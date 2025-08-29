@@ -110,8 +110,9 @@ def display_menu():
     _p("  2) 只跑股價預測")
     _p("  3) 執行內層 walk-forward（訓練期：2015–2022）")
     _p("  4) 生成 candidate pool（由內層結果套門檻）")
-    _p("  5) 執行外層回測（2023–2024）")
-    _p("  5a) 執行每月定期定額投資回測（含交易成本）")
+    _p("  aa) 執行5就可以")
+    _p("  5) 執行每月定期定額投資回測（含交易成本）")
+    _p("  5b) 執行自定義停損停利回測（驗證停損停利建議）")
     _p("  6) 顯示/編輯 config 檔案")
     _p("  7) 匯出報表（HTML / CSV）")
     _p("  8) 模型管理（列出 / 匯出 / 刪除）")
@@ -1161,6 +1162,85 @@ def _display_monthly_investment_results(res: dict):
     _p("\n" + "="*60)
 
 
+def _display_custom_stop_loss_results(res: dict, stop_loss: float, take_profit: float):
+    """顯示自定義停損停利回測結果"""
+    _p("\n" + "="*60)
+    _p("🎯 自定義停損停利回測結果摘要")
+    _p("="*60)
+
+    # 停損停利參數
+    _p(f"🎯 停損停利設定:")
+    _p(f"   🔻 停損點: {stop_loss:.1%}")
+    _p(f"   🔺 停利點: {take_profit:.1%}")
+
+    # 基本績效指標
+    portfolio_metrics = res.get('portfolio_metrics', {})
+
+    _p(f"\n📊 整體績效:")
+    _p(f"   💰 總投入金額: {portfolio_metrics.get('total_invested', 0):,.0f} 元")
+    _p(f"   💵 期末總價值: {portfolio_metrics.get('final_value', 0):,.0f} 元")
+    _p(f"   📈 總報酬率: {portfolio_metrics.get('total_return', 0):.2%}")
+    _p(f"   📊 年化報酬率: {portfolio_metrics.get('annualized_return', 0):.2%}")
+    _p(f"   📉 最大回撤: {portfolio_metrics.get('max_drawdown', 0):.2%}")
+    _p(f"   ⚡ 夏普比率: {portfolio_metrics.get('sharpe_ratio', 0):.2f}")
+
+    # 出場原因統計
+    exit_stats = res.get('exit_statistics', {})
+    if exit_stats:
+        _p(f"\n🚪 出場原因統計:")
+        total_trades = sum(exit_stats.values())
+
+        for reason, count in exit_stats.items():
+            pct = count / total_trades * 100 if total_trades > 0 else 0
+            reason_name = {
+                'take_profit': '🔺 停利出場',
+                'stop_loss': '🔻 停損出場',
+                'normal': '⏰ 正常到期'
+            }.get(reason, reason)
+            _p(f"   {reason_name}: {count} 筆 ({pct:.1f}%)")
+
+    # 與原始策略比較
+    comparison = res.get('comparison_with_original', {})
+    if comparison:
+        _p(f"\n📈 與原始策略比較:")
+        _p(f"   項目           原始策略    停損停利策略    改善幅度")
+        _p(f"   ─────────────────────────────────────────────")
+
+        orig_return = comparison.get('original_return', 0)
+        stop_return = comparison.get('stop_loss_return', 0)
+        return_improvement = ((stop_return - orig_return) / abs(orig_return) * 100) if orig_return != 0 else 0
+        _p(f"   總報酬率       {orig_return:>7.2%}      {stop_return:>7.2%}      {return_improvement:>+6.1f}%")
+
+        orig_drawdown = comparison.get('original_drawdown', 0)
+        stop_drawdown = comparison.get('stop_loss_drawdown', 0)
+        drawdown_improvement = ((orig_drawdown - stop_drawdown) / orig_drawdown * 100) if orig_drawdown != 0 else 0
+        _p(f"   最大回撤       {orig_drawdown:>7.2%}      {stop_drawdown:>7.2%}      {drawdown_improvement:>+6.1f}%")
+
+    # 月度表現
+    monthly_results = res.get('monthly_results', [])
+    if monthly_results:
+        _p(f"\n📅 月度投資表現:")
+        for result in monthly_results[-6:]:  # 顯示最後6個月
+            month = result.get('month', '')
+            investment = result.get('investment_amount', 0)
+            value = result.get('month_end_value', 0)
+            return_rate = result.get('return_rate', 0)
+
+            if result.get('market_filter_triggered'):
+                _p(f"   📅 {month}: 市場濾網觸發，暫停投資")
+            elif investment == 0:
+                _p(f"   📅 {month}: 無符合條件股票，暫停投資")
+            else:
+                _p(f"   📅 {month}: 投資 {investment:,.0f} 元 → {value:,.0f} 元 ({return_rate:+.2%})")
+
+    _p(f"\n💡 停損停利效果:")
+    _p(f"   🎯 此結果驗證了停損停利分析的建議參數")
+    _p(f"   📊 可與原始分析結果進行比較")
+    _p(f"   💰 報酬率為扣除所有交易成本後的淨報酬")
+
+    _p("\n" + "="*60)
+
+
 def _save_holdout_results(results: dict, start_date: str, end_date: str):
     """保存外層回測結果到檔案"""
     try:
@@ -1542,6 +1622,7 @@ def run_monthly_investment_backtest():
         duration = time.time() - start_time
 
         if res.get('success'):
+            # 傳遞完整的結果字典給顯示函式
             _display_monthly_investment_results(res)
 
             # 記錄成功摘要
@@ -1562,6 +1643,139 @@ def run_monthly_investment_backtest():
         # 記錄錯誤摘要
         from stock_price_investment_system.utils.log_manager import log_execution_summary
         log_execution_summary('5a', '每月定期定額投資回測', False, None, f"執行錯誤: {str(e)}")
+
+def run_custom_stop_loss_backtest():
+    """執行自定義停損停利回測"""
+    _p("\n🎯 自定義停損停利回測")
+    _p("="*50)
+    _p("💡 此功能可以驗證停損停利分析的建議參數")
+
+    try:
+        from stock_price_investment_system.price_models.holdout_backtester import HoldoutBacktester
+        from stock_price_investment_system.price_models.hyperparameter_tuner import HyperparameterTuner
+
+        # 顯示操作歷史
+        show_operation_history('5b')
+
+        # 日誌設定
+        log_level_choice = get_user_input_with_history("日誌級別? 1=精簡(預設), 2=詳細", "1", "5b", "log_level")
+        verbose_logging = log_level_choice == "2"
+
+        log_output_choice = get_user_input_with_history("日誌輸出? 1=CLI+檔案(預設), 2=只輸出CLI", "1", "5b", "log_output")
+        cli_only_logging = log_output_choice == "2"
+
+        # 設定全域日誌模式
+        if cli_only_logging:
+            from stock_price_investment_system.utils.log_manager import set_cli_only_mode, suppress_verbose_logging, suppress_repetitive_warnings, suppress_data_missing_warnings
+            set_cli_only_mode(True)
+            suppress_verbose_logging()
+            suppress_repetitive_warnings()
+            suppress_data_missing_warnings()
+            _p("🔇 已啟用CLI專用模式")
+
+        hb = HoldoutBacktester(verbose_logging=verbose_logging, cli_only_logging=cli_only_logging)
+
+        # 基本參數設定
+        _p("\n📅 設定回測期間:")
+        holdout_start = get_user_input_with_history("開始年月 (YYYY-MM)", "2025-01", "5b", "holdout_start")
+        holdout_end = get_user_input_with_history("結束年月 (YYYY-MM)", "2025-07", "5b", "holdout_end")
+
+        _p("\n🎯 設定篩選條件:")
+        min_pred = float(get_user_input_with_history("最低預測報酬率 (小數)", "0.02", "5b", "min_predicted_return"))
+        top_k = int(get_user_input_with_history("每月最多選幾檔股票", "7", "5b", "top_k"))
+
+        use_filter_input = get_user_input_with_history("是否使用市場濾網? (y/n)", "y", "5b", "use_market_filter")
+        use_filter = use_filter_input.lower() in ['y', 'yes', '是']
+
+        monthly_investment = float(get_user_input_with_history("每月投資金額 (元)", "1000000", "5b", "monthly_investment"))
+
+        # 停損停利參數設定
+        _p("\n🎯 設定停損停利參數:")
+        _p("💡 建議參考之前的停損停利分析結果")
+
+        stop_loss_input = get_user_input_with_history("停損點 (百分比，例如: 2.0 代表2%)", "2.0", "5b", "stop_loss")
+        stop_loss = float(stop_loss_input) / 100
+
+        take_profit_input = get_user_input_with_history("停利點 (百分比，例如: 10.0 代表10%)", "10.0", "5b", "take_profit")
+        take_profit = float(take_profit_input) / 100
+
+        _p(f"\n🎯 確認停損停利設定:")
+        _p(f"   🔻 停損點: {stop_loss:.1%}")
+        _p(f"   🔺 停利點: {take_profit:.1%}")
+
+        confirm = get_user_input("確認執行? (y/n)", "y")
+        if confirm.lower() not in ['y', 'yes', '是']:
+            _p("❌ 已取消執行")
+            return
+
+        # 記錄參數
+        parameters = {
+            'holdout_start': holdout_start,
+            'holdout_end': holdout_end,
+            'min_predicted_return': min_pred,
+            'top_k': top_k,
+            'use_market_filter': use_filter,
+            'monthly_investment': monthly_investment,
+            'stop_loss': stop_loss,
+            'take_profit': take_profit,
+            'verbose_logging': verbose_logging,
+            'cli_only_logging': cli_only_logging
+        }
+
+        from stock_price_investment_system.utils.log_manager import log_menu_parameters
+        log_menu_parameters('5b', '自定義停損停利回測', parameters, force_log=True)
+
+        # 處理日期
+        from calendar import monthrange
+        start_date = holdout_start + '-01'
+        year, month = map(int, holdout_end.split('-'))
+        last_day = monthrange(year, month)[1]
+        end_date = f"{holdout_end}-{last_day:02d}"
+
+        _p(f"📅 實際投資期間: {start_date} ~ {end_date}")
+        _p(f"💰 每月投資金額: {monthly_investment:,.0f} 元")
+        _p(f"🎯 停損停利設定: {stop_loss:.1%} / {take_profit:.1%}")
+
+        # 記錄開始時間
+        import time
+        start_time = time.time()
+
+        # 執行自定義停損停利回測
+        res = hb.run_monthly_investment_with_stop_loss(
+            holdout_start=start_date,
+            holdout_end=end_date,
+            min_predicted_return=min_pred,
+            top_k=top_k,
+            use_market_filter=use_filter,
+            monthly_investment=monthly_investment,
+            stop_loss=stop_loss,
+            take_profit=take_profit
+        )
+
+        # 計算執行時間
+        duration = time.time() - start_time
+
+        if res.get('success'):
+            _display_custom_stop_loss_results(res, stop_loss, take_profit)
+
+            # 記錄成功摘要
+            from stock_price_investment_system.utils.log_manager import log_execution_summary
+            metrics = res.get('portfolio_metrics', {})
+            result_summary = f"停損停利: {stop_loss:.1%}/{take_profit:.1%}, 總報酬: {metrics.get('total_return', 'N/A'):.2%}"
+            log_execution_summary('5b', '自定義停損停利回測', True, duration, result_summary)
+        else:
+            _p(f"❌ 自定義停損停利回測失敗: {res.get('error','未知錯誤')}")
+
+            # 記錄失敗摘要
+            from stock_price_investment_system.utils.log_manager import log_execution_summary
+            log_execution_summary('5b', '自定義停損停利回測', False, duration, f"回測失敗: {res.get('error','未知錯誤')}")
+
+    except Exception as e:
+        _p(f"❌ 自定義停損停利回測執行失敗: {e}")
+
+        # 記錄錯誤摘要
+        from stock_price_investment_system.utils.log_manager import log_execution_summary
+        log_execution_summary('5b', '自定義停損停利回測', False, None, f"執行錯誤: {str(e)}")
 
 def run_operation_history_viewer():
     """查看操作歷史"""
@@ -1779,7 +1993,7 @@ def main():
             run_walk_forward_validation()
         elif sel == '4':
             generate_candidate_pool()
-        elif sel == '5':
+        elif sel == 'aa':
             try:
                 from stock_price_investment_system.price_models.holdout_backtester import HoldoutBacktester
                 from stock_price_investment_system.price_models.hyperparameter_tuner import HyperparameterTuner
@@ -1916,8 +2130,10 @@ def main():
                 # 記錄錯誤摘要
                 from stock_price_investment_system.utils.log_manager import log_execution_summary
                 log_execution_summary('5', '外層回測', False, None, f"執行錯誤: {str(e)}")
-        elif sel == '5a':
+        elif sel == '5':
             run_monthly_investment_backtest()
+        elif sel == '5b':
+            run_custom_stop_loss_backtest()
         elif sel == '6':
             _p('⚙️  顯示/編輯 config 檔案（尚未實作）')
         elif sel == '7':

@@ -1,0 +1,2687 @@
+{
+  "best_combination": {
+    "total_trades": 4,
+    "winning_trades": 2,
+    "win_rate": 0.5,
+    "avg_return": 0.03957810787929246,
+    "total_return": 0.15831243151716984,
+    "max_drawdown": 0.027082258128597547,
+    "exit_reasons": {
+      "take_profit": 2,
+      "stop_loss": 1,
+      "normal": 1
+    },
+    "simulated_trades": [
+      {
+        "stock_id": "5701",
+        "entry_date": "2025-03-31",
+        "original_return": 0.06729284313725506,
+        "simulated_return": 0.09278303921568629,
+        "exit_reason": "take_profit",
+        "max_return": 0.111764705882353,
+        "min_return": -0.019607843137254832
+      },
+      {
+        "stock_id": "8271",
+        "entry_date": "2025-03-31",
+        "original_return": -0.052908369214208946,
+        "simulated_return": -0.0266220398277718,
+        "exit_reason": "stop_loss",
+        "max_return": 0.03336921420882663,
+        "min_return": -0.22820236813778258
+      },
+      {
+        "stock_id": "5701",
+        "entry_date": "2025-04-30",
+        "original_return": 0.006442986641221258,
+        "simulated_return": -0.00047280534351156617,
+        "exit_reason": "normal",
+        "max_return": 0.04198473282442743,
+        "min_return": 0.0
+      },
+      {
+        "stock_id": "8271",
+        "entry_date": "2025-04-30",
+        "original_return": 0.09937805010893244,
+        "simulated_return": 0.0926242374727669,
+        "exit_reason": "take_profit",
+        "max_return": 0.11111111111111115,
+        "min_return": -0.01960784313725487
+      }
+    ],
+    "stop_loss": 0.02,
+    "take_profit": 0.1,
+    "score": 52.70656571313772
+  },
+  "all_results": [
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.03957810787929246,
+      "total_return": 0.15831243151716984,
+      "max_drawdown": 0.027082258128597547,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.09278303921568629,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0266220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.0926242374727669,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.1,
+      "score": 52.70656571313772
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.031245831190839325,
+      "total_return": 0.1249833247633573,
+      "max_drawdown": 0.027082258128597433,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0266220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.15,
+      "score": 49.37365503775651
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.031245831190839325,
+      "total_return": 0.1249833247633573,
+      "max_drawdown": 0.027082258128597433,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0266220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.2,
+      "score": 49.37365503775651
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.031245831190839325,
+      "total_return": 0.1249833247633573,
+      "max_drawdown": 0.027082258128597433,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0266220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.25,
+      "score": 49.37365503775651
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.031245831190839325,
+      "total_return": 0.1249833247633573,
+      "max_drawdown": 0.027082258128597433,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0266220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.3,
+      "score": 49.37365503775651
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.03707810787929246,
+      "total_return": 0.14831243151716983,
+      "max_drawdown": 0.03707753007516257,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.09278303921568629,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0366220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.0926242374727669,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.1,
+      "score": 48.70798412916821
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.02957810787929245,
+      "total_return": 0.1183124315171698,
+      "max_drawdown": 0.02708225812859756,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.07278303921568627,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0266220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.07262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.08,
+      "score": 48.706565713137714
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.028745831190839323,
+      "total_return": 0.11498332476335729,
+      "max_drawdown": 0.03707753007516252,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0366220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.15,
+      "score": 45.37507345378697
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.028745831190839323,
+      "total_return": 0.11498332476335729,
+      "max_drawdown": 0.03707753007516252,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0366220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.2,
+      "score": 45.37507345378697
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.028745831190839323,
+      "total_return": 0.11498332476335729,
+      "max_drawdown": 0.03707753007516252,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0366220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.25,
+      "score": 45.37507345378697
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.028745831190839323,
+      "total_return": 0.11498332476335729,
+      "max_drawdown": 0.03707753007516252,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0366220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.3,
+      "score": 45.37507345378697
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.02707810787929245,
+      "total_return": 0.1083124315171698,
+      "max_drawdown": 0.03707753007516265,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.07278303921568627,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0366220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.07262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.08,
+      "score": 44.70798412916819
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.014578107879292451,
+      "total_return": 0.058312431517169805,
+      "max_drawdown": 0.027082258128597585,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.042783039215686276,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0266220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.04262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.05,
+      "score": 42.70656571313771
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.03207810787929245,
+      "total_return": 0.1283124315171698,
+      "max_drawdown": 0.05706807396829219,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.09278303921568629,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.0926242374727669,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.1,
+      "score": 40.710820961229324
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.01207810787929245,
+      "total_return": 0.0483124315171698,
+      "max_drawdown": 0.037077530075162575,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.042783039215686276,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0366220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.04262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.05,
+      "score": 38.70798412916821
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.023745831190839325,
+      "total_return": 0.0949833247633573,
+      "max_drawdown": 0.057068073968292284,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.15,
+      "score": 37.377910285848046
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.023745831190839325,
+      "total_return": 0.0949833247633573,
+      "max_drawdown": 0.057068073968292284,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.2,
+      "score": 37.377910285848046
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.023745831190839325,
+      "total_return": 0.0949833247633573,
+      "max_drawdown": 0.057068073968292284,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.25,
+      "score": 37.377910285848046
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.023745831190839325,
+      "total_return": 0.0949833247633573,
+      "max_drawdown": 0.057068073968292284,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.3,
+      "score": 37.377910285848046
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.022078107879292447,
+      "total_return": 0.08831243151716979,
+      "max_drawdown": 0.05706807396829221,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.07278303921568627,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.07262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.08,
+      "score": 36.71082096122932
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.00707810787929245,
+      "total_return": 0.0283124315171698,
+      "max_drawdown": 0.05706807396829223,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.042783039215686276,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.04262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.05,
+      "score": 30.71082096122931
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.024578107879292453,
+      "total_return": 0.09831243151716981,
+      "max_drawdown": 0.08705388980798695,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.09278303921568629,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0866220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.0926242374727669,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.1,
+      "score": 28.715076209320898
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.016245831190839326,
+      "total_return": 0.0649833247633573,
+      "max_drawdown": 0.08705388980798692,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0866220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.15,
+      "score": 25.382165533939652
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.016245831190839326,
+      "total_return": 0.0649833247633573,
+      "max_drawdown": 0.08705388980798692,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0866220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.2,
+      "score": 25.382165533939652
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.016245831190839326,
+      "total_return": 0.0649833247633573,
+      "max_drawdown": 0.08705388980798692,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0866220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.25,
+      "score": 25.382165533939652
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.016245831190839326,
+      "total_return": 0.0649833247633573,
+      "max_drawdown": 0.08705388980798692,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0866220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.3,
+      "score": 25.382165533939652
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.01457810787929245,
+      "total_return": 0.0583124315171698,
+      "max_drawdown": 0.08705388980798695,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.07278303921568627,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0866220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.07262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.08,
+      "score": 24.715076209320895
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.019578107879292456,
+      "total_return": 0.07831243151716982,
+      "max_drawdown": 0.10704443370111667,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.09278303921568629,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.0926242374727669,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.1,
+      "score": 22.831243151716983
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.011245831190839325,
+      "total_return": 0.0449833247633573,
+      "max_drawdown": 0.10704443370111658,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.15,
+      "score": 19.49833247633573
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.011245831190839325,
+      "total_return": 0.0449833247633573,
+      "max_drawdown": 0.10704443370111658,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.2,
+      "score": 19.49833247633573
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.011245831190839325,
+      "total_return": 0.0449833247633573,
+      "max_drawdown": 0.10704443370111658,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.25,
+      "score": 19.49833247633573
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.011245831190839325,
+      "total_return": 0.0449833247633573,
+      "max_drawdown": 0.10704443370111658,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.3,
+      "score": 19.49833247633573
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.009578107879292449,
+      "total_return": 0.038312431517169794,
+      "max_drawdown": 0.10704443370111662,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.07278303921568627,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.07262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.08,
+      "score": 18.83124315171698
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.0004218921207075482,
+      "total_return": -0.001687568482830193,
+      "max_drawdown": 0.08705388980798698,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.042783039215686276,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.0866220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.04262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.05,
+      "score": 18.715076209320888
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": 0.007078107879292455,
+      "total_return": 0.02831243151716982,
+      "max_drawdown": 0.15702079343394115,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.09278303921568629,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.0926242374727669,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.1,
+      "score": 17.831243151716983
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.0012541688091606724,
+      "total_return": -0.00501667523664269,
+      "max_drawdown": 0.15702079343394107,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.15,
+      "score": 14.498332476335731
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.0012541688091606724,
+      "total_return": -0.00501667523664269,
+      "max_drawdown": 0.15702079343394107,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.2,
+      "score": 14.498332476335731
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.0012541688091606724,
+      "total_return": -0.00501667523664269,
+      "max_drawdown": 0.15702079343394107,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.25,
+      "score": 14.498332476335731
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.0012541688091606724,
+      "total_return": -0.00501667523664269,
+      "max_drawdown": 0.15702079343394107,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.3,
+      "score": 14.498332476335731
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.0029218921207075504,
+      "total_return": -0.011687568482830202,
+      "max_drawdown": 0.15702079343394112,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.07278303921568627,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.07262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.08,
+      "score": 13.83124315171698
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.005421892120707553,
+      "total_return": -0.02168756848283021,
+      "max_drawdown": 0.10704443370111663,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.042783039215686276,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.04262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.05,
+      "score": 12.83124315171698
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.005421892120707549,
+      "total_return": -0.021687568482830197,
+      "max_drawdown": 0.20699715316676554,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.09278303921568629,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.2066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.0926242374727669,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.1,
+      "score": 12.83124315171698
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.013754168809160677,
+      "total_return": -0.055016675236642706,
+      "max_drawdown": 0.20699715316676556,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.2066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.15,
+      "score": 9.49833247633573
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.013754168809160677,
+      "total_return": -0.055016675236642706,
+      "max_drawdown": 0.20699715316676556,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.2066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.2,
+      "score": 9.49833247633573
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.013754168809160677,
+      "total_return": -0.055016675236642706,
+      "max_drawdown": 0.20699715316676556,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.2066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.25,
+      "score": 9.49833247633573
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.013754168809160677,
+      "total_return": -0.055016675236642706,
+      "max_drawdown": 0.20699715316676556,
+      "exit_reasons": {
+        "normal": 3,
+        "stop_loss": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.06007588235294133,
+          "exit_reason": "normal",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.2066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.09200228758169933,
+          "exit_reason": "normal",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.3,
+      "score": 9.49833247633573
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.015421892120707555,
+      "total_return": -0.06168756848283022,
+      "max_drawdown": 0.20699715316676554,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.07278303921568627,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.2066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.07262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.08,
+      "score": 8.83124315171698
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.01792189212070755,
+      "total_return": -0.0716875684828302,
+      "max_drawdown": 0.15702079343394112,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.042783039215686276,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.1566220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.04262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.05,
+      "score": 7.831243151716979
+    },
+    {
+      "total_trades": 4,
+      "winning_trades": 2,
+      "win_rate": 0.5,
+      "avg_return": -0.030421892120707554,
+      "total_return": -0.12168756848283022,
+      "max_drawdown": 0.20699715316676565,
+      "exit_reasons": {
+        "take_profit": 2,
+        "stop_loss": 1,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-03-31",
+          "original_return": 0.06729284313725506,
+          "simulated_return": 0.042783039215686276,
+          "exit_reason": "take_profit",
+          "max_return": 0.111764705882353,
+          "min_return": -0.019607843137254832
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-03-31",
+          "original_return": -0.052908369214208946,
+          "simulated_return": -0.2066220398277718,
+          "exit_reason": "stop_loss",
+          "max_return": 0.03336921420882663,
+          "min_return": -0.22820236813778258
+        },
+        {
+          "stock_id": "5701",
+          "entry_date": "2025-04-30",
+          "original_return": 0.006442986641221258,
+          "simulated_return": -0.00047280534351156617,
+          "exit_reason": "normal",
+          "max_return": 0.04198473282442743,
+          "min_return": 0.0
+        },
+        {
+          "stock_id": "8271",
+          "entry_date": "2025-04-30",
+          "original_return": 0.09937805010893244,
+          "simulated_return": 0.04262423747276689,
+          "exit_reason": "take_profit",
+          "max_return": 0.11111111111111115,
+          "min_return": -0.01960784313725487
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.05,
+      "score": 2.8312431517169774
+    }
+  ],
+  "analysis_stats": {
+    "total_combinations_tested": 49,
+    "best_score": 52.70656571313772,
+    "original_performance": {
+      "total_trades": 4,
+      "winning_trades": 3,
+      "win_rate": 0.75,
+      "avg_return": 0.030051377668299954,
+      "max_drawdown": 0.05290836921420888
+    }
+  }
+}

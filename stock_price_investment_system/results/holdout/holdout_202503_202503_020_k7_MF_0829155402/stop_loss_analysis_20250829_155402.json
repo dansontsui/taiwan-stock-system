@@ -1,0 +1,2179 @@
+{
+  "best_combination": {
+    "total_trades": 3,
+    "winning_trades": 0,
+    "win_rate": 0.0,
+    "avg_return": -0.026483933275001537,
+    "total_return": -0.07945179982500461,
+    "max_drawdown": 0.05257396248592356,
+    "exit_reasons": {
+      "stop_loss": 3
+    },
+    "simulated_trades": [
+      {
+        "stock_id": "8067",
+        "entry_date": "2025-03-31",
+        "original_return": -0.14462961538461538,
+        "simulated_return": -0.026168076923076922,
+        "exit_reason": "stop_loss",
+        "max_return": 0.009230769230769143,
+        "min_return": -0.21230769230769225
+      },
+      {
+        "stock_id": "8279",
+        "entry_date": "2025-03-31",
+        "original_return": -0.014874798387096773,
+        "simulated_return": -0.026810282258064515,
+        "exit_reason": "stop_loss",
+        "max_return": 0.024193548387096774,
+        "min_return": -0.125
+      },
+      {
+        "stock_id": "2442",
+        "entry_date": "2025-03-31",
+        "original_return": -0.08293219315895381,
+        "simulated_return": -0.02647344064386318,
+        "exit_reason": "stop_loss",
+        "max_return": 0.008048289738430555,
+        "min_return": -0.22132796780684103
+      }
+    ],
+    "stop_loss": 0.02,
+    "take_profit": 0.05,
+    "score": 3.634237944222317
+  },
+  "all_results": [
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.026483933275001537,
+      "total_return": -0.07945179982500461,
+      "max_drawdown": 0.05257396248592356,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.026168076923076922,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.026810282258064515,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.02647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.05,
+      "score": 3.634237944222317
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.026483933275001537,
+      "total_return": -0.07945179982500461,
+      "max_drawdown": 0.05257396248592356,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.026168076923076922,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.026810282258064515,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.02647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.08,
+      "score": 3.634237944222317
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.026483933275001537,
+      "total_return": -0.07945179982500461,
+      "max_drawdown": 0.05257396248592356,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.026168076923076922,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.026810282258064515,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.02647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.1,
+      "score": 3.634237944222317
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.026483933275001537,
+      "total_return": -0.07945179982500461,
+      "max_drawdown": 0.05257396248592356,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.026168076923076922,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.026810282258064515,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.02647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.15,
+      "score": 3.634237944222317
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.026483933275001537,
+      "total_return": -0.07945179982500461,
+      "max_drawdown": 0.05257396248592356,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.026168076923076922,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.026810282258064515,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.02647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.2,
+      "score": 3.634237944222317
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.026483933275001537,
+      "total_return": -0.07945179982500461,
+      "max_drawdown": 0.05257396248592356,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.026168076923076922,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.026810282258064515,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.02647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.25,
+      "score": 3.634237944222317
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.026483933275001537,
+      "total_return": -0.07945179982500461,
+      "max_drawdown": 0.05257396248592356,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.026168076923076922,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.026810282258064515,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.02647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.02,
+      "take_profit": 0.3,
+      "score": 3.634237944222317
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.03648393327500154,
+      "total_return": -0.10945179982500461,
+      "max_drawdown": 0.07194112525690428,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.03616807692307692,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.036810282258064514,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.03647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.05,
+      "score": -6.175910887071902
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.03648393327500154,
+      "total_return": -0.10945179982500461,
+      "max_drawdown": 0.07194112525690428,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.03616807692307692,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.036810282258064514,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.03647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.08,
+      "score": -6.175910887071902
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.03648393327500154,
+      "total_return": -0.10945179982500461,
+      "max_drawdown": 0.07194112525690428,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.03616807692307692,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.036810282258064514,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.03647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.1,
+      "score": -6.175910887071902
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.03648393327500154,
+      "total_return": -0.10945179982500461,
+      "max_drawdown": 0.07194112525690428,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.03616807692307692,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.036810282258064514,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.03647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.15,
+      "score": -6.175910887071902
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.03648393327500154,
+      "total_return": -0.10945179982500461,
+      "max_drawdown": 0.07194112525690428,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.03616807692307692,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.036810282258064514,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.03647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.2,
+      "score": -6.175910887071902
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.03648393327500154,
+      "total_return": -0.10945179982500461,
+      "max_drawdown": 0.07194112525690428,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.03616807692307692,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.036810282258064514,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.03647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.25,
+      "score": -6.175910887071902
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.03648393327500154,
+      "total_return": -0.10945179982500461,
+      "max_drawdown": 0.07194112525690428,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.03616807692307692,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.036810282258064514,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.03647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.03,
+      "take_profit": 0.3,
+      "score": -6.175910887071902
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.05648393327500154,
+      "total_return": -0.16945179982500463,
+      "max_drawdown": 0.11007545079886574,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.056168076923076925,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.05681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.056473440643863185,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.05,
+      "score": -22.593573310000618
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.05648393327500154,
+      "total_return": -0.16945179982500463,
+      "max_drawdown": 0.11007545079886574,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.056168076923076925,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.05681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.056473440643863185,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.08,
+      "score": -22.593573310000618
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.05648393327500154,
+      "total_return": -0.16945179982500463,
+      "max_drawdown": 0.11007545079886574,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.056168076923076925,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.05681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.056473440643863185,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.1,
+      "score": -22.593573310000618
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.05648393327500154,
+      "total_return": -0.16945179982500463,
+      "max_drawdown": 0.11007545079886574,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.056168076923076925,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.05681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.056473440643863185,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.15,
+      "score": -22.593573310000618
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.05648393327500154,
+      "total_return": -0.16945179982500463,
+      "max_drawdown": 0.11007545079886574,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.056168076923076925,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.05681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.056473440643863185,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.2,
+      "score": -22.593573310000618
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.05648393327500154,
+      "total_return": -0.16945179982500463,
+      "max_drawdown": 0.11007545079886574,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.056168076923076925,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.05681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.056473440643863185,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.25,
+      "score": -22.593573310000618
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.05648393327500154,
+      "total_return": -0.16945179982500463,
+      "max_drawdown": 0.11007545079886574,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.056168076923076925,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.05681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.056473440643863185,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.05,
+      "take_profit": 0.3,
+      "score": -22.593573310000618
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.08648393327500155,
+      "total_return": -0.25945179982500466,
+      "max_drawdown": 0.16577693911180796,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.08616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.08681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.08647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.05,
+      "score": -34.59357331000062
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.08648393327500155,
+      "total_return": -0.25945179982500466,
+      "max_drawdown": 0.16577693911180796,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.08616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.08681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.08647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.08,
+      "score": -34.59357331000062
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.08648393327500155,
+      "total_return": -0.25945179982500466,
+      "max_drawdown": 0.16577693911180796,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.08616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.08681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.08647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.1,
+      "score": -34.59357331000062
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.08648393327500155,
+      "total_return": -0.25945179982500466,
+      "max_drawdown": 0.16577693911180796,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.08616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.08681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.08647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.15,
+      "score": -34.59357331000062
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.08648393327500155,
+      "total_return": -0.25945179982500466,
+      "max_drawdown": 0.16577693911180796,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.08616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.08681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.08647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.2,
+      "score": -34.59357331000062
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.08648393327500155,
+      "total_return": -0.25945179982500466,
+      "max_drawdown": 0.16577693911180796,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.08616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.08681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.08647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.25,
+      "score": -34.59357331000062
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.08648393327500155,
+      "total_return": -0.25945179982500466,
+      "max_drawdown": 0.16577693911180796,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.08616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.08681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.08647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.08,
+      "take_profit": 0.3,
+      "score": -34.59357331000062
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.10648393327500154,
+      "total_return": -0.3194517998250046,
+      "max_drawdown": 0.20191126465376952,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.10616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.10681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.10647344064386319,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.05,
+      "score": -42.593573310000615
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.10648393327500154,
+      "total_return": -0.3194517998250046,
+      "max_drawdown": 0.20191126465376952,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.10616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.10681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.10647344064386319,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.08,
+      "score": -42.593573310000615
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.10648393327500154,
+      "total_return": -0.3194517998250046,
+      "max_drawdown": 0.20191126465376952,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.10616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.10681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.10647344064386319,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.1,
+      "score": -42.593573310000615
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.10648393327500154,
+      "total_return": -0.3194517998250046,
+      "max_drawdown": 0.20191126465376952,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.10616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.10681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.10647344064386319,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.15,
+      "score": -42.593573310000615
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.10648393327500154,
+      "total_return": -0.3194517998250046,
+      "max_drawdown": 0.20191126465376952,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.10616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.10681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.10647344064386319,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.2,
+      "score": -42.593573310000615
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.10648393327500154,
+      "total_return": -0.3194517998250046,
+      "max_drawdown": 0.20191126465376952,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.10616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.10681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.10647344064386319,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.25,
+      "score": -42.593573310000615
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.10648393327500154,
+      "total_return": -0.3194517998250046,
+      "max_drawdown": 0.20191126465376952,
+      "exit_reasons": {
+        "stop_loss": 3
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.10616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.10681028225806452,
+          "exit_reason": "stop_loss",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.10647344064386319,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.1,
+      "take_profit": 0.3,
+      "score": -42.593573310000615
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.11144219940403378,
+      "total_return": -0.33432659821210137,
+      "max_drawdown": 0.17476538210983644,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.1561680769230769,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.15647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.05,
+      "score": -44.57687976161352
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.11144219940403378,
+      "total_return": -0.33432659821210137,
+      "max_drawdown": 0.17476538210983644,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.1561680769230769,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.15647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.08,
+      "score": -44.57687976161352
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.11144219940403378,
+      "total_return": -0.33432659821210137,
+      "max_drawdown": 0.17476538210983644,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.1561680769230769,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.15647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.1,
+      "score": -44.57687976161352
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.11144219940403378,
+      "total_return": -0.33432659821210137,
+      "max_drawdown": 0.17476538210983644,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.1561680769230769,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.15647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.15,
+      "score": -44.57687976161352
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.11144219940403378,
+      "total_return": -0.33432659821210137,
+      "max_drawdown": 0.17476538210983644,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.1561680769230769,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.15647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.2,
+      "score": -44.57687976161352
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.11144219940403378,
+      "total_return": -0.33432659821210137,
+      "max_drawdown": 0.17476538210983644,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.1561680769230769,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.15647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.25,
+      "score": -44.57687976161352
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.11144219940403378,
+      "total_return": -0.33432659821210137,
+      "max_drawdown": 0.17476538210983644,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.1561680769230769,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.15647344064386318,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.15,
+      "take_profit": 0.3,
+      "score": -44.57687976161352
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.14477553273736712,
+      "total_return": -0.4343265982121014,
+      "max_drawdown": 0.2236811280775784,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.20616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.2064734406438632,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.05,
+      "score": -57.91021309494685
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.14477553273736712,
+      "total_return": -0.4343265982121014,
+      "max_drawdown": 0.2236811280775784,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.20616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.2064734406438632,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.08,
+      "score": -57.91021309494685
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.14477553273736712,
+      "total_return": -0.4343265982121014,
+      "max_drawdown": 0.2236811280775784,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.20616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.2064734406438632,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.1,
+      "score": -57.91021309494685
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.14477553273736712,
+      "total_return": -0.4343265982121014,
+      "max_drawdown": 0.2236811280775784,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.20616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.2064734406438632,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.15,
+      "score": -57.91021309494685
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.14477553273736712,
+      "total_return": -0.4343265982121014,
+      "max_drawdown": 0.2236811280775784,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.20616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.2064734406438632,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.2,
+      "score": -57.91021309494685
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.14477553273736712,
+      "total_return": -0.4343265982121014,
+      "max_drawdown": 0.2236811280775784,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.20616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.2064734406438632,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.25,
+      "score": -57.91021309494685
+    },
+    {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.14477553273736712,
+      "total_return": -0.4343265982121014,
+      "max_drawdown": 0.2236811280775784,
+      "exit_reasons": {
+        "stop_loss": 2,
+        "normal": 1
+      },
+      "simulated_trades": [
+        {
+          "stock_id": "8067",
+          "entry_date": "2025-03-31",
+          "original_return": -0.14462961538461538,
+          "simulated_return": -0.20616807692307693,
+          "exit_reason": "stop_loss",
+          "max_return": 0.009230769230769143,
+          "min_return": -0.21230769230769225
+        },
+        {
+          "stock_id": "8279",
+          "entry_date": "2025-03-31",
+          "original_return": -0.014874798387096773,
+          "simulated_return": -0.021685080645161288,
+          "exit_reason": "normal",
+          "max_return": 0.024193548387096774,
+          "min_return": -0.125
+        },
+        {
+          "stock_id": "2442",
+          "entry_date": "2025-03-31",
+          "original_return": -0.08293219315895381,
+          "simulated_return": -0.2064734406438632,
+          "exit_reason": "stop_loss",
+          "max_return": 0.008048289738430555,
+          "min_return": -0.22132796780684103
+        }
+      ],
+      "stop_loss": 0.2,
+      "take_profit": 0.3,
+      "score": -57.91021309494685
+    }
+  ],
+  "analysis_stats": {
+    "total_combinations_tested": 49,
+    "best_score": 3.634237944222317,
+    "original_performance": {
+      "total_trades": 3,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "avg_return": -0.08081220231022199,
+      "max_drawdown": 0.0965733918930115
+    }
+  }
+}
